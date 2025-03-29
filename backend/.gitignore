@@ -1,0 +1,55 @@
+
+# Thư mục build của Maven
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven Wrapper (giữ lại file cần thiết)
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Eclipse & Spring Tool Suite (STS)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Visual Studio Code
+.vscode/
+
+# Các file hệ thống không cần thiết
+*.log
+*.cache
+*.DS_Store
+*.bak
+Thumbs.db
+
+# Java & Maven build files
+*.class
+*.jar
+*.war
+*.ear
+*.out
+*.lock
+
+.env
+
