@@ -51,14 +51,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserResponse getUserByEmail(String email) {
 		return userMapper.toUserResponse(userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("User not found with email: " + email)));
+				.orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED)));
 	}
 
 	@Override
 	public UserResponse createUser(UserCreateRequest userRequest) {
 		// return userRepository.save(user);
 		if (userRepository.existsByEmail(userRequest.getEmail())) {
-			throw new RuntimeException("Email already exists");
+			throw new AppException(ErrorCode.EMAIL_EXISTED);
 		}
 		User newuser = userMapper.toUser(userRequest);
 		newuser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserResponse updateUser(String id, UserUpdateRequest userRequest) {
-		User updatedUser = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+		User updatedUser = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EMAIL_EXISTED));
 		userMapper.updateUser(updatedUser, userRequest);
 		updatedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		var roles = roleRepository.findAllById(userRequest.getRoles());
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
 		var context = SecurityContextHolder.getContext();
 		String email = context.getAuthentication().getName();
 		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+				.orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
 		return userMapper.toUserResponse(user);
 	}
 }

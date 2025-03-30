@@ -24,6 +24,7 @@ import com.prediction.backend.dto.response.AuthenticationResponse;
 import com.prediction.backend.dto.response.IntrospectResponse;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
+import com.prediction.backend.mapper.UserMapper;
 import com.prediction.backend.models.InvalidatedToken;
 import com.prediction.backend.models.User;
 import com.prediction.backend.repositories.InvalidateRepository;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
     InvalidateRepository invalidateRepository;
+    UserMapper userMapper;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -77,18 +79,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+        var user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated) {
-            throw new RuntimeException("Invalid password");
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
         }
 
         var token = generateToken(user);
         return AuthenticationResponse.builder()
+                .user(userMapper.toUserResponse(user))
                 .token(token)
-                .authenticated(true)
                 .build();
     }
 
@@ -110,6 +113,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             jwsObject.sign(new MACSigner(SIGNING_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
+            log.error("Cannot create token", e);
             throw new RuntimeException("Error signing token", e);
         }
     }
@@ -177,7 +181,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var newToken = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(newToken)
-                .authenticated(true)
                 .build();
     }
 }
