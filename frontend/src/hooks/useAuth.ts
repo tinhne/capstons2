@@ -1,21 +1,25 @@
-import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
-import { RootState, AppDispatch } from '../redux/store';
-import { login, logout } from '../features/auth/redux/authSlice';
-import { LoginCredentials } from '../features/auth/types';
-
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { RootState, AppDispatch } from "../redux/store";
+import { logoutUser } from "../features/auth/redux/authSlice";
 
 export const useAuth = () => {
-  const dispatch = useAppDispatch();
-  const auth = useAppSelector((state) => state.auth);
+  const authState = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-  const loginUser = (credentials: LoginCredentials) => dispatch(login(credentials));
-  const logoutUser = () => dispatch(logout());
+  const logout = async (redirectTo = "/auth") => {
+    await dispatch(logoutUser());
+    navigate(redirectTo);
+  };
+
+  const isAdmin = authState.user?.role === "ROLE_ADMIN";
+  const isAuthenticated = authState.isAuthenticated;
 
   return {
-    ...auth,
-    loginUser,
-    logoutUser,
+    ...authState,
+    logout,
+    isAdmin,
+    isAuthenticated,
   };
 };

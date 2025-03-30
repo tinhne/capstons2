@@ -12,21 +12,43 @@ export interface Role {
 export interface User {
   id: string;
   email: string;
-  name: string;
-  age: number;
-  gender: string;
-  address: string;
-  district: string;
-  city: string;
-  roles: Role[];
+  name?: string; // Make name optional
+  role: string;
+  age?: number;
+  gender?: string;
+  address?: string;
+  district?: string;
+  city?: string;
+  phone?: string;
+  avatar?: string;
+  status?: string;
+  createdAt?: string;
+  roles?: Role[];
+}
+
+export interface TokenPayload {
+  sub: string;
+  scope: string;
+  iss: string;
+  exp: number;
+  iat: number;
+  jti: string;
 }
 
 export interface LoginResponse {
-  code: number;
-  result: {
-    user: User;
+  status: number;
+  data: {
     token: string;
+    authenticated: boolean;
   };
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface LoginCredentials {

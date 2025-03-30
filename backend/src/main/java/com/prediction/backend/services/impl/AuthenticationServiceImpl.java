@@ -90,8 +90,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         var token = generateToken(user);
         return AuthenticationResponse.builder()
-                .user(userMapper.toUserResponse(user))
                 .token(token)
+                .authenticated(true)
                 .build();
     }
 
@@ -181,6 +181,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var newToken = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(newToken)
+                .authenticated(true)
                 .build();
     }
 }

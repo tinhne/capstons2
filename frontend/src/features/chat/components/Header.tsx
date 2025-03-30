@@ -8,9 +8,7 @@ import { useAuth } from "../../../hooks/useAuth"; // Import useAuth hook
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { auth, logout } = useAuth(); // Sử dụng hook useAuth
-  const { token, role } = auth; // Lấy thông tin từ auth state
-  const { profile } = useSelector((state: RootState) => state.user);
+  const { logout, user } = useAuth(); // Get user from useAuth as well
 
   // State cho dropdown menu
   const [showDropdown, setShowDropdown] = useState(false);
@@ -46,6 +44,9 @@ const Header: React.FC = () => {
     navigate("/user/profile");
   }
 
+  // Determine if the user is logged in using both profile and auth state
+  const isLoggedIn = user && user.id;
+
   return (
     <header className="w-full h-full text-white flex items-center justify-between px-6 py-2 shadow-md">
       {/* Logo */}
@@ -56,23 +57,23 @@ const Header: React.FC = () => {
 
       {/* Conditional rendering based on authentication state */}
       <div className="flex space-x-4">
-        {token ? (
+        {isLoggedIn ? (
           // User is logged in - show avatar and dropdown
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center space-x-2 focus:outline-none"
             >
-              {profile?.avatar ? (
+              {user?.avatar ? (
                 <img
-                  src={profile.avatar}
+                  src={user.avatar}
                   alt="User avatar"
                   className="h-10 w-10 rounded-full object-cover border-2 border-white"
                 />
               ) : (
                 <FaUserCircle className="h-10 w-10 text-white" />
               )}
-              <span className="font-medium">{profile?.name || "User"}</span>
+              <span className="font-medium">{user?.name || "User"}</span>
             </button>
 
             {/* Dropdown menu */}
@@ -84,14 +85,6 @@ const Header: React.FC = () => {
                 >
                   Profile
                 </button>
-                {role === "admin" && (
-                  <button
-                    onClick={() => navigate("/admin/dashboard")}
-                    className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </button>
-                )}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"

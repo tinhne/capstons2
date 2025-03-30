@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { RootState } from "../../../redux/store";
-import { useAuth } from "../../../hooks/useAuth";
+import { loginUser } from "../redux/authSlice";
+import { AppDispatch, RootState } from "../../../redux/store";
 
 // SVG Google icon component
 const GoogleIcon = () => (
@@ -38,25 +38,35 @@ const GoogleIcon = () => (
 );
 
 const LoginForm: React.FC = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const { loginUser, error, loading, token, roles } = useAuth(); // Add roles here
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // Add effect to handle redirection based on role
+  const { isAuthenticated, loading, error, user } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  // Effect to handle redirection based on authentication status and role
   useEffect(() => {
-    if (token && roles && roles.length > 0) {
-      if (roles.includes("ROLE_ADMIN")) {
-        navigate("/admin");
-      } else if (roles.includes("ROLE_USER")) {
-        navigate("/chatbot");
+    if (isAuthenticated && user) {
+      // Check if user has admin role
+      if (user.role === "ROLE_ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate(`/user/chatbot/${user.id}`);
       }
     }
-  }, [token, roles, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginUser(form);
-    // The redirection will be handled by the useEffect
+
+    if (!email || !password) {
+      return;
+    }
+
+    dispatch(loginUser({ email, password }));
   };
 
   return (
@@ -108,8 +118,8 @@ const LoginForm: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   name="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -126,10 +136,8 @@ const LoginForm: React.FC = () => {
                   autoComplete="current-password"
                   className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600"
                   name="password"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
@@ -141,7 +149,10 @@ const LoginForm: React.FC = () => {
               <button
                 className="bg-white text-zinc-950 hover:bg-white/90 active:bg-white/80 mt-2 rounded-lg px-4 py-4 text-base font-medium transition-colors disabled:opacity-50"
                 type="submit"
-              />
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign in"}
+              </button>
             </div>
           </form>
 

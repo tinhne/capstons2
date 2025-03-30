@@ -52,4 +52,4 @@ Thumbs.db
 *.lock
 
 .env
-application.properties
+*.properties

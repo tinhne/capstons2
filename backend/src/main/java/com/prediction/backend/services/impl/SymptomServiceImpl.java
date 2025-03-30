@@ -1,60 +1,113 @@
 package com.prediction.backend.services.impl;
 
+import com.prediction.backend.dto.response.SymptomResponse;
+import com.prediction.backend.exceptions.AppException;
+import com.prediction.backend.exceptions.ErrorCode;
 import com.prediction.backend.models.Symptom;
 import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.services.SymptomService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the SymptomService interface.
- * Provides business logic for managing symptom data by interacting with the SymptomRepository.
+ * Provides business logic for managing symptom data.
  */
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class SymptomServiceImpl implements SymptomService {
 
     private final SymptomRepository symptomRepository;
 
     /**
-     * Constructs a SymptomServiceImpl with the required SymptomRepository.
-     *
-     * @param symptomRepository the repository for accessing symptom data
+     * Retrieves all symptoms from the database and converts them to DTO format.
      */
-    @Autowired
-    public SymptomServiceImpl(SymptomRepository symptomRepository) {
-        this.symptomRepository = symptomRepository;
+    @Override
+    public List<SymptomResponse> getAllSymptoms() {
+        log.info("Retrieving all symptoms");
+        List<Symptom> symptoms = symptomRepository.findAll();
+        return symptoms.stream()
+                .map(SymptomResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a symptom by its unique identifier and converts it to DTO format.
+     */
     @Override
-    public List<Symptom> getAllSymptoms() {
-        return symptomRepository.findAll();
+    public SymptomResponse getSymptomById(String symptomId) {
+        log.info("Retrieving symptom with ID: {}", symptomId);
+
+        return symptomRepository.findById(symptomId)
+                .map(SymptomResponse::fromEntity)
+                .orElseThrow(() -> new AppException(ErrorCode.SYMPTOM_NOT_FOUND));
     }
 
+    /**
+     * Retrieves symptoms by their English name, ignoring case sensitivity, and
+     * converts to DTO format.
+     */
     @Override
-    public Optional<Symptom> getSymptomById(String symptomId) {
-        return symptomRepository.findById(symptomId);
+    public List<SymptomResponse> getSymptomsByNameEn(String nameEn) {
+        log.info("Searching for symptoms with English name: {}", nameEn);
+
+        List<Symptom> symptoms = symptomRepository.findByNameEnIgnoreCase(nameEn);
+        return symptoms.stream()
+                .map(SymptomResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves symptoms by their Vietnamese name, ignoring case sensitivity, and
+     * converts to DTO format.
+     */
     @Override
-    public List<Symptom> getSymptomsByNameEn(String nameEn) {
-        return symptomRepository.findByNameEnIgnoreCase(nameEn);
+    public List<SymptomResponse> getSymptomsByNameVn(String nameVn) {
+        log.info("Searching for symptoms with Vietnamese name: {}", nameVn);
+
+        List<Symptom> symptoms = symptomRepository.findByNameVnIgnoreCase(nameVn);
+        return symptoms.stream()
+                .map(SymptomResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves symptoms by their frequency of occurrence and converts to DTO
+     * format.
+     */
     @Override
-    public List<Symptom> getSymptomsByNameVn(String nameVn) {
-        return symptomRepository.findByNameVnIgnoreCase(nameVn);
+    public List<SymptomResponse> getSymptomsByFrequency(String frequency) {
+        log.info("Searching for symptoms with frequency: {}", frequency);
+
+        // Validate the frequency value before processing
+        try {
+            Symptom.Frequency frequencyEnum = Symptom.Frequency.valueOf(frequency.toUpperCase());
+            List<Symptom> symptoms = symptomRepository.findByFrequency(frequencyEnum);
+            return symptoms.stream()
+                    .map(SymptomResponse::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid frequency value: {}", frequency);
+            throw new AppException(ErrorCode.INVALID_FREQUENCY_VALUE);
+        }
     }
 
+    /**
+     * Retrieves symptoms by searching for a keyword within their synonyms and
+     * converts to DTO format.
+     */
     @Override
-    public List<Symptom> getSymptomsByFrequency(Symptom.Frequency frequency) {
-        return symptomRepository.findByFrequency(frequency);
-    }
+    public List<SymptomResponse> getSymptomsBySynonym(String keyword) {
+        log.info("Searching for symptoms with synonym containing: {}", keyword);
 
-    @Override
-    public List<Symptom> getSymptomsBySynonym(String keyword) {
-        return symptomRepository.findBySynonymContaining(keyword);
+        List<Symptom> symptoms = symptomRepository.findBySynonymContaining(keyword);
+        return symptoms.stream()
+                .map(SymptomResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 }

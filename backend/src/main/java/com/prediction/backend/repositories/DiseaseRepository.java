@@ -9,13 +9,15 @@ import java.util.List;
 
 /**
  * Repository interface for managing Disease entities.
- * Provides basic CRUD operations and custom query methods for the 'diseases' table.
+ * Provides basic CRUD operations and custom query methods for the 'diseases'
+ * table.
  */
 @Repository
 public interface DiseaseRepository extends JpaRepository<Disease, String> {
 
     /**
-     * Retrieves a list of diseases by their English name, ignoring case sensitivity.
+     * Retrieves a list of diseases by their English name, ignoring case
+     * sensitivity.
      *
      * @param nameEn the English name of the disease to search for
      * @return a list of diseases matching the provided English name
@@ -23,7 +25,8 @@ public interface DiseaseRepository extends JpaRepository<Disease, String> {
     List<Disease> findByNameEnIgnoreCase(String nameEn);
 
     /**
-     * Retrieves a list of diseases by their Vietnamese name, ignoring case sensitivity.
+     * Retrieves a list of diseases by their Vietnamese name, ignoring case
+     * sensitivity.
      *
      * @param nameVn the Vietnamese name of the disease to search for
      * @return a list of diseases matching the provided Vietnamese name
@@ -31,14 +34,15 @@ public interface DiseaseRepository extends JpaRepository<Disease, String> {
     List<Disease> findByNameVnIgnoreCase(String nameVn);
 
     /**
-     * Retrieves a list of disease by both Vietnamese and English name, ignoring case sensitivity.
+     * Retrieves a list of disease by both Vietnamese and English name, ignoring
+     * case sensitivity.
      * 
      * @param keyword
      * @return a list of diseases matching the provided keyword.
      */
     @Query("SELECT d FROM Disease d WHERE LOWER(d.nameEn) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(d.nameVn) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Disease> searchByKeyword(@Param("keyword") String keyword);
-    
+
     /**
      * Retrieves a list of diseases by their severity level.
      *
@@ -54,5 +58,5 @@ public interface DiseaseRepository extends JpaRepository<Disease, String> {
      * @return a list of diseases related to the specified specialization
      */
     List<Disease> findBySpecialization(String specialization);
-    
+
 }

@@ -44,6 +44,13 @@ frontend/
   │   │   │   │── authSlice.ts
   │   │   │── types.ts         Định nghĩa kiểu dữ liệu cho Auth
   │   │   │── AuthPage.tsx
+  │   │── uers/             
+  │   │   │── components/
+  │   │   │── services/
+  │   │   │   │── chatService.ts
+  │   │   │── redux/
+  │   │   │   │── UserSlice.ts
+  │   │   │── types.ts
   │   │── chat/               Tính năng chatbot / nhắn tin
   │   │   │── components/
   │   │   │   │── ChatBox.tsx

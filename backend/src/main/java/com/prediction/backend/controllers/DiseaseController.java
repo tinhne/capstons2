@@ -1,8 +1,13 @@
 package com.prediction.backend.controllers;
 
+import com.prediction.backend.dto.request.DiseaseRequest;
 import com.prediction.backend.dto.response.ApiResponse;
+import com.prediction.backend.dto.response.DiseaseResponse;
+import com.prediction.backend.exceptions.AppException;
+import com.prediction.backend.exceptions.ErrorCode;
 import com.prediction.backend.models.Disease;
 import com.prediction.backend.services.DiseaseService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +18,6 @@ import java.util.Optional;
 
 /**
  * REST controller for managing disease-related operations.
- * Provides endpoints to retrieve disease data based on various criteria.
  */
 @RestController
 @RequestMapping("/api")
@@ -21,128 +25,163 @@ public class DiseaseController {
 
     private final DiseaseService diseaseService;
 
-    /**
-     * Constructs a DiseaseController with the required DiseaseService.
-     *
-     * @param diseaseService the service for handling disease-related business logic
-     */
     @Autowired
     public DiseaseController(DiseaseService diseaseService) {
         this.diseaseService = diseaseService;
     }
 
     /**
-     * Retrieves a list of all diseases.
-     *
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases")
-     * @return ResponseEntity containing an ApiResponse with the list of all diseases
+     * Lấy danh sách tất cả các bệnh
      */
     @GetMapping("/diseases")
-    public ResponseEntity<ApiResponse<List<Disease>>> getAllDiseases(
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases") String path) {
+    public ApiResponse<List<Disease>> getAllDiseases() {
         List<Disease> diseases = diseaseService.getAllDiseases();
-        ApiResponse<List<Disease>> response = ApiResponse.success(diseases, path);
-        return ResponseEntity.ok(response);
+
+        return ApiResponse.<List<Disease>>builder()
+                .status(1000)
+                .message("Đã tìm thấy " + diseases.size() + " bệnh")
+                .data(diseases)
+                .build();
     }
 
     /**
-     * Retrieves a disease by its unique identifier.
-     *
-     * @param diseaseId the unique identifier of the disease
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases/{id}")
-     * @return ResponseEntity containing an ApiResponse with the disease details or an error if not found
+     * Lấy thông tin chi tiết của một bệnh theo ID
      */
     @GetMapping("/diseases/{id}")
-    public ResponseEntity<ApiResponse<Disease>> getDiseaseById(
-            @PathVariable("id") String diseaseId,
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases/{id}") String path) {
-        Optional<Disease> disease = diseaseService.getDiseaseById(diseaseId);
-        if (disease.isPresent()) {
-            ApiResponse<Disease> response = ApiResponse.success(disease.get(), path);
-            return ResponseEntity.ok(response);
-        } else {
-            ApiResponse<Disease> errorResponse = ApiResponse.error(
-                    HttpStatus.NOT_FOUND,
-                    "DISEASE_NOT_FOUND",
-                    "Disease with ID " + diseaseId + " not found",
-                    path
-            );
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    public ApiResponse<DiseaseResponse> getDiseaseById(@PathVariable("id") String diseaseId) {
+        try {
+            DiseaseResponse disease = diseaseService.getDiseaseDetailsById(diseaseId);
+
+            return ApiResponse.<DiseaseResponse>builder()
+                    .status(1000)
+                    .message("Đã tìm thấy bệnh")
+                    .data(disease)
+                    .build();
+        } catch (AppException e) {
+            throw e;
         }
     }
 
     /**
-     * Retrieves diseases by their English name.
-     *
-     * @param name the English name to search for
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases/name-en/{name}")
-     * @return ResponseEntity containing an ApiResponse with the list of matching diseases
+     * Tìm bệnh theo tên tiếng Anh
      */
     @GetMapping("/diseases/name-en/{name}")
-    public ResponseEntity<ApiResponse<List<Disease>>> getDiseasesByNameEn(
-            @PathVariable("name") String name,
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases/name-en/{name}") String path) {
+    public ApiResponse<List<Disease>> getDiseasesByNameEn(@PathVariable("name") String name) {
         List<Disease> diseases = diseaseService.getDiseasesByNameEn(name);
-        ApiResponse<List<Disease>> response = ApiResponse.success(diseases, path);
-        return ResponseEntity.ok(response);
+
+        return ApiResponse.<List<Disease>>builder()
+                .status(1000)
+                .message("Tìm thấy " + diseases.size() + " bệnh theo tên tiếng Anh: " + name)
+                .data(diseases)
+                .build();
     }
 
     /**
-     * Retrieves diseases by their Vietnamese name.
-     *
-     * @param name the Vietnamese name to search for
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases/name-vn/{name}")
-     * @return ResponseEntity containing an ApiResponse with the list of matching diseases
+     * Tìm bệnh theo tên tiếng Việt
      */
     @GetMapping("/diseases/name-vn/{name}")
-    public ResponseEntity<ApiResponse<List<Disease>>> getDiseasesByNameVn(
-            @PathVariable("name") String name,
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases/name-vn/{name}") String path) {
+    public ApiResponse<List<Disease>> getDiseasesByNameVn(@PathVariable("name") String name) {
         List<Disease> diseases = diseaseService.getDiseasesByNameVn(name);
-        ApiResponse<List<Disease>> response = ApiResponse.success(diseases, path);
-        return ResponseEntity.ok(response);
+
+        return ApiResponse.<List<Disease>>builder()
+                .status(1000)
+                .message("Tìm thấy " + diseases.size() + " bệnh theo tên tiếng Việt: " + name)
+                .data(diseases)
+                .build();
     }
 
     /**
-     * Retrieves diseases by their severity level.
-     *
-     * @param severity the severity level to filter by (e.g., "LOW", "MEDIUM", "HIGH")
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases/severity/{severity}")
-     * @return ResponseEntity containing an ApiResponse with the list of matching diseases
+     * Tìm kiếm bệnh theo từ khóa
+     */
+    @GetMapping("/diseases/search")
+    public ApiResponse<List<Disease>> searchDiseases(@RequestParam("keyword") String keyword) {
+        List<Disease> diseases = diseaseService.searchDiseases(keyword);
+
+        return ApiResponse.<List<Disease>>builder()
+                .status(1000)
+                .message("Tìm thấy " + diseases.size() + " bệnh theo từ khóa: " + keyword)
+                .data(diseases)
+                .build();
+    }
+
+    /**
+     * Tìm bệnh theo mức độ nghiêm trọng
      */
     @GetMapping("/diseases/severity/{severity}")
-    public ResponseEntity<ApiResponse<List<Disease>>> getDiseasesBySeverity(
-            @PathVariable("severity") String severity,
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases/severity/{severity}") String path) {
+    public ApiResponse<List<Disease>> getDiseasesBySeverity(@PathVariable("severity") String severity) {
         try {
             Disease.Severity severityEnum = Disease.Severity.valueOf(severity.toUpperCase());
             List<Disease> diseases = diseaseService.getDiseasesBySeverity(severityEnum);
-            ApiResponse<List<Disease>> response = ApiResponse.success(diseases, path);
-            return ResponseEntity.ok(response);
+
+            return ApiResponse.<List<Disease>>builder()
+                    .status(1000)
+                    .message("Tìm thấy " + diseases.size() + " bệnh với mức độ nghiêm trọng: " + severity)
+                    .data(diseases)
+                    .build();
         } catch (IllegalArgumentException e) {
-            ApiResponse<List<Disease>> errorResponse = ApiResponse.error(
-                    HttpStatus.BAD_REQUEST,
-                    "INVALID_SEVERITY",
-                    "Invalid severity value: " + severity,
-                    path
-            );
-            return ResponseEntity.badRequest().body(errorResponse);
+            throw new AppException(ErrorCode.INVALID_SEVERITY);
         }
     }
 
     /**
-     * Retrieves diseases by their associated medical specialization.
-     *
-     * @param specialization the medical specialization to filter by
-     * @param path the request path, retrieved from the X-Request-Path header (defaults to "/api/diseases/specialization/{specialization}")
-     * @return ResponseEntity containing an ApiResponse with the list of matching diseases
+     * Tìm bệnh theo chuyên khoa
      */
     @GetMapping("/diseases/specialization/{specialization}")
-    public ResponseEntity<ApiResponse<List<Disease>>> getDiseasesBySpecialization(
-            @PathVariable("specialization") String specialization,
-            @RequestHeader(value = "X-Request-Path", defaultValue = "/api/diseases/specialization/{specialization}") String path) {
+    public ApiResponse<List<Disease>> getDiseasesBySpecialization(
+            @PathVariable("specialization") String specialization) {
         List<Disease> diseases = diseaseService.getDiseasesBySpecialization(specialization);
-        ApiResponse<List<Disease>> response = ApiResponse.success(diseases, path);
-        return ResponseEntity.ok(response);
+
+        return ApiResponse.<List<Disease>>builder()
+                .status(1000)
+                .message("Tìm thấy " + diseases.size() + " bệnh theo chuyên khoa: " + specialization)
+                .data(diseases)
+                .build();
+    }
+
+    /**
+     * Tạo bệnh mới
+     */
+    @PostMapping("/diseases")
+    public ResponseEntity<ApiResponse<DiseaseResponse>> createDisease(
+            @Valid @RequestBody DiseaseRequest diseaseRequest) {
+        DiseaseResponse diseaseResponse = diseaseService.createDisease(diseaseRequest);
+
+        ApiResponse<DiseaseResponse> response = ApiResponse.<DiseaseResponse>builder()
+                .status(1000)
+                .message("Tạo bệnh mới thành công")
+                .data(diseaseResponse)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Cập nhật thông tin bệnh
+     */
+    @PutMapping("/diseases/{id}")
+    public ApiResponse<DiseaseResponse> updateDisease(
+            @PathVariable("id") String diseaseId,
+            @Valid @RequestBody DiseaseRequest diseaseRequest) {
+
+        DiseaseResponse diseaseResponse = diseaseService.updateDisease(diseaseId, diseaseRequest);
+
+        return ApiResponse.<DiseaseResponse>builder()
+                .status(1000)
+                .message("Cập nhật bệnh thành công")
+                .data(diseaseResponse)
+                .build();
+    }
+
+    /**
+     * Xóa bệnh
+     */
+    @DeleteMapping("/diseases/{id}")
+    public ApiResponse<Void> deleteDisease(@PathVariable("id") String diseaseId) {
+        diseaseService.deleteDisease(diseaseId);
+
+        return ApiResponse.<Void>builder()
+                .status(1000)
+                .message("Đã xóa bệnh thành công")
+                .build();
     }
 }

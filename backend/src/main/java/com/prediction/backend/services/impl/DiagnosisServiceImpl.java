@@ -7,6 +7,11 @@ import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.repositories.DiseaseRepository;
 import com.prediction.backend.services.DiagnosisService;
 import com.prediction.backend.dto.DiseaseMatchDTO;
+import com.prediction.backend.dto.request.DiagnosisRequest;
+import com.prediction.backend.dto.response.DiagnosisResponse;
+import com.prediction.backend.exceptions.AppException;
+import com.prediction.backend.exceptions.ErrorCode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,47 +32,82 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     private final DiseaseRepository diseaseRepository;
 
     /**
-     * Initializes DiagnosisServiceImpl with SymptomRepository and DiseaseSymptomRepository.
+     * Initializes DiagnosisServiceImpl with SymptomRepository and
+     * DiseaseSymptomRepository.
      *
      * @param symptomRepository        Repository for accessing symptom data.
-     * @param diseaseSymptomRepository Repository for accessing disease-symptom relationship data.
+     * @param diseaseSymptomRepository Repository for accessing disease-symptom
+     *                                 relationship data.
      */
     @Autowired
-    public DiagnosisServiceImpl(DiseaseRepository diseaseRepository, SymptomRepository symptomRepository, DiseaseSymptomRepository diseaseSymptomRepository) {
+    public DiagnosisServiceImpl(DiseaseRepository diseaseRepository, SymptomRepository symptomRepository,
+            DiseaseSymptomRepository diseaseSymptomRepository) {
         this.diseaseRepository = diseaseRepository;
-    	this.symptomRepository = symptomRepository;
+        this.symptomRepository = symptomRepository;
         this.diseaseSymptomRepository = diseaseSymptomRepository;
     }
 
     /**
      * Diagnoses diseases based on a list of symptom names.
      * This method retrieves symptom IDs based on the provided symptom names,
-     * then finds diseases associated with those symptoms, ordered by the number of matching symptoms.
+     * then finds diseases associated with those symptoms, ordered by the number of
+     * matching symptoms.
      *
      * @param symptomNames A list of symptom names to diagnose from.
-     * @return A list of Disease objects, ordered by the number of matching symptoms (descending).
-     * Returns an empty list if no diseases are found or if no symptoms match the provided names.
+     * @return A list of Disease objects, ordered by the number of matching symptoms
+     *         (descending).
+     *         Returns an empty list if no diseases are found or if no symptoms
+     *         match the provided names.
      */
     @Override
-    public List<Disease> diagnose(List<String> symptomNames) {
+    public DiagnosisResponse diagnose(DiagnosisRequest diagnosisRequest) throws AppException {
+        try {
+            // Kiểm tra dữ liệu đầu vào
+            if (diagnosisRequest == null || diagnosisRequest.getSymptomNames() == null ||
+                    diagnosisRequest.getSymptomNames().isEmpty()) {
+                throw new AppException(ErrorCode.SYMPTOMS_EMPTY);
+            }
 
-        List<String> symptomIds = new ArrayList<>();
-        for (String name : symptomNames) {
-            List<Symptom> symptoms = symptomRepository.findByNameOrSynonym(name);
-            symptomIds.addAll(symptoms.stream().map(Symptom::getSymptomId).collect(Collectors.toList()));
+            List<String> symptomIds = new ArrayList<>();
+            for (String name : diagnosisRequest.getSymptomNames()) {
+                List<Symptom> symptoms = symptomRepository.findByNameOrSynonym(name);
+                symptomIds.addAll(symptoms.stream()
+                        .map(Symptom::getSymptomId)
+                        .collect(Collectors.toList()));
+            }
+            symptomIds = symptomIds.stream().distinct().collect(Collectors.toList());
+
+            // Kiểm tra nếu không tìm thấy triệu chứng nào phù hợp
+            if (symptomIds.isEmpty()) {
+                throw new AppException(ErrorCode.NO_MATCHING_SYMPTOMS);
+            }
+
+            // Tìm các bệnh phù hợp
+            List<DiseaseMatchDTO> diseaseMatches = diseaseSymptomRepository.findDiseasesBySymptoms(symptomIds);
+
+            List<Disease> diseases = diseaseMatches.stream()
+                    .map(dto -> diseaseRepository.findById(dto.getDiseaseId()).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            // Kiểm tra nếu không tìm thấy bệnh nào
+            if (diseases.isEmpty()) {
+                throw new AppException(ErrorCode.NO_DISEASES_FOUND);
+            }
+
+            // Tạo response
+            return DiagnosisResponse.builder()
+                    .diseases(diseases)
+                    .matchedSymptomCount(symptomIds.size())
+                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size() + " bệnh có thể phù hợp")
+                    .build();
+
+        } catch (AppException e) {
+            // Chuyển tiếp các lỗi nghiệp vụ đã được xác định
+            throw e;
+        } catch (Exception e) {
+            // Xử lý các lỗi khác không mong đợi
+            throw new AppException(ErrorCode.DIAGNOSIS_PROCESSING_ERROR);
         }
-        symptomIds = symptomIds.stream().distinct().collect(Collectors.toList());
-
-        if (symptomIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<DiseaseMatchDTO> diseaseMatches = diseaseSymptomRepository.findDiseasesBySymptoms(symptomIds);
-
-        return diseaseMatches.stream()
-                .map(dto -> diseaseRepository.findById(dto.getDiseaseId()).orElse(null)) // Tìm Disease theo ID
-                .filter(Objects::nonNull) // Lọc bỏ các giá trị null
-                .collect(Collectors.toList());
-
     }
 }
