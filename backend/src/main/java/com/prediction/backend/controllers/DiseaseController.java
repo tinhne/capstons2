@@ -31,7 +31,7 @@ public class DiseaseController {
     }
 
     /**
-     * Lấy danh sách tất cả các bệnh
+     * Retrieve list of disease
      */
     @GetMapping("/diseases")
     public ApiResponse<List<Disease>> getAllDiseases() {

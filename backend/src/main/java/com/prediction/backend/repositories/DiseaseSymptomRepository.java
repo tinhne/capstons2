@@ -93,5 +93,24 @@ public interface DiseaseSymptomRepository extends JpaRepository<DiseaseSymptom, 
     	       "GROUP BY ds.id.diseaseId " +
     	       "ORDER BY COUNT(ds.id.symptomId) DESC")
     List<DiseaseMatchDTO> findDiseasesBySymptoms(@Param("symptomIds") List<String> symptomIds);
+    /*
+     * Retrieves a list of disease IDs and the count of matching symptoms for diseases that have all the specified symptoms.
+     * <p>This method queries the `DiseaseSymptom` entity to find diseases that are associated with all the symptoms provided in the {@code symptomIds} list.
+     * It groups the results by disease ID and filters them to include only diseases where the count of distinct matching symptoms
+     * equals the total number of symptoms provided.</p>
+     *
+     * @param symptomIds A list of symptom IDs to match against diseases.
+     * @param symptomCount The expected count of matching symptoms, which should be equal to the size of the {@code symptomIds} list.
+     * @return A list of {@code Object[]} where each array contains the disease ID (String) at index 0 and the count of matching symptoms (Long) at index 1.
+     * Returns an empty list if no diseases match all the provided symptoms.
+     *
+     *  */
+    @Query("SELECT ds.id.diseaseId, COUNT(DISTINCT ds.id.symptomId) " +
+    	       "FROM DiseaseSymptom ds " +
+    	       "WHERE ds.id.symptomId IN :symptomIds " +
+    	       "GROUP BY ds.id.diseaseId " +
+    	       "HAVING COUNT(DISTINCT ds.id.symptomId) = :symptomCount")
+    List<Object[]> findDiseasesWithAllSymptoms(@Param("symptomIds") List<String> symptomIds, 
+    	                                           @Param("symptomCount") long symptomCount);
 
 }

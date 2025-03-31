@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DiagnosisResponse {
+public class SearchingResponse {
     List<Disease> diseases;
     int matchedSymptomCount;
     String message;

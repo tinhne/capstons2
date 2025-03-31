@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DiagnosisRequest {
+public class SearchingRequest {
     @NotEmpty(message = "SYMPTOMS_EMPTY")
     List<String> symptomNames;
 }

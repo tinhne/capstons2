@@ -1,10 +1,10 @@
 package com.prediction.backend.controllers;
 
-import com.prediction.backend.dto.request.DiagnosisRequest;
+import com.prediction.backend.dto.request.SearchingRequest;
 import com.prediction.backend.dto.response.ApiResponse;
-import com.prediction.backend.dto.response.DiagnosisResponse;
+import com.prediction.backend.dto.response.SearchingResponse;
 import com.prediction.backend.models.Disease;
-import com.prediction.backend.services.DiagnosisService;
+import com.prediction.backend.services.SearchingService;
 
 import jakarta.validation.Valid;
 
@@ -22,9 +22,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api")
-public class DiagnosisController {
+public class SearchingController {
 
-    private final DiagnosisService diagnosisService;
+    private final SearchingService searchingService;
 
     /**
      * Constructs a DiagnosisController with the required DiagnosisService.
@@ -32,8 +32,8 @@ public class DiagnosisController {
      * @param diagnosisService the service for diagnosing diseases based on symptoms
      */
     @Autowired
-    public DiagnosisController(DiagnosisService diagnosisService) {
-        this.diagnosisService = diagnosisService;
+    public SearchingController(SearchingService searchingService) {
+        this.searchingService = searchingService;
     }
 
     /**
@@ -43,22 +43,22 @@ public class DiagnosisController {
      * @param symptomNames a list of symptom names (e.g., ["fever", "cough",
      *                     "headache"])
      * @param path         the request path, retrieved from the X-Request-Path
-     *                     header (defaults to "/api/diagnosis")
+     *                     header (defaults to "/api/search")
      * @return ResponseEntity containing an ApiResponse with a list of potential
      *         diseases or an error message
      */
-    @PostMapping("/diagnosis")
-    public ApiResponse<DiagnosisResponse> diagnose(
-            @Valid @RequestBody DiagnosisRequest diagnosisRequest) {
+    @PostMapping("/search")
+    public ApiResponse<SearchingResponse> search(
+            @Valid @RequestBody SearchingRequest searchRequest) {
 
         // Gọi service để thực hiện chẩn đoán 
-        DiagnosisResponse diagnosisResponse = diagnosisService.diagnose(diagnosisRequest);
+        SearchingResponse searchingResponse = searchingService.search(searchRequest);
 
         // Trả về kết quả thành công với message từ response
-        return ApiResponse.<DiagnosisResponse>builder()
+        return ApiResponse.<SearchingResponse>builder()
                 .status(1000) // Mã thành công
-                .message(diagnosisResponse.getMessage()) // Sử dụng message từ response
-                .data(diagnosisResponse)
+                .message(searchingResponse.getMessage()) // Sử dụng message từ response
+                .data(searchingResponse)
                 .build();
     }
 

@@ -5,10 +5,10 @@ import com.prediction.backend.models.Symptom;
 import com.prediction.backend.repositories.DiseaseSymptomRepository;
 import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.repositories.DiseaseRepository;
-import com.prediction.backend.services.DiagnosisService;
+import com.prediction.backend.services.SearchingService;
 import com.prediction.backend.dto.DiseaseMatchDTO;
-import com.prediction.backend.dto.request.DiagnosisRequest;
-import com.prediction.backend.dto.response.DiagnosisResponse;
+import com.prediction.backend.dto.request.SearchingRequest;
+import com.prediction.backend.dto.response.SearchingResponse;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
 
@@ -25,7 +25,7 @@ import java.util.Objects;
  * Provides functionality to diagnose diseases based on a list of symptom names.
  */
 @Service
-public class DiagnosisServiceImpl implements DiagnosisService {
+public class SearchingServiceImpl implements SearchingService {
 
     private final SymptomRepository symptomRepository;
     private final DiseaseSymptomRepository diseaseSymptomRepository;
@@ -40,7 +40,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
      *                                 relationship data.
      */
     @Autowired
-    public DiagnosisServiceImpl(DiseaseRepository diseaseRepository, SymptomRepository symptomRepository,
+    public SearchingServiceImpl(DiseaseRepository diseaseRepository, SymptomRepository symptomRepository,
             DiseaseSymptomRepository diseaseSymptomRepository) {
         this.diseaseRepository = diseaseRepository;
         this.symptomRepository = symptomRepository;
@@ -60,16 +60,17 @@ public class DiagnosisServiceImpl implements DiagnosisService {
      *         match the provided names.
      */
     @Override
-    public DiagnosisResponse diagnose(DiagnosisRequest diagnosisRequest) throws AppException {
+    public SearchingResponse search(SearchingRequest searchingRequest) throws AppException {
         try {
             // Kiểm tra dữ liệu đầu vào
-            if (diagnosisRequest == null || diagnosisRequest.getSymptomNames() == null ||
-                    diagnosisRequest.getSymptomNames().isEmpty()) {
+            if (searchingRequest == null || searchingRequest.getSymptomNames() == null ||
+                    searchingRequest.getSymptomNames().isEmpty()) {
                 throw new AppException(ErrorCode.SYMPTOMS_EMPTY);
             }
 
+            // Tìm symptomIds từ symptomNames
             List<String> symptomIds = new ArrayList<>();
-            for (String name : diagnosisRequest.getSymptomNames()) {
+            for (String name : searchingRequest.getSymptomNames()) {
                 List<Symptom> symptoms = symptomRepository.findByNameOrSynonym(name);
                 symptomIds.addAll(symptoms.stream()
                         .map(Symptom::getSymptomId)
@@ -82,11 +83,13 @@ public class DiagnosisServiceImpl implements DiagnosisService {
                 throw new AppException(ErrorCode.NO_MATCHING_SYMPTOMS);
             }
 
-            // Tìm các bệnh phù hợp
-            List<DiseaseMatchDTO> diseaseMatches = diseaseSymptomRepository.findDiseasesBySymptoms(symptomIds);
+            // Tìm các bệnh có tất cả các triệu chứng
+            long symptomCount = symptomIds.size(); // Số lượng triệu chứng đầu vào
+            List<Object[]> diseaseMatches = diseaseSymptomRepository.findDiseasesWithAllSymptoms(symptomIds, symptomCount);
 
+            // Chuyển đổi kết quả thành danh sách Disease
             List<Disease> diseases = diseaseMatches.stream()
-                    .map(dto -> diseaseRepository.findById(dto.getDiseaseId()).orElse(null))
+                    .map(obj -> diseaseRepository.findById((String) obj[0]).orElse(null))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
@@ -96,10 +99,10 @@ public class DiagnosisServiceImpl implements DiagnosisService {
             }
 
             // Tạo response
-            return DiagnosisResponse.builder()
+            return SearchingResponse.builder()
                     .diseases(diseases)
                     .matchedSymptomCount(symptomIds.size())
-                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size() + " bệnh có thể phù hợp")
+                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size() + " bệnh phù hợp với tất cả triệu chứng")
                     .build();
 
         } catch (AppException e) {
