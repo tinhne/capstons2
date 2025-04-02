@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -18,5 +19,6 @@ import java.util.List;
 public class SearchingResponse {
     List<Disease> diseases;
     int matchedSymptomCount;
+    @JsonIgnore
     String message;
 }

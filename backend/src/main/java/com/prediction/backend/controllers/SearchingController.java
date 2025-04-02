@@ -51,7 +51,7 @@ public class SearchingController {
     public ApiResponse<SearchingResponse> search(
             @Valid @RequestBody SearchingRequest searchRequest) {
 
-        // Gọi service để thực hiện chẩn đoán 
+        // Gọi service để thực hiện chẩn đoán
         SearchingResponse searchingResponse = searchingService.search(searchRequest);
 
         // Trả về kết quả thành công với message từ response

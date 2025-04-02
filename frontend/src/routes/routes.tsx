@@ -11,7 +11,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 // Import các trang từ features
 import AuthPage from "../features/auth/AuthPage";
-import ChatPage from "../features/chat/Chatbot";
+import ChatPage from "../features/chat/ChatPage";
 import AdminPage from "../features/admin/AdminPage";
 // import NotFoundPage from "../features/not-found/NotFoundPage";
 

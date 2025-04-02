@@ -85,7 +85,8 @@ public class SearchingServiceImpl implements SearchingService {
 
             // Tìm các bệnh có tất cả các triệu chứng
             long symptomCount = symptomIds.size(); // Số lượng triệu chứng đầu vào
-            List<Object[]> diseaseMatches = diseaseSymptomRepository.findDiseasesWithAllSymptoms(symptomIds, symptomCount);
+            List<Object[]> diseaseMatches = diseaseSymptomRepository.findDiseasesWithAllSymptoms(symptomIds,
+                    symptomCount);
 
             // Chuyển đổi kết quả thành danh sách Disease
             List<Disease> diseases = diseaseMatches.stream()
@@ -102,7 +103,8 @@ public class SearchingServiceImpl implements SearchingService {
             return SearchingResponse.builder()
                     .diseases(diseases)
                     .matchedSymptomCount(symptomIds.size())
-                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size() + " bệnh phù hợp với tất cả triệu chứng")
+                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size()
+                            + " bệnh phù hợp với tất cả triệu chứng")
                     .build();
 
         } catch (AppException e) {

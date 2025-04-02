@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/img/logo.svg";
-import { RootState } from "../../../redux/store";
 import { FaUserCircle } from "react-icons/fa"; // Icon cho avatar mặc định
 import { useAuth } from "../../../hooks/useAuth"; // Import useAuth hook
 
