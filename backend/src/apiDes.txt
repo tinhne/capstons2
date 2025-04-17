@@ -1,0 +1,15 @@
+Kết nối WebSocket:
+
+    Dùng SockJS + StompJS
+
+    Gửi tin nhắn tới /app/chat.send
+
+    Nhận tin nhắn từ /topic/conversations/{conversationId}
+
+Gọi REST API:
+
+    Tạo hội thoại: POST /api/chat/start?doctorId=...&userId=...
+
+    Lấy lịch sử: GET /api/chat/{conversationId}/history
+
+    Lấy danh sách hội thoại: GET /api/chat/conversations?userId=...
