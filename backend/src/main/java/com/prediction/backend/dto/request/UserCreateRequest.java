@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 public class UserCreateRequest {
     @NotBlank(message = "Name cannot blank")
-	@Size(max=255, message="Not long over 255 characters")
+    @Size(max = 255, message = "Not long over 255 characters")
     @Column(nullable = false)
     String name; // User name
 
@@ -32,28 +32,26 @@ public class UserCreateRequest {
 
     String district; // Restrict
 
-    String city; // City 
-    
+    String city; // City
+
     @Column(name = "underlying_disease")
-    String underlyingDisease; // Underlying disease 
+    String underlyingDisease; // Underlying disease
 
     @Column(nullable = false, unique = true)
     @NotBlank(message = "Email cannot blank")
-    @Email(message="Email is invalid")
-    @Size(max=255, message="Not long over 255 characters")
+    @Email(message = "Email is invalid")
+    @Size(max = 255, message = "Not long over 255 characters")
     String email; // Email (User name)
 
-	@Size(min=8, message="Password must be at least 8 characters")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     @Column(nullable = false)
     String password; // Password
 
-    // @Enumerated(EnumType.STRING)
-    // @Column(nullable = false)
-    // Role role; // User role
+    String specialization; // Specialization for doctors
 
     // Enumerations for Gender
     public enum Gender {
-        Male, Female, Other 
+        Male, Female, Other
     }
 
 }

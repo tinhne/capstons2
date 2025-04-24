@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../assets/img/logo.svg";
 import { FaUserCircle } from "react-icons/fa"; // Icon cho avatar mặc định
-import { useAuth } from "../../../hooks/useAuth"; // Import useAuth hook
+import { useAuth } from "../../../../hooks/useAuth"; // Import useAuth hook
 
 const Header: React.FC = () => {
   const navigate = useNavigate();

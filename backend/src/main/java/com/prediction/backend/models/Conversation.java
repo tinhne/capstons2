@@ -16,8 +16,8 @@ public class Conversation {
     @Id
     private String conversationId;
 
+    private Instant startTime;
+    private Instant lastMessageTime;
     private String senderId;
     private String receiverId;
-    private Instant startTime;
-    private Instant endTime;
 }

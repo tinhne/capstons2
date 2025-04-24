@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChatMessage, Disease } from "../types";
+import { ChatMessage, Disease } from "../../types";
 
 interface MessageProps {
   message: ChatMessage;
@@ -71,7 +71,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     >
       {/* Bot message */}
       {isBot && (
-        <div className="flex flex-col bg-[#003D61] bg-opacity-50 text-white p-4 rounded-lg max-w-lg w-full shadow-md">
+        <div className="flex flex-col bg-[#003D61] bg-opacity-50 text-white p-4 rounded-lg max-w-5xl w-full shadow-md">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-yellow-300 text-black flex items-center justify-center rounded-full">
               🤖
@@ -84,7 +84,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           {message.type === "disease-result" && renderDiseaseResults()}
 
           <div className="flex space-x-3 mt-3">
-            <button 
+            <button
               onClick={copyToClipboard}
               className="bg-blue-700 hover:bg-blue-600 text-white px-3 py-1 text-sm rounded flex items-center"
             >

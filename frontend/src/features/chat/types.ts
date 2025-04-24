@@ -1,23 +1,55 @@
 export interface ChatMessage {
-  id: number;
-  sender: "user" | "bot" | "doctor";
+  id: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
   content: string;
-  type?: "text" | "disease-search" | "disease-result" | "doctor-connection";
-  diseaseData?: Disease[];
+  sender?: string; // "user" | "doctor" | "system"
+  timestamp?: string;
+  time?: string; // For backward compatibility
+  isRead?: boolean;
+}
+
+export interface DiseaseData {
+  id: string;
+  name: string;
+  description: string;
+  treatments?: string[];
+  symptoms?: string[];
+  severity?: string;
+}
+
+export interface SymptomSearch {
+  symptoms: string[];
+  language?: string;
+}
+
+export interface DiseaseSearchResult {
+  diseases: DiseaseData[];
+  matchedSymptomCount: number;
+}
+
+export interface Conversation {
+  conversationId: string;
+  userId: string; // ID của người dùng
+  doctorId: string; // ID của bác sĩ
+  startTime?: string; // Thời gian bắt đầu cuộc trò chuyện
+  lastMessageTime?: string; // Thời gian tin nhắn cuối
+  senderId?: string; // ID của người gửi tin nhắn cuối
+  receiverId?: string; // ID của người nhận tin nhắn cuối
+  userName?: string; // Tên của người dùng
+  doctorName?: string; // Tên của bác sĩ
 }
 
 export interface Disease {
-  diseaseId: string; // Changed from id
-  originalId: string; // New field
-  nameEn: string; // Changed from name
-  nameVn: string; // New field
-  descriptionEn: string; // Changed from description
-  descriptionVn: string; // New field
-  severity: string | null;
-  specialization: string | null; // New field
-  synonyms: string[];
-  created_at: string; // New field
-  updated_at: string; // New field
+  id: string;
+  name: string;
+  description: string;
+  symptoms: string[];
+  causes: string[];
+  treatments: string[];
+  preventions: string[];
+  match?: number; // Phần trăm phù hợp
 }
 
 export interface SearchParams {
@@ -29,9 +61,13 @@ export interface SearchResponse {
   matchedSymptomCount: number;
 }
 
-export interface ApiResponse<T> {
-  status: number;
-  message: string;
+export interface ApiResponse<T = any> {
+  data: T;
+}
+
+// WebSocket message type
+export interface WebSocketMessage<T = any> {
+  type: string;
   data: T;
 }
 

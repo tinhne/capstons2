@@ -14,11 +14,16 @@ import java.time.Instant;
 @AllArgsConstructor
 public class ChatMessage {
     @Id
-    private String messageId;
+    private String id;
 
-    private String conversationId;
-    private String senderId;
-    private String senderRole; // "ADMIN" or "USER"
-    private String content;
-    private Instant timestamp;
+    private String conversationId; // ID của cuộc trò chuyện
+    private String senderId; // ID người gửi
+    private String receiverId; // ID người nhận
+    private String content; // Nội dung tin nhắn
+    private Instant timestamp; // Thời gian gửi
+
+    // Thông tin phụ
+    private String sender; // Loại người gửi: "user", "doctor", "system"
+    private boolean isRead; // Đã đọc chưa
+    
 }

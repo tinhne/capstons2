@@ -10,6 +10,8 @@ import {
 } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { AppDispatch } from "../../../redux/store";
+
 import { logout } from "../../../features/auth/redux/authSlice";
 
 // Định nghĩa các trang có thể hiển thị (cùng type với DashboardPage)
@@ -21,11 +23,10 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onMenuSelect, currentPage }) => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate("/login");
   };
 

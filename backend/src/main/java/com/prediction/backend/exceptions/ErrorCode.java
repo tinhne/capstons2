@@ -15,6 +15,7 @@ public enum ErrorCode {
     WRONG_PASSWORD(1006, "Wrong Password", HttpStatus.UNAUTHORIZED),
     UNAUTHENTICATED(1007, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
+    USER_NOT_FOUND(1008, "USER DOES NOT EXIST", HttpStatus.NOT_FOUND),
 
     // JWT specific error codes
     TOKEN_EXPIRED(1010, "Token expired", HttpStatus.UNAUTHORIZED),

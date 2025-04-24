@@ -1,19 +1,16 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
+// import { APP_ROUTES } from "../../constants/routeConstants";
 
 const AuthPage: React.FC = () => {
-  // const handleLogin = (data: { email: string; password: string }) => {
-  //   console.log("Đăng nhập với:", data);
-  //   // Gọi API đăng nhập tại đây
-  // };
+  const location = useLocation();
+  const isRegisterRoute = location.pathname.includes("register");
 
   return (
-    // <div className="flex flex-col items-center justify-center min-h-screen bg-white-100">
-    //   <h1 className="text-2xl font-bold mb-4">Đăng nhập</h1>
-    //   <LoginForm />
-    // </div>
     <div className="h-full w-full">
-      <LoginForm />
+      {isRegisterRoute ? <RegisterForm /> : <LoginForm />}
     </div>
   );
 };

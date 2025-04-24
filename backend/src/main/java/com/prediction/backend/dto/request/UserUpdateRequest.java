@@ -16,15 +16,18 @@ public class UserUpdateRequest {
     String name; // User name
     Integer age; // User age
     Gender gender; // User gender
+
     public enum Gender {
-        Male, Female, Other 
+        Male, Female, Other
     }
+
     String address; // User address
 
     String district; // Restrict
 
-    String city; // City 
-    String underlyingDisease; // Underlying disease 
+    String city; // City
+    String underlyingDisease; // Underlying disease
     String password; // Password
+    String specialization; // Specialization for doctors
     List<String> roles;
 }

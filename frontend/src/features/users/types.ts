@@ -26,6 +26,7 @@ export interface UserProfile {
   status?: string;
   createdAt?: string;
   roles?: Role[];
+  specialization?: string;
   // Giữ lại các trường cũ nhưng đánh dấu là optional
   // Add any other fields that may come from the API
 }

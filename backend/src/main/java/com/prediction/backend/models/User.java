@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name="users")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id; // User id
 
-    @Size(max=255, message="Not long over 255 characters")
+    @Size(max = 255, message = "Not long over 255 characters")
     @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
     String name; // User name
 
@@ -45,17 +45,20 @@ public class User {
 
     String district; // Restrict
 
-    String city; // City 
-    
+    String city; // City
+
     @Column(name = "underlying_disease")
-    String underlyingDisease; // Underlying disease 
+    String underlyingDisease; // Underlying disease
 
     String email; // Email (User name)
 
     String password; // Password
 
+    @Column(name = "specialization")
+    String specialization; // Specialization for doctors
+
     public enum Gender {
-        Male, Female, Other 
+        Male, Female, Other
     }
 
     @ManyToMany

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -22,7 +23,7 @@ public class ChatRestController {
 
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<Conversation>> startConversation(@RequestBody StartConversationRequest request) {
-        Conversation conversation = chatService.startConversation(request.getDoctorId(), request.getUserId());
+        Conversation conversation = chatService.startConversation(request.getReceiverId(), request.getSenderId());
         return ResponseEntity.ok(ApiResponse.<Conversation>builder()
                 .status(1000)
                 .message("Conversation started")
@@ -49,4 +50,74 @@ public class ChatRestController {
                 .data(conversations)
                 .build());
     }
+
+    @GetMapping("/conversation/{id}")
+    public ResponseEntity<ApiResponse<Optional<Conversation>>> getConversationById(@PathVariable String id) {
+        Optional<Conversation> conversation = chatService.getConversationById(id);
+        return ResponseEntity.ok(ApiResponse.<Optional<Conversation>>builder()
+                .status(1000)
+                .message("Conversations fetched")
+                .data(conversation)
+                .build());
+    }
 }
+// package com.prediction.backend.controllers;
+
+// import com.prediction.backend.dto.request.StartConversationRequest;
+// import com.prediction.backend.dto.response.ApiResponseDto;
+// import com.prediction.backend.models.ChatMessage;
+// import com.prediction.backend.models.Conversation;
+// import com.prediction.backend.services.ChatService;
+
+// import lombok.RequiredArgsConstructor;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.messaging.handler.annotation.MessageMapping;
+// import org.springframework.messaging.handler.annotation.Payload;
+// import org.springframework.messaging.simp.SimpMessagingTemplate;
+// import org.springframework.web.bind.annotation.*;
+
+// import java.util.List;
+
+// @RestController
+// @RequestMapping("/api/chat")
+// @RequiredArgsConstructor
+// public class ChatRestController {
+
+// private final ChatService chatService;
+// private final SimpMessagingTemplate messagingTemplate;
+
+// @PostMapping("/start")
+// public ResponseEntity<ApiResponseDto<Conversation>>
+// startConversation(@RequestBody StartConversationRequest request) {
+// Conversation conversation =
+// chatService.startConversation(request.getUserId(), request.getDoctorId());
+// return ResponseEntity.ok(ApiResponseDto.success(conversation));
+// }
+
+// @GetMapping("/{conversationId}/history")
+// public ResponseEntity<ApiResponseDto<List<ChatMessage>>>
+// getChatHistory(@PathVariable String conversationId) {
+// List<ChatMessage> chatHistory = chatService.getChatHistory(conversationId);
+// return ResponseEntity.ok(ApiResponseDto.success(chatHistory));
+// }
+
+// @GetMapping("/conversations")
+// public ResponseEntity<ApiResponseDto<List<Conversation>>>
+// getUserConversations(@RequestParam String userId) {
+// List<Conversation> conversations = chatService.getUserConversations(userId);
+// return ResponseEntity.ok(ApiResponseDto.success(conversations));
+// }
+
+// // WebSocket endpoint for handling messages
+// @MessageMapping("/chat.send")
+// public void sendMessage(@Payload ChatMessage chatMessage) {
+// // Save the message in the database
+// ChatMessage savedMessage = chatService.sendMessage(chatMessage);
+
+// // Send message to WebSocket subscribers
+// messagingTemplate.convertAndSend(
+// "/topic/conversations/" + chatMessage.getConversationId(),
+// ApiResponseDto.success(savedMessage)
+// );
+// }
+// }
