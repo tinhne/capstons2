@@ -1,34 +1,49 @@
 package com.prediction.backend.controllers;
 
-import com.prediction.backend.dto.response.ApiResponse;
-import com.prediction.backend.models.ChatMessage;
-import com.prediction.backend.services.ChatService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-@RequiredArgsConstructor
+import com.prediction.backend.dto.request.MessageRequest;
+import com.prediction.backend.models.Message;
+import com.prediction.backend.models.Room;
+import com.prediction.backend.repositories.RoomRepository;
+
+@RestController
+@CrossOrigin("http://localhost:3000")
 public class ChatController {
+    private RoomRepository roomRepository;
 
-    private final ChatService chatService;
-    private final SimpMessagingTemplate messagingTemplate;
+    public ChatController(RoomRepository roomRe) {
+        this.roomRepository = roomRe;
+    }
 
-   @MessageMapping("/chat.send")
-    public void sendMessage(@Payload ChatMessage chatMessage) {
-        ChatMessage savedMessage = chatService.sendMessage(chatMessage);
+    // For sending and receiving message 
+    @MessageMapping("/sendMessage/{roomId}")
+    @SendTo("/topic/room/{roomId}")
+    public Message sendMessage(
+        @DestinationVariable String roomId,
+        @RequestBody MessageRequest request) {
 
-        ApiResponse<ChatMessage> response = ApiResponse.<ChatMessage>builder()
-                .status(1000)
-                .message("New message")
-                .data(savedMessage)
-                .build();
+        Room room = roomRepository.findByRoomId(roomId);
 
-        messagingTemplate.convertAndSend(
-                "/topic/conversations/" + chatMessage.getConversationId(),
-                response
-        );
+        Message message = new Message();
+        message.setContent(request.getContent());
+        message.setSender(request.getSender());
+        message.setTimeStamp(LocalDateTime.now());
+
+        if (null != room) {
+            room.getMessages().add(message);
+            roomRepository.save(room);
+        } else {
+            throw new RuntimeException("Room not found!");
+        }
+
+        return message;
     }
 }
