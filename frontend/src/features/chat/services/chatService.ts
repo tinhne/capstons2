@@ -127,7 +127,7 @@ export const getUserConversations = async (
   userId: string
 ): Promise<Conversation[]> => {
   const response = await apiClient.get(`/chat/conversations?userId=${userId}`);
-  console.log("Response Conversation", response);
+  // console.log("Response Conversation", response);
   return response.data;
 };
 
@@ -294,11 +294,77 @@ export const getConversationById = async (
     const response = await apiClient.get(
       `/chat/conversation/${conversationId}`
     );
-    console.log("conversation", response);
+    // console.log("conversation", response);
 
     return response.data;
   } catch (error) {
     console.error("Error fetching conversation by id:", error);
+    throw error;
+  }
+};
+export const addUserToConversation = async (
+  conversationId: string,
+  userId: string
+): Promise<any> => {
+  try {
+    // Truyền userId trong body dưới dạng object
+    const response = await apiClient.post(
+      `/chat/conversation/${conversationId}/add-user`,
+      { userId } // Đảm bảo truyền đúng format {userId: "..."}
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding user to conversation:", error);
+    throw error;
+  }
+};
+// Thêm hàm kiểm tra bác sĩ có trong cuộc trò chuyện không
+export const checkDoctorInConversation = async (
+  conversationId: string
+): Promise<boolean> => {
+  try {
+    const response = await apiClient.get(
+      `/chat/conversation/${conversationId}`
+    );
+    const conversation = response.data;
+
+    // Kiểm tra có bác sĩ nào trong conversation không
+    // Giả sử có một API endpoint trả về role của mỗi user
+    const participants = conversation.participantIds || [];
+
+    if (participants.length <= 2) {
+      return false; // Chỉ có user và bot
+    }
+
+    // Kiểm tra từng participant xem có role là doctor không
+    // Đây là giả định, bạn cần điều chỉnh theo API thực tế của bạn
+    for (const participantId of participants) {
+      if (participantId !== "bot" && participantId !== conversation.senderId) {
+        // Đây có thể là bác sĩ, nhưng cần kiểm tra thêm
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error checking doctor in conversation:", error);
+    return false;
+  }
+};
+
+// Thêm hàm để xử lý khi bác sĩ rời đi (nếu cần)
+export const removeUserFromConversation = async (
+  conversationId: string,
+  userId: string
+): Promise<any> => {
+  try {
+    const response = await apiClient.post(
+      `/chat/conversation/${conversationId}/remove-user`,
+      { userId }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error removing user from conversation:", error);
     throw error;
   }
 };

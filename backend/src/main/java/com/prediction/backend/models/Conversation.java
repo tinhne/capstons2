@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
 @Document(collection = "conversations")
 @Data
@@ -18,6 +19,5 @@ public class Conversation {
 
     private Instant startTime;
     private Instant lastMessageTime;
-    private String senderId;
-    private String receiverId;
+    private List<String> participantIds;
 }

@@ -32,39 +32,41 @@ const ChatPage: React.FC = () => {
     }
   }, [navigate, conversationIdParam, user]);
 
-  // Khi vào trang chat, lấy thông tin conversation để xác định isBotConversation
+  // Khi xác định isBotConversation và otherUserId
   useEffect(() => {
     const fetchConversation = async () => {
-      if (!conversationIdParam) {
+      if (!conversationIdParam || !user?.id) {
         setConversationId(null);
         setIsBotConversation(false);
         setOtherUserId(undefined);
         return;
       }
+
       setLoading(true);
       try {
         const conversation = await chatService.getConversationById(
           conversationIdParam
         );
-        // console.log("conversation", conversation);
         setConversationId(conversation.conversationId);
+
         // Xác định ai là người còn lại (không phải user hiện tại)
-        const isBot =
-          conversation.receiverId === botId || conversation.senderId === botId;
+        const botId = import.meta.env.VITE_BOT_ID;
+        const isBot = conversation.participantIds.includes(botId);
         setIsBotConversation(isBot);
-        if (conversation.senderId === user?.id) {
-          setOtherUserId(conversation.receiverId);
-        } else {
-          setOtherUserId(conversation.senderId);
-        }
+
+        // Tìm id của người còn lại trong participantIds
+        const otherParticipant = conversation.participantIds.find(
+          (id) => id !== user.id
+        );
+        setOtherUserId(otherParticipant);
       } catch (err) {
         setError("Failed to load conversation.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchConversation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationIdParam, user?.id]);
 
   // Handle doctor selection

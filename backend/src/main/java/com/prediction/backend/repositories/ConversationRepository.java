@@ -3,19 +3,18 @@ package com.prediction.backend.repositories;
 import com.prediction.backend.models.Conversation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ConversationRepository extends MongoRepository<Conversation, String> {
-    Optional<Conversation> findBySenderIdAndReceiverId(String senderId, String receiverId);
 
-    List<Conversation> findBySenderIdOrReceiverId(String senderId, String receiverId);
+    // Tìm conversation có đúng 2 participantIds (không phân biệt thứ tự)
+    @Query("{ 'participantIds': { $all: ?0 }, '$expr': { '$eq': [{ '$size': '$participantIds' }, ?1] } }")
+    Optional<Conversation> findByExactParticipants(List<String> participantIds, int size);
 
-    List<Conversation> findBySenderId(String senderId);
-
-    List<Conversation> findByReceiverId(String receiverId);
-
-    Optional<Conversation> findById(String id);
+    // Tìm tất cả conversation mà participantIds chứa userId
+    List<Conversation> findByParticipantIdsContaining(String userId);
 }

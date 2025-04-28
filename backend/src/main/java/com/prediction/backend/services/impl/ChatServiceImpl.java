@@ -3,9 +3,11 @@ package com.prediction.backend.services.impl;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
 import com.prediction.backend.models.Conversation;
+import com.prediction.backend.models.Role;
 import com.prediction.backend.models.User;
 import com.prediction.backend.repositories.UserRepository;
 
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.prediction.backend.models.ChatMessage;
@@ -29,40 +31,37 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Conversation startConversation(String senderId, String receiverId) {
-        // Kiểm tra xem conversation đã tồn tại chưa
-        Optional<Conversation> existingConversation = conversationRepository
-                .findBySenderIdAndReceiverId(senderId, receiverId);
+        List<String> participants = List.of(senderId, receiverId);
 
+        // Tìm conversation có đúng 2 người này
+        Optional<Conversation> existingConversation = conversationRepository.findByExactParticipants(participants, 2);
+
+        // Nếu có rồi thì trả về
         if (existingConversation.isPresent()) {
             return existingConversation.get();
         }
 
-        // Lấy thông tin người dùng
+        // Kiểm tra user tồn tại
         userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
         userRepository.findById(receiverId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // Tạo cuộc trò chuyện mới
+        // Tạo mới
         Conversation conversation = new Conversation();
         conversation.setConversationId(UUID.randomUUID().toString());
         conversation.setStartTime(Instant.now());
-        conversation.setSenderId(senderId); // Mặc định người bắt đầu là user
-        conversation.setReceiverId(receiverId);
+        conversation.setParticipantIds(participants);
 
         return conversationRepository.save(conversation);
     }
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
-        // Cập nhật thời gian tin nhắn cuối cùng của cuộc trò chuyện
         Optional<Conversation> conversationOpt = conversationRepository.findById(message.getConversationId());
         if (conversationOpt.isPresent()) {
             Conversation conversation = conversationOpt.get();
             conversation.setLastMessageTime(Instant.now());
-            conversation.setSenderId(message.getSenderId());
-            conversation.setReceiverId(message.getReceiverId());
             conversationRepository.save(conversation);
         }
 
@@ -77,12 +76,61 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Conversation> getUserConversations(String id) {
-        return conversationRepository.findBySenderIdOrReceiverId(id, id);
+    public List<Conversation> getUserConversations(String userId) {
+        return conversationRepository.findByParticipantIdsContaining(userId);
     }
 
     @Override
-    public Optional<Conversation> getConversationById(String conversationId) {
-    return conversationRepository.findById(conversationId);
-}
+    public Conversation getConversationById(String conversationId) {
+        return conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+    }
+
+    @Override
+    public void addUserToConversation(String conversationId, String userId) {
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+        if (!conv.getParticipantIds().contains(userId)) {
+            conv.getParticipantIds().add(userId);
+            conversationRepository.save(conv);
+        }
+    }
+
+    @Override
+    public boolean checkDoctorInConversation(String conversationId) {
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        if (conv.getParticipantIds().size() <= 2) {
+            return false; // Chỉ có user và bot
+        }
+
+        // Lấy danh sách user có role là doctor từ participantIds
+        for (String participantId : conv.getParticipantIds()) {
+            Optional<User> participant = userRepository.findById(participantId);
+            if (participant.isPresent() && participant.get().getRoles() != null) {
+                // Kiểm tra xem trong Set<Role> có role nào có name là "DOCTOR" không
+                for (Role role : participant.get().getRoles()) {
+                    if (role.getName().equalsIgnoreCase("DOCTOR")) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void removeUserFromConversation(String conversationId, String userId) {
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        if (conv.getParticipantIds().contains(userId)) {
+            conv.getParticipantIds().remove(userId);
+            conversationRepository.save(conv);
+        } else {
+            throw new AppException(ErrorCode.USER_NOT_IN_CONVERSATION);
+        }
+    }
 }

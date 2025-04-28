@@ -31,14 +31,11 @@ export interface DiseaseSearchResult {
 
 export interface Conversation {
   conversationId: string;
-  userId: string; // ID của người dùng
-  doctorId: string; // ID của bác sĩ
-  startTime?: string; // Thời gian bắt đầu cuộc trò chuyện
-  lastMessageTime?: string; // Thời gian tin nhắn cuối
-  senderId?: string; // ID của người gửi tin nhắn cuối
-  receiverId?: string; // ID của người nhận tin nhắn cuối
-  userName?: string; // Tên của người dùng
-  doctorName?: string; // Tên của bác sĩ
+  participantIds: string[]; // thay thế userId/doctorId
+  startTime?: string;
+  lastMessageTime?: string;
+  userName?: string;
+  doctorName?: string;
 }
 
 export interface Disease {

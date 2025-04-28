@@ -47,7 +47,7 @@ class ApiClient {
   ): InternalAxiosRequestConfig => {
     const token = localStorage.getItem("token");
     if (token) {
-      console.log(`Adding auth token to request: ${config.url}`);
+      // console.log(`Adding auth token to request: ${config.url}`);
       config.headers = {
         ...config.headers,
         Authorization: `Bearer ${token}`,
@@ -69,7 +69,7 @@ class ApiClient {
    */
   private handleResponse = (response: AxiosResponse): AxiosResponse => {
     // Log successful responses for debugging
-    console.log(`API Response [${response.config.url}]:`, response.data);
+    // console.log(`API Response [${response.config.url}]:`, response.data);
 
     // Handle different API response formats
     // Some backends return { data, status, message } format, others return data directly

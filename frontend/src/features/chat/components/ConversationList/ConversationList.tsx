@@ -20,14 +20,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const { user } = useAuth();
 
   useEffect(() => {
-    console.log("user", user);
+    // console.log("user", user);
     const fetchConversations = async () => {
       if (!user?.id) return;
 
       try {
         setLoading(true);
         const fetchedConversations = await getUserConversations(user.id);
-        console.log("check conversations", fetchedConversations);
+        // console.log("check conversations", fetchedConversations);
         setConversations(fetchedConversations || []);
         setError(null);
       } catch (err) {
@@ -96,10 +96,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </h3>
       <ul className="divide-y divide-gray-200">
         {conversations.map((conversation) => {
-          const isDoctor = user?.role === "DOCTOR";
-          const otherPersonName = isDoctor
-            ? conversation.userName || "User"
-            : conversation.doctorName || "Doctor";
+          // Tìm ID người còn lại trong participantIds
+          const otherParticipantId =
+            conversation.participantIds?.find((id) => id !== user?.id) || "";
+
+          // Hiển thị tên theo role hoặc dựa trên thông tin bổ sung
+          // Nếu không có thông tin chi tiết, hiển thị ID
+          const otherPersonName =
+            conversation.userName ||
+            conversation.doctorName ||
+            otherParticipantId;
 
           return (
             <li

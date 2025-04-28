@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import apiClient from "../../../../utils/apiClient";
 import { UserProfile } from "../../../users/types";
-import { createConversation } from "../../services/chatService";
 import { useAuth } from "../../../../hooks/useAuth";
 
 interface DoctorListProps {
-  onSelectDoctor?: (doctorId: string) => void;
+  onSelectDoctor: (doctorId: string) => void;
+  mode?: "add" | "create"; // add: thêm vào conversation, create: tạo mới (mặc định)
 }
 
-const DoctorList: React.FC<DoctorListProps> = ({ onSelectDoctor }) => {
+const DoctorList: React.FC<DoctorListProps> = ({
+  onSelectDoctor,
+  mode = "create",
+}) => {
   const [doctors, setDoctors] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -33,29 +34,6 @@ const DoctorList: React.FC<DoctorListProps> = ({ onSelectDoctor }) => {
 
     fetchDoctors();
   }, []);
-
-  const handleStartChat = async (doctorId: string) => {
-    if (!user?.id) {
-      console.error("User not authenticated");
-      return;
-    }
-
-    try {
-      // Start a conversation with selected doctor
-      const conversation = await createConversation(user.id, doctorId);
-
-      // Navigate to chat with the doctor
-      navigate(`/chat/${conversation.conversationId}`);
-
-      // Call the onSelectDoctor prop if provided
-      if (onSelectDoctor) {
-        onSelectDoctor(doctorId);
-      }
-    } catch (err) {
-      console.error("Error starting conversation:", err);
-      setError("Failed to start conversation. Please try again.");
-    }
-  };
 
   if (loading) {
     return (
@@ -109,10 +87,10 @@ const DoctorList: React.FC<DoctorListProps> = ({ onSelectDoctor }) => {
               )}
             </div>
             <button
-              onClick={() => handleStartChat(doctor.id)}
+              onClick={() => onSelectDoctor(doctor.id)}
               className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm"
             >
-              Chat Now
+              {mode === "add" ? "Add to Chat" : "Chat Now"}
             </button>
           </li>
         ))}

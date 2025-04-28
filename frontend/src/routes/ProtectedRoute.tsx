@@ -30,13 +30,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
 
   // For debugging
-  console.log("Protected Route:", {
-    isAuthenticated,
-    hasUser: !!user,
-    checkingAuth,
-    path: location.pathname,
-  });
-  console.log("ProtectedRoute rendering with children:", !!children);
+  // console.log("Protected Route:", {
+  //   isAuthenticated,
+  //   hasUser: !!user,
+  //   checkingAuth,
+  //   path: location.pathname,
+  // });
+  // console.log("ProtectedRoute rendering with children:", !!children);
 
   // Kiểm tra role/permission khi user thay đổi
   useEffect(() => {

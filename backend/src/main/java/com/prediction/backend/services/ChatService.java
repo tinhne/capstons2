@@ -10,11 +10,11 @@ public interface ChatService {
     /**
      * Start a new conversation between user and doctor
      * 
-     * @param userId   ID of the user
-     * @param doctorId ID of the doctor
+     * @param senderId   ID of the sender
+     * @param receiverId ID of the receiver
      * @return the created or existing conversation
      */
-    Conversation startConversation(String userId, String doctorId);
+    Conversation startConversation(String senderId, String receiverId);
 
     /**
      * Send a message in a conversation
@@ -40,5 +40,11 @@ public interface ChatService {
      */
     List<Conversation> getUserConversations(String userId);
 
-    Optional<Conversation> getConversationById(String conversationId);
+    Conversation getConversationById(String conversationId);
+
+    void addUserToConversation(String conversationId, String userId);
+
+    boolean checkDoctorInConversation(String conversationId);
+
+    void removeUserFromConversation(String conversationId, String userId);
 }
