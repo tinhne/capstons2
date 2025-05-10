@@ -1,0 +1,49 @@
+package com.prediction.backend.services.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import com.prediction.backend.dto.ConversationDTO;
+import com.prediction.backend.services.ChatService;
+import com.prediction.backend.services.ChatBotService;
+
+@Service
+public class ChatServiceImpl implements ChatService {
+
+    private final ChatBotService chatBotService;
+
+    private final Map<UUID, List<String>> userCollectedData = new HashMap<>();
+    private final Map<UUID, ConversationDTO> userConversations = new HashMap<>();
+
+    public ChatServiceImpl(ChatBotService chatBotService) {
+        this.chatBotService = chatBotService;
+    }
+
+    @Override
+    public String handleData(String userMessage, UUID userId) {
+        ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
+
+        String reply = chatBotService.ask(userMessage, conversationDTO, userId);
+
+        userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
+        userCollectedData.get(userId).add("Bot: " + reply);
+
+        return reply;
+    }
+
+    @Override
+    public String getHistoryData(UUID userId) {
+        return String.join("\n", userCollectedData.getOrDefault(userId, new ArrayList<>()));
+    }
+
+    @Override
+    public void reset(UUID userId) {
+        userCollectedData.remove(userId);
+        userConversations.remove(userId);
+    }
+}

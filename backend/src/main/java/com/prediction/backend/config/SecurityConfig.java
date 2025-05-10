@@ -48,29 +48,29 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity
-//                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
-//                .cors(Customizer.withDefaults()) // Bật CORS
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll() // Cho phép tất cả API không cần auth
-//                )
-//                .oauth2ResourceServer(oauth2 -> oauth2.disable()); // Tắt xác thực JWT
-        httpSecurity.cors(Customizer.withDefaults());
+       httpSecurity
+               .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+               .cors(Customizer.withDefaults()) // Bật CORS
+               .authorizeHttpRequests(auth -> auth
+                       .anyRequest().permitAll() // Cho phép tất cả API không cần auth
+               )
+               .oauth2ResourceServer(oauth2 -> oauth2.disable()); // Tắt xác thực JWT
+        // httpSecurity.cors(Customizer.withDefaults());
 
-        httpSecurity.authorizeHttpRequests(requests -> requests
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest()
-                .authenticated()
-        );
+        // httpSecurity.authorizeHttpRequests(requests -> requests
+        //         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        //         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+        //         .anyRequest()
+        //         .authenticated()
+        // );
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
-        );
+        // httpSecurity.oauth2ResourceServer(oauth2 ->
+        //         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+        //                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+        //                 .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
+        // );
 
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        // httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
     }
     @Bean
