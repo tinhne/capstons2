@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.prediction.backend.dto.ConversationDTO;
 import com.prediction.backend.services.ChatService;
+
+import reactor.core.publisher.Mono;
+
 import com.prediction.backend.services.ChatBotService;
 
 @Service
@@ -25,20 +28,21 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public String handleData(String userMessage, UUID userId) {
+    public Mono<String> handleData(String userMessage, UUID userId) {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
 
-        String reply = chatBotService.ask(userMessage, conversationDTO, userId);
-
-        userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
-        userCollectedData.get(userId).add("Bot: " + reply);
-
-        return reply;
+        return chatBotService.ask(userMessage, conversationDTO, userId)
+            .map(reply -> {
+                userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
+                userCollectedData.get(userId).add("Bot: " + reply);
+                return reply;
+            });
     }
 
     @Override
-    public String getHistoryData(UUID userId) {
-        return String.join("\n", userCollectedData.getOrDefault(userId, new ArrayList<>()));
+    public Mono<String> getHistoryData(UUID userId) {
+        List<String> history = userCollectedData.getOrDefault(userId, new ArrayList<>());
+        return Mono.just(String.join("\n", history));
     }
 
     @Override

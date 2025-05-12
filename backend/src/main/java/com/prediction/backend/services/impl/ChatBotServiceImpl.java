@@ -16,6 +16,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import com.prediction.backend.services.ChatBotService;
+
+import reactor.core.publisher.Mono;
+
 import com.prediction.backend.config.ChatBotConfig;
 import com.prediction.backend.dto.ConversationDTO;
 import com.prediction.backend.models.Conversation;
@@ -37,7 +40,7 @@ public class ChatBotServiceImpl implements ChatBotService {
 
     }
 
-    public String ask(String userMessage, ConversationDTO conversationDTO, UUID userId) {
+    public Mono<String> ask(String userMessage, ConversationDTO conversationDTO, UUID userId) {
 
         if (conversationDTO.getContents().isEmpty()){
             String prompt = """ 
@@ -54,50 +57,40 @@ public class ChatBotServiceImpl implements ChatBotService {
         conversationDTO.addUserMessage(userMessage);
         Map<String, Object> message = Map.of("contents", conversationDTO.getContents());
 
-        try {
-            String response = webClient.post()
-                .bodyValue(gson.toJson(message))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        return webClient.post()
+            .bodyValue(gson.toJson(message))
+            .retrieve()
+            .bodyToMono(String.class)
+            .map(response -> {
+                JsonObject json = JsonParser.parseString(response).getAsJsonObject();
+                JsonArray candidates = json.getAsJsonArray("candidates");
+                if (candidates != null && candidates.size() > 0) {
+                    String reply = candidates.get(0)
+                        .getAsJsonObject()
+                        .getAsJsonObject("content")
+                        .getAsJsonArray("parts")
+                        .get(0)
+                        .getAsJsonObject()
+                        .get("text").getAsString();
 
-            JsonObject json = JsonParser.parseString(response).getAsJsonObject();
-            JsonArray candidates = json.getAsJsonArray("candidates");
-
-            if (candidates != null && candidates.size() > 0) {
-            String reply = candidates.get(0)
-                    .getAsJsonObject()
-                    .getAsJsonObject("content")
-                    .getAsJsonArray("parts")
-                    .get(0)
-                    .getAsJsonObject()
-                    .get("text").getAsString();
-
-            conversationDTO.addChatBotMessage(reply);
-
-            Conversation storedConversation = new Conversation(userId, conversationDTO.getContents());
-            conversationRepository.save(storedConversation);
-            return reply;
-        }
-
-        } catch (WebClientResponseException e) {
-            // Lỗi từ phía API Gemini trả về (400, 401, 500,...)
-            System.err.println("Gemini API Error - Status: " + e.getStatusCode());
-            System.err.println("Body: " + e.getResponseBodyAsString());
-            return "Error from chatbot system. Please try again.";
-
-        } catch (WebClientRequestException e) {
-            // Lỗi không kết nối được tới server (timeout, không mạng,...)
-            System.err.println("Can not connected to Gemini API: " + e.getMessage());
-            return "Can not connected to system. Please check network or try again.";
-
-        } catch (Exception e) {
-            // Các lỗi khác
-            System.err.println("Error not defined: " + e.getMessage());
-            e.printStackTrace();
-            return "Error. Please try again!";
-        }
-        
-        return "Sorry, I can not reply now!";
+                    conversationDTO.addChatBotMessage(reply);
+                    conversationRepository.save(new Conversation(userId, conversationDTO.getContents()));
+                    return reply;
+                }
+                return "Sorry, no reply from chatbot.";
+            })
+            .onErrorResume(e -> {
+                if (e instanceof WebClientResponseException responseEx) {
+                    System.err.println("Gemini API Error - Status: " + responseEx.getStatusCode());
+                    System.err.println("Body: " + responseEx.getResponseBodyAsString());
+                    return Mono.just("Error from chatbot system. Please try again.");
+                } else if (e instanceof WebClientRequestException requestEx) {
+                    System.err.println("Can not connected to Gemini API: " + requestEx.getMessage());
+                    return Mono.just("Cannot connect to system. Please check network or try again.");
+                }
+                System.err.println("Unexpected error: " + e.getMessage());
+                return Mono.just("Unexpected error occurred.");
+            }
+        );
     }
 }

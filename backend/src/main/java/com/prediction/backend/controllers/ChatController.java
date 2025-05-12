@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import com.prediction.backend.dto.response.ApiResponse;
 import com.prediction.backend.services.ChatService;
@@ -20,28 +21,31 @@ public class ChatController {
 
     // Gửi một câu hỏi và nhận phản hồi từ chatbot
     @PostMapping("/ask")
-    public ResponseEntity<ApiResponse<String>> ask(
+    public Mono<ResponseEntity<ApiResponse<String>>> ask(
             @RequestParam("userId") UUID userId,
             @RequestParam("message") String message) {
-        String reply = chatService.handleData(message, userId);
-        return ResponseEntity.ok(
-            ApiResponse.<String>builder()
-            .message("System Response")
-            .data(reply)
-            .build());
+
+        return chatService.handleData(message, userId)
+            .map(reply -> ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                    .message("System Response")
+                    .data(reply)
+                    .build()
+            ));
     }
 
     // Lấy lịch sử hội thoại của một người dùng
     @GetMapping("/history")
-    public ResponseEntity<ApiResponse<String>> getHistory(
+    public Mono<ResponseEntity<ApiResponse<String>>> getHistory(
             @RequestParam("userId") UUID userId) {
-        String history = chatService.getHistoryData(userId);
-        return ResponseEntity.ok(
-            ApiResponse.<String>builder()
-            .message("Conversation History")
-            .data(history)
-            .build()
-        );
+
+        return chatService.getHistoryData(userId)
+            .map(history -> ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                    .message("Conversation History")
+                    .data(history)
+                    .build()
+            ));
     }
 
     // Reset cuộc hội thoại và dữ liệu của người dùng

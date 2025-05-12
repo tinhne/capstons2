@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import com.prediction.backend.dto.ConversationDTO;
 
+import reactor.core.publisher.Mono;
+
 public interface ChatBotService {
-    String ask(String userMessage, ConversationDTO conversation, UUID userId);
+    Mono<String> ask(String userMessage, ConversationDTO conversation, UUID userId);
 }
