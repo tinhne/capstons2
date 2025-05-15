@@ -27,17 +27,41 @@ public class ChatServiceImpl implements ChatService {
         this.chatBotService = chatBotService;
     }
 
+    // @Override
+    // public Mono<String> handleData(String userMessage, UUID userId) {
+    //     ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
+    //     return chatBotService.ask(userMessage, conversationDTO, userId)
+    //         .map(reply -> {
+    //             userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
+    //             userCollectedData.get(userId).add("Bot: " + reply);
+    //             return reply;
+    //         });
+    // }
     @Override
     public Mono<String> handleData(String userMessage, UUID userId) {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
-        conversationDTO.showLastResult();
+
         return chatBotService.ask(userMessage, conversationDTO, userId)
-            .map(reply -> {
+            .flatMap(reply -> {
                 userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
                 userCollectedData.get(userId).add("Bot: " + reply);
-                return reply;
+
+                // Nếu trả về đúng JSON định dạng sức khỏe, gửi đến AIModelService và reset
+                if (ConversationDTO.isValidMedicalJsonFormat(reply)) {
+                    // TODO: Gửi JSON đến AIModelService
+                    // aiModelService.predictDiagnosis(reply);
+            
+                    // Reset cuộc trò chuyện
+                    reset(userId);
+
+                    // Thêm thông báo rõ ràng nếu cần
+                    return Mono.just("day se do aimodel tra ve!");
+                }
+
+                return Mono.just(reply);
             });
     }
+
 
     @Override
     public Mono<String> getHistoryData(UUID userId) {
