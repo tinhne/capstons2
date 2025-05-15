@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { UserRole } from "../types/user";
+import { UserRole } from "../features/users/types";
 
 interface MainLayoutProps {
   children?: React.ReactNode;
@@ -76,6 +76,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <span className="text-sm font-medium text-gray-700">
                     {user.name || user.email}
                   </span>
+                  <Link
+                    to="/profile/edit"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Edit Profile
+                  </Link>
                   <button
                     onClick={logout}
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -106,7 +112,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
       {/* Main content */}
       <main className="flex-1 bg-gray-100">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {children}
           <Outlet />
         </div>

@@ -27,7 +27,5 @@ public class UserUpdateRequest {
 
     String city; // City
     String underlyingDisease; // Underlying disease
-    String password; // Password
     String specialization; // Specialization for doctors
-    List<String> roles;
 }

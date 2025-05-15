@@ -4,11 +4,13 @@ import { register } from "../redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { APP_ROUTES } from "../../../constants/routeConstants";
+import { useToast } from "../../../contexts/ToastContext";
 
 const RegisterForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { showToast } = useToast();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -85,7 +87,7 @@ const RegisterForm: React.FC = () => {
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        gender: formData.gender as "male" | "female" | "other",
+        gender: formData.gender as "Male" | "Female" | "Other",
         address: formData.address,
         district: formData.district,
         city: formData.city,
@@ -95,9 +97,19 @@ const RegisterForm: React.FC = () => {
     );
 
     if (register.fulfilled.match(result)) {
+      showToast({
+        type: "success",
+        message: "Đăng ký thành công! Vui lòng đăng nhập.",
+      });
       navigate(APP_ROUTES.PUBLIC.LOGIN); // Redirect to login after successful registration
     }
   };
+
+  React.useEffect(() => {
+    if (error) {
+      showToast({ type: "error", message: error });
+    }
+  }, [error]);
 
   return (
     <>

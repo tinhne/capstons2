@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { login } from "../redux/authSlice";
+import { login, logout } from "../redux/authSlice";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { APP_ROUTES, createPath } from "../../../constants/routeConstants";
 import {
@@ -9,6 +9,8 @@ import {
   getUserIdFromToken,
   hasRoleFromToken,
 } from "../../../utils/jwtUtils";
+import { jwtDecode } from "jwt-decode";
+import { useToast } from "../../../contexts/ToastContext";
 
 // SVG Google icon component
 const GoogleIcon = () => (
@@ -49,6 +51,7 @@ const LoginForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
 
   // Get redirect path from location state if available
   const redirectPath = location.state?.from || APP_ROUTES.PRIVATE.DASHBOARD;
@@ -57,18 +60,38 @@ const LoginForm: React.FC = () => {
     (state: RootState) => state.auth
   );
 
-  console.log("Current auth state:", {
-    isAuthenticated,
-    hasUser: !!user,
-    hasToken: !!token,
-    location: location.pathname,
-    redirectPath,
-  });
+  // console.log("Current auth state:", {
+  //   isAuthenticated,
+  //   hasUser: !!user,
+  //   hasToken: !!token,
+  //   location: location.pathname,
+  //   redirectPath,
+  // });
+  const isTokenValid = (token: string): boolean => {
+    try {
+      const decodedToken: any = jwtDecode(token); // Thay đổi ở đây
+      const currentTime = Date.now() / 1000;
+
+      // Kiểm tra exp (expiration time)
+      if (decodedToken.exp && decodedToken.exp < currentTime) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Invalid token:", error);
+      return false;
+    }
+  };
 
   // Effect to handle redirection based on authentication status and token
   useEffect(() => {
-    if (isAuthenticated && token) {
+    if (isAuthenticated && token && !error) {
       // Decode token to get user role and ID
+      if (!isTokenValid(token)) {
+        // Token hết hạn, nên logout hoặc xóa token ở đây
+        dispatch(logout());
+        return;
+      }
       const roles = extractRolesFromToken(token);
       const userId = getUserIdFromToken(token);
 
@@ -90,7 +113,13 @@ const LoginForm: React.FC = () => {
         }
       }, 100);
     }
-  }, [isAuthenticated, token, navigate]);
+  }, [isAuthenticated, token, error]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({ type: "error", message: error });
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,9 +206,6 @@ const LoginForm: React.FC = () => {
                   required
                 />
               </div>
-
-              {/* Error Message */}
-              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
               {/* Sign in Button */}
               <button

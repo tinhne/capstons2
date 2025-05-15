@@ -3,8 +3,11 @@ package com.prediction.backend.services;
 import com.prediction.backend.models.ChatMessage;
 import com.prediction.backend.models.Conversation;
 
+import reactor.core.publisher.Mono;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ChatService {
     /**
@@ -47,4 +50,6 @@ public interface ChatService {
     boolean checkDoctorInConversation(String conversationId);
 
     void removeUserFromConversation(String conversationId, String userId);
+
+    Mono<String> handleData(String userMessage, UUID userId);
 }

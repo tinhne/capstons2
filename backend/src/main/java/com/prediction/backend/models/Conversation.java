@@ -16,7 +16,6 @@ import java.util.List;
 public class Conversation {
     @Id
     private String conversationId;
-
     private Instant startTime;
     private Instant lastMessageTime;
     private List<String> participantIds;

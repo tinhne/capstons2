@@ -5,7 +5,6 @@ import {
   DiseaseSearchResult,
   ChatMessage,
   Conversation,
-  ApiResponse,
 } from "../types";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -33,87 +32,6 @@ export const searchDisease = async (
     console.error("Error searching diseases:", error);
     return { diseases: [], matchedSymptomCount: 0 };
   }
-};
-
-// NLP functions
-export const extractSymptoms = (message: string): string[] => {
-  // Hàm đơn giản trích xuất từ khóa triệu chứng
-  const commonSymptoms = [
-    "sốt",
-    "fever",
-    "đau đầu",
-    "headache",
-    "ho",
-    "cough",
-    "đau",
-    "pain",
-    "đau ngực",
-    "chest pain",
-    "đau lưng",
-    "back pain",
-    "đau họng",
-    "sore throat",
-    "mệt mỏi",
-    "fatigue",
-    "buồn nôn",
-    "nausea",
-    "nôn",
-    "vomiting",
-    "tiêu chảy",
-    "diarrhea",
-    "khó thở",
-    "shortness of breath",
-    "chóng mặt",
-    "dizziness",
-    "đau bụng",
-    "abdominal pain",
-    "sưng",
-    "swelling",
-    "phát ban",
-    "rash",
-  ];
-
-  const messageLower = message.toLowerCase();
-  return commonSymptoms.filter((symptom) => messageLower.includes(symptom));
-};
-
-export const isHealthQuery = (message: string): boolean => {
-  const healthKeywords = [
-    "triệu chứng",
-    "symptom",
-    "bệnh",
-    "sick",
-    "đau",
-    "pain",
-    "bác sĩ",
-    "doctor",
-    "sức khỏe",
-    "health",
-    "bệnh tật",
-    "disease",
-    "tình trạng",
-    "condition",
-    "cảm thấy",
-    "feel",
-    "cảm giác",
-    "feeling",
-    "đau đầu",
-    "headache",
-    "ho",
-    "cough",
-    "cảm",
-    "cold",
-    "cúm",
-    "flu",
-    "covid",
-    "bị",
-    "have",
-    "đang bị",
-    "suffering",
-  ];
-
-  const messageLower = message.toLowerCase();
-  return healthKeywords.some((keyword) => messageLower.includes(keyword));
 };
 
 export const getChatHistory = async (
@@ -282,7 +200,12 @@ export const createConversation = async (
 export const chatWithBot = async (
   message: ChatMessage
 ): Promise<{ data: ChatMessage; needDoctor: boolean }> => {
-  const response = await apiClient.post("/chat/bot/message", message);
+  const response = await apiClient.post(
+    "/chat/bot/message",
+    message,
+    undefined,
+    false
+  );
   // response.data.data sẽ là { message, needDoctor }
   console.log("hi", response.data);
   return response.data;

@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { ChatMessage } from "../../types";
+import { FiSend } from "react-icons/fi";
+import { BsRobot, BsPerson, BsPersonBadge } from "react-icons/bs";
 
 interface ChatBotViewProps {
   messages: ChatMessage[];
@@ -13,8 +15,8 @@ interface ChatBotViewProps {
   doctorId?: string;
   isBot: boolean;
   shouldConnectDoctor: boolean;
-  doctorAdded?: boolean; // thêm prop mới
-  onLeaveConversation?: () => void; // Thêm prop mới cho bác sĩ thoát
+  doctorAdded?: boolean;
+  onLeaveConversation?: () => void;
 }
 
 const ChatBotView: React.FC<ChatBotViewProps> = ({
@@ -34,115 +36,144 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
 }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const formatTime = (timestamp?: string): string => {
     if (!timestamp) return "";
-
     return new Date(timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
+  // Avatar by sender type
+  const getAvatar = (sender: string) => {
+    if (sender === "bot")
+      return <BsRobot className="text-blue-500" size={28} />;
+    if (sender === "doctor")
+      return <BsPersonBadge className="text-green-600" size={28} />;
+    if (sender === "user")
+      return <BsPerson className="text-gray-700" size={28} />;
+    return <span className="text-gray-400">?</span>;
+  };
+
   return (
-    <div className="flex flex-col h-[700px] bg-gray-50 rounded-lg shadow">
-      {/* Chat Header */}
-      <div className="px-4 py-3 bg-blue-600 text-white rounded-t-lg flex items-center">
-        <div className="w-10 h-10 rounded-full bg-white text-blue-600 flex items-center justify-center text-lg font-bold mr-3">
-          {isBot ? "🤖" : isDoctor ? "U" : "D"}
+    <div className="flex flex-col h-[800px] bg-white rounded-xl shadow-lg border overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 text-white flex items-center gap-3 border-b">
+        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow text-2xl">
+          {isBot ? (
+            <BsRobot className="text-blue-500" />
+          ) : isDoctor ? (
+            <BsPersonBadge className="text-green-600" />
+          ) : (
+            <BsPerson className="text-gray-700" />
+          )}
         </div>
         <div>
-          <h2 className="font-bold">
-            {isBot ? "Bot" : isDoctor ? "User Chat" : "Doctor Chat"}
-          </h2>
-          <p className="text-sm text-blue-100">
+          <h2 className="font-bold text-lg">
             {isBot
               ? "AI Health Assistant"
               : isDoctor
-              ? "You are chatting as a doctor"
+              ? "Doctor Chat"
+              : "User Chat"}
+          </h2>
+          <p className="text-xs text-blue-100">
+            {isBot
+              ? "Trợ lý sức khỏe AI"
+              : isDoctor
+              ? "Bạn đang trò chuyện với bệnh nhân"
               : doctorId
-              ? "You are connected to a doctor"
+              ? "Bạn đang kết nối với bác sĩ"
               : "AI Assistant"}
           </p>
         </div>
+        {isDoctor && onLeaveConversation && (
+          <button
+            onClick={onLeaveConversation}
+            className="ml-auto bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs shadow"
+          >
+            Thoát
+          </button>
+        )}
       </div>
-      {/* Hiển thị nút thoát nếu là bác sĩ */}
-      {isDoctor && onLeaveConversation && (
-        <button
-          onClick={onLeaveConversation}
-          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
-        >
-          Thoát cuộc trò chuyện
-        </button>
-      )}
-      {/* Messages Area */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      {/* Messages */}
+      <div className="flex-1 px-4 py-3 overflow-y-auto bg-gray-50">
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <p>No messages yet.</p>
-            <p className="text-sm">Start a conversation!</p>
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <p>Chưa có tin nhắn nào.</p>
+            <p className="text-sm">Hãy bắt đầu cuộc trò chuyện!</p>
           </div>
         ) : (
-          <>
-            {messages.map((message, index) => (
+          <div className="flex flex-col gap-3">
+            {messages.map((message) => (
               <div
-                key={message.id ? `${message.id}-${index}` : `msg-${index}`}
-                className={`mb-4 max-w-[80%] ${
-                  message.sender === "user"
-                    ? "ml-auto bg-blue-500 text-white rounded-tl-lg rounded-tr-lg rounded-bl-lg"
-                    : message.sender === "doctor"
-                    ? "mr-auto bg-green-500 text-white rounded-tl-lg rounded-tr-lg rounded-br-lg"
-                    : message.sender === "system"
-                    ? "mx-auto bg-gray-300 text-gray-800 rounded-lg text-center"
-                    : "mr-auto bg-gray-200 text-gray-800 rounded-tl-lg rounded-tr-lg rounded-br-lg"
-                } p-3`}
+                key={message.id}
+                className={`flex ${
+                  message.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <p>{message.content}</p>
+                {message.sender !== "user" && (
+                  <div className="mr-2 flex-shrink-0">
+                    {getAvatar(message.sender || "unknown")}
+                  </div>
+                )}
                 <div
-                  className={`text-xs mt-1 ${
-                    message.sender === "user" || message.sender === "doctor"
-                      ? "text-blue-100"
-                      : "text-gray-500"
+                  className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm ${
+                    message.sender === "user"
+                      ? "bg-blue-500 text-white rounded-br-none"
+                      : message.sender === "doctor"
+                      ? "bg-green-100 text-green-900 rounded-bl-none"
+                      : message.sender === "system"
+                      ? "bg-gray-200 text-gray-700 mx-auto text-center"
+                      : "bg-gray-100 text-gray-800 rounded-bl-none"
                   }`}
                 >
-                  {formatTime(message.timestamp || message.time)}
+                  <div className="whitespace-pre-line break-words">
+                    {message.content}
+                  </div>
+                  <div className="text-xs text-right mt-1 opacity-70">
+                    {formatTime(message.timestamp || message.time)}
+                  </div>
                 </div>
+                {message.sender === "user" && (
+                  <div className="ml-2 flex-shrink-0">
+                    {getAvatar(message.sender)}
+                  </div>
+                )}
               </div>
             ))}
             <div ref={messageEndRef} />
-          </>
+          </div>
         )}
       </div>
-
-      {/* Input Area */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex">
-          <>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={onInputChange}
-              onKeyPress={onKeyPress}
-              placeholder="Type a message..."
-              className="flex-1 border border-gray-300 rounded-l-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            />
-            <button
-              onClick={onSendMessage}
-              className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none disabled:bg-gray-300"
-              disabled={loading || inputValue.trim() === ""}
-            >
-              Send
-            </button>
-          </>
+      {/* Input */}
+      <div className="p-4 border-t bg-white">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={onInputChange}
+            onKeyPress={onKeyPress}
+            placeholder="Nhập tin nhắn..."
+            className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+            disabled={loading}
+            autoFocus
+          />
+          <button
+            onClick={onSendMessage}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow disabled:bg-gray-300"
+            disabled={loading || inputValue.trim() === ""}
+            aria-label="Gửi tin nhắn"
+          >
+            <FiSend size={22} />
+          </button>
         </div>
       </div>
     </div>

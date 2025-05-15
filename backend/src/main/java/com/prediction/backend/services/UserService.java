@@ -14,14 +14,13 @@ public interface UserService {
 	@PreAuthorize("hasRole('ADMIN')")
 	List<UserResponse> getAllUsers();
 
-	@PostAuthorize("returnObject.id == authentication.name")
 	UserResponse getUserById(String id);
 
 	UserResponse getUserByEmail(String email);
 
 	UserResponse createUser(UserCreateRequest user);
 
-	@PostAuthorize("returnObject.email == authentication.name")
+	@PreAuthorize("hasRole('ADMIN') or #id == authentication.name")
 	UserResponse updateUser(String id, UserUpdateRequest user);
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -37,4 +36,8 @@ public interface UserService {
 	 * @return List of users with the specified role
 	 */
 	List<User> findAllByRole(String role);
+
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostAuthorize("returnObject.id == authentication.name")
+	UserResponse createDoctorUser(UserCreateRequest user);
 }

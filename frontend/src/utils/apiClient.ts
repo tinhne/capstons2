@@ -7,6 +7,16 @@ import axios, {
 } from "axios";
 import { refreshUserToken } from "../features/auth/redux/authSlice";
 import { store } from "../redux/store";
+import { useToast } from "../contexts/ToastContext";
+
+// Thêm biến toastHandler để inject từ ngoài vào
+let toastHandler:
+  | ((message: string, type?: "success" | "error") => void)
+  | null = null;
+
+export function setApiToastHandler(handler: typeof toastHandler) {
+  toastHandler = handler;
+}
 
 /**
  * Thiết lập API client cho toàn bộ ứng dụng
@@ -68,19 +78,12 @@ class ApiClient {
    * Xử lý response
    */
   private handleResponse = (response: AxiosResponse): AxiosResponse => {
-    // Log successful responses for debugging
-    // console.log(`API Response [${response.config.url}]:`, response.data);
-
-    // Handle different API response formats
-    // Some backends return { data, status, message } format, others return data directly
+    // Không gọi toastHandler ở đây nữa
     if (response.data && typeof response.data === "object") {
       if (response.data.hasOwnProperty("data")) {
-        // Return the standard format with status/data/message
         return response.data;
       }
     }
-
-    // Return raw data as-is
     return response.data;
   };
 
@@ -96,6 +99,14 @@ class ApiClient {
     });
 
     const originalRequest = error.config;
+
+    // Xử lý lỗi 401 Unauthorized hoặc lỗi xác thực
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      window.location.href = "/login";
+      return Promise.reject(error);
+    }
 
     // Xử lý lỗi 401 Unauthorized
     if (error.response?.status === 401 && originalRequest) {
@@ -165,9 +176,23 @@ class ApiClient {
 
     // Transform error response to more usable format if possible
     if (error.response?.data) {
+      let message: string | undefined = undefined;
+      if (
+        typeof error.response.data === "object" &&
+        error.response.data !== null &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+      ) {
+        message = error.response.data.message;
+      } else if (typeof error.response.data === "string") {
+        message = error.response.data;
+      }
+      if (toastHandler && message) {
+        toastHandler(message, "error");
+      }
       return Promise.reject({
         status: error.response.status,
-        message: error.response.data || error.message,
+        message: message || error.message,
         data: error.response.data,
       });
     }
@@ -211,10 +236,22 @@ class ApiClient {
   public async post<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
+    showToast: boolean = true
   ): Promise<T> {
     try {
-      return await this.instance.post<T, T>(url, data, config);
+      const res = await this.instance.post<T, T>(url, data, config);
+      if (
+        showToast &&
+        toastHandler &&
+        res &&
+        typeof res === "object" &&
+        "message" in res &&
+        typeof res.message === "string"
+      ) {
+        toastHandler(res.message, "success");
+      }
+      return res;
     } catch (error) {
       console.error(`POST ${url} failed:`, error);
       throw error;
@@ -229,7 +266,17 @@ class ApiClient {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<T> {
-    return this.instance.put<T, T>(url, data, config);
+    const res = await this.instance.put<T, T>(url, data, config);
+    if (
+      toastHandler &&
+      res &&
+      typeof res === "object" &&
+      "message" in res &&
+      typeof res.message === "string"
+    ) {
+      toastHandler(res.message, "success");
+    }
+    return res;
   }
 
   /**
@@ -240,7 +287,17 @@ class ApiClient {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<T> {
-    return this.instance.patch<T, T>(url, data, config);
+    const res = await this.instance.patch<T, T>(url, data, config);
+    if (
+      toastHandler &&
+      res &&
+      typeof res === "object" &&
+      "message" in res &&
+      typeof res.message === "string"
+    ) {
+      toastHandler(res.message, "success");
+    }
+    return res;
   }
 
   /**
@@ -250,7 +307,17 @@ class ApiClient {
     url: string,
     config?: AxiosRequestConfig
   ): Promise<T> {
-    return this.instance.delete<T, T>(url, config);
+    const res = await this.instance.delete<T, T>(url, config);
+    if (
+      toastHandler &&
+      res &&
+      typeof res === "object" &&
+      "message" in res &&
+      typeof res.message === "string"
+    ) {
+      toastHandler(res.message, "success");
+    }
+    return res;
   }
 
   /**
@@ -262,13 +329,23 @@ class ApiClient {
     onUploadProgress?: (progressEvent: any) => void,
     config?: AxiosRequestConfig
   ): Promise<T> {
-    return this.instance.post<T, T>(url, formData, {
+    const res = await this.instance.post<T, T>(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress,
       ...config,
     });
+    if (
+      toastHandler &&
+      res &&
+      typeof res === "object" &&
+      "message" in res &&
+      typeof res.message === "string"
+    ) {
+      toastHandler(res.message, "success");
+    }
+    return res;
   }
 }
 

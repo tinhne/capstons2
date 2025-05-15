@@ -18,6 +18,7 @@ const AuthPage = lazy(() => import("../features/auth/AuthPage"));
 // const ChatPage = lazy(() => import("../features/chat/ChatPage"));
 const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 import ChatPage from "../features/chat/ChatPage";
+import EditProfile from "../features/users/components/Profile";
 
 // Loading component cho Suspense
 const SuspenseFallback = () => (
@@ -128,6 +129,10 @@ const privateRoutes: RouteObject[] = [
       {
         path: "chat/:id", // Trang chat với bác sĩ
         element: <ChatPage />,
+      },
+      {
+        path: "profile/edit", // Thêm route này
+        element: <EditProfile />,
       },
     ],
   },

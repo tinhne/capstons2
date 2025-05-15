@@ -1,5 +1,7 @@
 package com.prediction.backend.services.impl;
 
+import com.prediction.backend.config.ChatBotConfig;
+import com.prediction.backend.dto.ConversationDTO;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
 import com.prediction.backend.models.Conversation;
@@ -11,15 +13,29 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.prediction.backend.models.ChatMessage;
+import com.prediction.backend.services.ChatBotService;
 import com.prediction.backend.services.ChatService;
 import com.prediction.backend.repositories.ChatMessageRepository;
 import com.prediction.backend.repositories.ConversationRepository;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Service
 @RequiredArgsConstructor
@@ -28,19 +44,26 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final Map<UUID, List<String>> userCollectedData = new HashMap<>();
+    private final Map<UUID, ConversationDTO> userConversations = new HashMap<>();
+    private final WebClient webClient;
+    private final Gson gson = new Gson();
+    private final ChatBotService chatBotService;
 
     @Override
     public Conversation startConversation(String senderId, String receiverId) {
         List<String> participants = List.of(senderId, receiverId);
 
         // Tìm conversation có đúng 2 người này
-        Optional<Conversation> existingConversation = conversationRepository.findByExactParticipants(participants, 2);
+        List<Conversation> existingConversations = conversationRepository.findByExactParticipants(participants, 2);
 
         // Nếu có rồi thì trả về
-        if (existingConversation.isPresent()) {
-            return existingConversation.get();
+        if (!existingConversations.isEmpty()) {
+            // Nếu có nhiều cuộc hội thoại, có thể sắp xếp theo thời gian và lấy cái mới
+            // nhất
+            existingConversations.sort((c1, c2) -> c2.getStartTime().compareTo(c1.getStartTime()));
+            return existingConversations.get(0);
         }
-
         // Kiểm tra user tồn tại
         userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -132,5 +155,17 @@ public class ChatServiceImpl implements ChatService {
         } else {
             throw new AppException(ErrorCode.USER_NOT_IN_CONVERSATION);
         }
+    }
+
+    @Override
+    public Mono<String> handleData(String userMessage, UUID userId) {
+        ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
+
+        return chatBotService.ask(userMessage, conversationDTO, userId)
+                .map(reply -> {
+                    userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
+                    userCollectedData.get(userId).add("Bot: " + reply);
+                    return reply;
+                });
     }
 }

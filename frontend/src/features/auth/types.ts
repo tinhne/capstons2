@@ -1,19 +1,4 @@
-/**
- * Định nghĩa quyền trong hệ thống
- */
-export interface Permission {
-  name: string;
-  description: string;
-}
-
-/**
- * Định nghĩa vai trò trong hệ thống
- */
-export interface Role {
-  name: string;
-  description: string;
-  permissions: Permission[];
-}
+import type { Role } from "../../types/api";
 
 /**
  * Định nghĩa thông tin người dùng
@@ -92,7 +77,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   confirmPassword?: string;
-  gender?: "male" | "female" | "other";
+  gender?: "Male" | "Female" | "Other";
   address?: string;
   district?: string;
   city?: string;
@@ -122,14 +107,4 @@ export interface RefreshTokenResponse {
   refreshToken?: string;
   expiresIn?: number;
   success: boolean;
-}
-
-/**
- * Định nghĩa một API Response tiêu chuẩn
- */
-export interface ApiResponse<T = any> {
-  status: number;
-  message: string;
-  data: T;
-  errors?: Record<string, string[]>;
 }

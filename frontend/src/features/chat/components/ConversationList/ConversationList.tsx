@@ -4,7 +4,7 @@ import { getUserConversations } from "../../services/chatService";
 import { Conversation } from "../../types";
 import { formatDate } from "../../../../utils/formatDate";
 import { useAuth } from "../../../../hooks/useAuth";
-import { UserRole } from "../../../../types/user";
+import userService from "../../../users/services/userService";
 
 interface ConversationListProps {
   onSelectConversation?: (conversation: Conversation) => void;
@@ -18,16 +18,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [userNames, setUserNames] = useState<{ [id: string]: string }>({});
 
   useEffect(() => {
-    // console.log("user", user);
     const fetchConversations = async () => {
       if (!user?.id) return;
 
       try {
         setLoading(true);
         const fetchedConversations = await getUserConversations(user.id);
-        // console.log("check conversations", fetchedConversations);
         setConversations(fetchedConversations || []);
         setError(null);
       } catch (err) {
@@ -41,17 +40,35 @@ const ConversationList: React.FC<ConversationListProps> = ({
     fetchConversations();
   }, [user?.id]);
 
+  // Fetch missing user names for other participants
+  useEffect(() => {
+    const idsToFetch = Array.from(
+      new Set(
+        conversations
+          .map((c) => c.participantIds?.find((id) => id !== user?.id))
+          .filter((id): id is string => !!id && !userNames[id])
+      )
+    );
+
+    if (idsToFetch.length === 0) return;
+
+    idsToFetch.forEach(async (id) => {
+      try {
+        const userInfo = await userService.fetchUserById(id);
+        setUserNames((prev) => ({
+          ...prev,
+          [id]: userInfo.name || id,
+        }));
+      } catch {
+        setUserNames((prev) => ({ ...prev, [id]: id }));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversations, user?.id]);
+
   const handleSelectConversation = (conversation: Conversation) => {
-    // Depending on user role, navigate to the appropriate chat
-    // const isDoctor = user?.roles === "DOCTOR";
-    // const isDoctor = user?.roles?.some((role) => role.name === UserRole.DOCTOR);
-
-    // const targetId = isDoctor ? conversation.userId : conversation.doctorId;
-
-    // Navigate to chat with doctor/user
     navigate(`/chat/${conversation.conversationId}`);
 
-    // Call the onSelectConversation prop if provided
     if (onSelectConversation) {
       onSelectConversation(conversation);
     }
@@ -96,16 +113,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </h3>
       <ul className="divide-y divide-gray-200">
         {conversations.map((conversation) => {
-          // Tìm ID người còn lại trong participantIds
           const otherParticipantId =
             conversation.participantIds?.find((id) => id !== user?.id) || "";
 
-          // Hiển thị tên theo role hoặc dựa trên thông tin bổ sung
-          // Nếu không có thông tin chi tiết, hiển thị ID
           const otherPersonName =
-            conversation.userName ||
-            conversation.doctorName ||
-            otherParticipantId;
+            userNames[otherParticipantId] || otherParticipantId;
 
           return (
             <li

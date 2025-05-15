@@ -13,7 +13,7 @@ public interface ConversationRepository extends MongoRepository<Conversation, St
 
     // Tìm conversation có đúng 2 participantIds (không phân biệt thứ tự)
     @Query("{ 'participantIds': { $all: ?0 }, '$expr': { '$eq': [{ '$size': '$participantIds' }, ?1] } }")
-    Optional<Conversation> findByExactParticipants(List<String> participantIds, int size);
+    List<Conversation> findByExactParticipants(List<String> participants, int size);
 
     // Tìm tất cả conversation mà participantIds chứa userId
     List<Conversation> findByParticipantIdsContaining(String userId);

@@ -34,8 +34,7 @@ export interface Conversation {
   participantIds: string[]; // thay thế userId/doctorId
   startTime?: string;
   lastMessageTime?: string;
-  userName?: string;
-  doctorName?: string;
+
 }
 
 export interface Disease {

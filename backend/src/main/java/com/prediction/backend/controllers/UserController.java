@@ -67,8 +67,10 @@ public class UserController {
 	// Update User
 	@PutMapping("/{id}")
 	public ApiResponse<UserResponse> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest user) {
+		UserResponse updateResponse = userService.updateUser(id, user);
 		return ApiResponse.<UserResponse>builder()
-				.data(userService.updateUser(id, user))
+				.data(updateResponse)
+				.message("Cập nhật " + updateResponse.getName() + " thành công")
 				.build();
 	}
 
@@ -88,4 +90,13 @@ public class UserController {
 				.data(doctors)
 				.build();
 	}
+
+	// Create DoctorUser
+	@PostMapping("/doctor")
+	public ApiResponse<UserResponse> createUserDoctor(@RequestBody UserCreateRequest user) {
+		return ApiResponse.<UserResponse>builder()
+				.data(userService.createDoctorUser(user))
+				.build();
+	}
+
 }

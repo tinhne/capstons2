@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Toast, { ToastProps, ToastPosition } from "../components/ui/Toast";
+// import { ApiResponse } from "../../types/api";
 
 // Interface cho mỗi toast
 interface ToastItem extends ToastProps {
@@ -177,3 +178,14 @@ export const useToast = () => {
 
   return context;
 };
+
+// Hiển thị toast message từ ApiResponse
+// export function showApiToast(
+//   response: Partial<ApiResponse<any>>,
+//   type: "success" | "error" = "success"
+// ) {
+//   const { showToast } = useToast();
+//   if (response && typeof response === "object" && response.message) {
+//     showToast({ type, message: response.message });
+//   }
+// }

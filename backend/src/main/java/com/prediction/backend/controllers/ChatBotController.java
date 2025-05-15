@@ -2,16 +2,21 @@ package com.prediction.backend.controllers;
 
 import com.prediction.backend.models.ChatMessage;
 import com.prediction.backend.repositories.ChatMessageRepository;
+import com.prediction.backend.services.ChatService;
 import com.prediction.backend.services.DiseaseService;
 import com.prediction.backend.models.Disease;
 import com.prediction.backend.dto.response.ApiResponse;
 import com.prediction.backend.dto.response.BotResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
+
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/chat/bot")
@@ -22,6 +27,9 @@ public class ChatBotController {
 
     @Autowired
     private DiseaseService diseaseService;
+
+    @Autowired
+    private ChatService chatService;
 
     @PostMapping("/message")
     public ApiResponse<BotResponse> chatWithBot(@RequestBody ChatMessage userMessage) {
@@ -75,9 +83,21 @@ public class ChatBotController {
 
         // 6. Trả về tin nhắn bot cho frontend
         return ApiResponse.<BotResponse>builder()
-                .status(1000)
                 .message("Bot trả lời thành công")
                 .data(botResponse)
                 .build();
+    }
+
+    @PostMapping("/ask")
+    public Mono<ResponseEntity<ApiResponse<String>>> ask(
+            @RequestParam("userId") UUID userId,
+            @RequestParam("message") String message) {
+
+        return chatService.handleData(message, userId)
+                .map(reply -> ResponseEntity.ok(
+                        ApiResponse.<String>builder()
+                                .message("System Response")
+                                .data(reply)
+                                .build()));
     }
 }

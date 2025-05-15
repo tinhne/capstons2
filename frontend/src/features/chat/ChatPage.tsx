@@ -5,7 +5,7 @@ import ChatBot from "./components/ChatBot/index";
 import DoctorList from "./components/DoctorList/index";
 import ConversationList from "./components/ConversationList/index";
 import { chatService } from "./services";
-import { UserRole } from "../../types/user";
+import { UserRole } from "../users/types";
 
 const ChatPage: React.FC = () => {
   const params = useParams();
@@ -93,7 +93,7 @@ const ChatPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const conversation = await chatService.createConversation(botId, user.id);
+      const conversation = await chatService.createConversation(user.id, botId);
       navigate(`/chat/${conversation.conversationId}`);
     } catch (err: any) {
       setError("Failed to create conversation. Please try again.");

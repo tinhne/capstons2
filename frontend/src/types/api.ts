@@ -96,3 +96,20 @@ export interface FilterParams {
 export type SearchParams = PaginationParams &
   Partial<SortParams> &
   FilterParams;
+
+/**
+ * Định nghĩa quyền trong hệ thống
+ */
+export interface Permission {
+  name: string;
+  description: string;
+}
+
+/**
+ * Định nghĩa vai trò trong hệ thống
+ */
+export interface Role {
+  name: string;
+  description: string;
+  permissions: Permission[];
+}

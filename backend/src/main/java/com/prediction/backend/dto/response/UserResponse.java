@@ -22,9 +22,13 @@ public class UserResponse {
     Gender gender; // User gender
     String address; // User address
     String district; // Restrict
-    String city; // City 
+    String city; // City
+
     public enum Gender {
-        Male, Female, Other 
+        Male, Female, Other
     }
+
     Set<RoleResponse> roles;
+    String underlyingDisease;
+    String specialization;
 }
