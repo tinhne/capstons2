@@ -66,8 +66,6 @@ public class WebSocketEventListener {
         message.setConversationId(conversationId);
         message.setSender("system");
         message.setContent(content);
-        message.setSenderId("system");
-        message.setReceiverId(recipientId);
         message.setTimestamp(Instant.now());
         message.setRead(false);
 

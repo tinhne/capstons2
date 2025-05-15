@@ -198,10 +198,11 @@ export const createConversation = async (
   }
 };
 export const chatWithBot = async (
+  idBot: String,
   message: ChatMessage
 ): Promise<{ data: ChatMessage; needDoctor: boolean }> => {
   const response = await apiClient.post(
-    "/chat/bot/message",
+    `/chat/bot/message?userId=${idBot}`,
     message,
     undefined,
     false

@@ -104,7 +104,11 @@ class ApiClient {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
-      window.location.href = "/login";
+      // Chỉ redirect nếu KHÔNG ở trang /login
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+      // Nếu đang ở trang login thì chỉ reject lỗi để Redux xử lý
       return Promise.reject(error);
     }
 

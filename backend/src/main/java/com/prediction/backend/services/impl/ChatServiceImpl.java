@@ -54,16 +54,6 @@ public class ChatServiceImpl implements ChatService {
     public Conversation startConversation(String senderId, String receiverId) {
         List<String> participants = List.of(senderId, receiverId);
 
-        // Tìm conversation có đúng 2 người này
-        List<Conversation> existingConversations = conversationRepository.findByExactParticipants(participants, 2);
-
-        // Nếu có rồi thì trả về
-        if (!existingConversations.isEmpty()) {
-            // Nếu có nhiều cuộc hội thoại, có thể sắp xếp theo thời gian và lấy cái mới
-            // nhất
-            existingConversations.sort((c1, c2) -> c2.getStartTime().compareTo(c1.getStartTime()));
-            return existingConversations.get(0);
-        }
         // Kiểm tra user tồn tại
         userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -162,10 +152,29 @@ public class ChatServiceImpl implements ChatService {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
 
         return chatBotService.ask(userMessage, conversationDTO, userId)
-                .map(reply -> {
+                .flatMap(reply -> {
                     userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
                     userCollectedData.get(userId).add("Bot: " + reply);
-                    return reply;
+
+                    // Nếu trả về đúng JSON định dạng sức khỏe, gửi đến AIModelService và reset
+                    if (ConversationDTO.isValidMedicalJsonFormat(reply)) {
+                        // TODO: Gửi JSON đến AIModelService
+                        // aiModelService.predictDiagnosis(reply);
+
+                        // Reset cuộc trò chuyện
+                        reset(userId);
+
+                        // Thêm thông báo rõ ràng nếu cần
+                        return Mono.just("day se do aimodel tra ve!");
+                    }
+
+                    return Mono.just(reply);
                 });
+    }
+
+    @Override
+    public void reset(UUID userId) {
+        userCollectedData.remove(userId);
+        userConversations.remove(userId);
     }
 }

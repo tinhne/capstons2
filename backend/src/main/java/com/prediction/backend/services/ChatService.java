@@ -52,4 +52,6 @@ public interface ChatService {
     void removeUserFromConversation(String conversationId, String userId);
 
     Mono<String> handleData(String userMessage, UUID userId);
+
+    void reset(UUID userId);
 }

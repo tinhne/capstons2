@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Document(collection = "chat_messages")
 @Data
@@ -17,13 +18,12 @@ public class ChatMessage {
     private String id;
 
     private String conversationId; // ID của cuộc trò chuyện
-    private String senderId; // ID người gửi
-    private String receiverId; // ID người nhận
+    private UUID senderId; // ID người gửi
     private String content; // Nội dung tin nhắn
     private Instant timestamp; // Thời gian gửi
 
     // Thông tin phụ
     private String sender; // Loại người gửi: "user", "doctor", "system"
     private boolean isRead; // Đã đọc chưa
-    
+
 }

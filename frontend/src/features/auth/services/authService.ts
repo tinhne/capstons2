@@ -1,14 +1,15 @@
 import apiClient from "../../../utils/apiClient";
 import {
-  ApiResponse,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
   RegisterResponse,
   RefreshTokenResponse,
 } from "../types";
+
 import { AUTH_API, API_STATUS_CODES } from "../../../constants/apiConstants";
 import { handleApiError, showErrorToast } from "../../../utils/errorUtils";
+import { ApiResponse } from "../../../types/api";
 
 /**
  * Service class quản lý các operations liên quan đến xác thực

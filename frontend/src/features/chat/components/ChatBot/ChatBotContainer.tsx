@@ -38,7 +38,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   const { user } = useAuth();
   const [doctorAdded, setDoctorAdded] = useState(false);
   const [doctorLeft, setDoctorLeft] = useState(false);
-
+  const idBot = import.meta.env.VITE_BOT_ID;
   // Trong useEffect load chat history
   useEffect(() => {
     const loadHistory = async () => {
@@ -117,7 +117,6 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
               "Bác sĩ đã rời khỏi cuộc trò chuyện. Bạn đang tiếp tục chat với bot.",
             conversationId: conversationId,
             senderId: "system",
-            receiverId: "all",
             timestamp: new Date().toISOString(),
           };
           setMessages((prev) => [...prev, systemMessage]);
@@ -155,7 +154,6 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       content: inputValue.trim(),
       conversationId: conversationId,
       senderId: userId,
-      receiverId: receiverId,
       timestamp: new Date().toISOString(),
     };
 
@@ -169,7 +167,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
 
         setLoading(true);
         setTimeout(async () => {
-          const botResponse = await chatWithBot(message);
+          const botResponse = await chatWithBot(idBot, message);
           setMessages((prev) => [...prev, botResponse.data]);
 
           if (botResponse.needDoctor && !doctorAdded) {
@@ -219,7 +217,6 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         content: `Bác sĩ đã tham gia cuộc trò chuyện. Vui lòng tiếp tục cuộc trò chuyện với bác sĩ.`,
         conversationId: conversationId,
         senderId: "system",
-        receiverId: "all",
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, systemMessage]);
@@ -256,7 +253,6 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
           content: "Bác sĩ đã rời khỏi cuộc trò chuyện.",
           conversationId: conversationId,
           senderId: "system",
-          receiverId: "all",
           timestamp: new Date().toISOString(),
         };
 
@@ -335,6 +331,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         shouldConnectDoctor={shouldConnectDoctor}
         doctorAdded={doctorAdded} // Truyền prop mới
         onLeaveConversation={isDoctor ? handleLeaveConversation : undefined}
+        currentUserId={userId} // Thêm dòng này
       />
     </>
   );

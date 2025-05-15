@@ -17,6 +17,7 @@ interface ChatBotViewProps {
   shouldConnectDoctor: boolean;
   doctorAdded?: boolean;
   onLeaveConversation?: () => void;
+  currentUserId: string; // Thêm prop này
 }
 
 const ChatBotView: React.FC<ChatBotViewProps> = ({
@@ -33,6 +34,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
   shouldConnectDoctor,
   doctorAdded,
   onLeaveConversation,
+  currentUserId,
 }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +60,42 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
       return <BsPerson className="text-gray-700" size={28} />;
     return <span className="text-gray-400">?</span>;
   };
+
+  // Animation ba chấm
+  const TypingDots = () => (
+    <div className="flex items-center gap-1 h-7">
+      <span
+        className="dot bg-blue-400 animate-bounce"
+        style={{ animationDelay: "0ms" }}
+      ></span>
+      <span
+        className="dot bg-blue-400 animate-bounce"
+        style={{ animationDelay: "150ms" }}
+      ></span>
+      <span
+        className="dot bg-blue-400 animate-bounce"
+        style={{ animationDelay: "300ms" }}
+      ></span>
+      <style>
+        {`
+          .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: 0 2px;
+          }
+          .animate-bounce {
+            animation: bounce 1s infinite;
+          }
+          @keyframes bounce {
+            0%, 80%, 100% { transform: scale(1); }
+            40% { transform: scale(1.5); }
+          }
+        `}
+      </style>
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-[800px] bg-white rounded-xl shadow-lg border overflow-hidden">
@@ -101,54 +139,64 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
       </div>
       {/* Messages */}
       <div className="flex-1 px-4 py-3 overflow-y-auto bg-gray-50">
-        {loading ? (
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : messages.length === 0 ? (
+        {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
             <p>Chưa có tin nhắn nào.</p>
             <p className="text-sm">Hãy bắt đầu cuộc trò chuyện!</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                {message.sender !== "user" && (
-                  <div className="mr-2 flex-shrink-0">
-                    {getAvatar(message.sender || "unknown")}
-                  </div>
-                )}
+            {messages.map((message) => {
+              const isCurrentUser = message.senderId === currentUserId;
+              return (
                 <div
-                  className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm ${
-                    message.sender === "user"
-                      ? "bg-blue-500 text-white rounded-br-none"
-                      : message.sender === "doctor"
-                      ? "bg-green-100 text-green-900 rounded-bl-none"
-                      : message.sender === "system"
-                      ? "bg-gray-200 text-gray-700 mx-auto text-center"
-                      : "bg-gray-100 text-gray-800 rounded-bl-none"
+                  key={message.id}
+                  className={`flex ${
+                    isCurrentUser ? "justify-end" : "justify-start"
                   }`}
                 >
-                  <div className="whitespace-pre-line break-words">
-                    {message.content}
+                  {!isCurrentUser && (
+                    <div className="mr-2 flex-shrink-0">
+                      {getAvatar(message.sender || "unknown")}
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm ${
+                      isCurrentUser
+                        ? "bg-blue-500 text-white rounded-br-none"
+                        : message.sender === "doctor"
+                        ? "bg-green-100 text-green-900 rounded-bl-none"
+                        : message.sender === "system"
+                        ? "bg-gray-200 text-gray-700 mx-auto text-center"
+                        : "bg-gray-100 text-gray-800 rounded-bl-none"
+                    }`}
+                  >
+                    <div className="whitespace-pre-line break-words">
+                      {message.content}
+                    </div>
+                    <div className="text-xs text-right mt-1 opacity-70">
+                      {formatTime(message.timestamp || message.time)}
+                    </div>
                   </div>
-                  <div className="text-xs text-right mt-1 opacity-70">
-                    {formatTime(message.timestamp || message.time)}
+                  {isCurrentUser && (
+                    <div className="ml-2 flex-shrink-0">
+                      {getAvatar(message.sender || "unknown")}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {/* Hiển thị ba chấm khi loading và tin nhắn cuối là của user */}
+            {loading &&
+              messages.length > 0 &&
+              messages[messages.length - 1].senderId === currentUserId && (
+                <div className="flex justify-start items-center">
+                  <div className="mr-2 flex-shrink-0">{getAvatar("bot")}</div>
+                  <div className="bg-gray-100 text-gray-800 rounded-2xl px-4 py-2 shadow-sm max-w-[70%]">
+                    <TypingDots />
                   </div>
                 </div>
-                {message.sender === "user" && (
-                  <div className="ml-2 flex-shrink-0">
-                    {getAvatar(message.sender)}
-                  </div>
-                )}
-              </div>
-            ))}
+              )}
             <div ref={messageEndRef} />
           </div>
         )}

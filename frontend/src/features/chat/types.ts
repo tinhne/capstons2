@@ -2,7 +2,6 @@ export interface ChatMessage {
   id: string;
   conversationId: string;
   senderId: string;
-  receiverId: string;
   content: string;
   sender?: string; // "user" | "doctor" | "system"
   timestamp?: string;
@@ -34,7 +33,6 @@ export interface Conversation {
   participantIds: string[]; // thay thế userId/doctorId
   startTime?: string;
   lastMessageTime?: string;
-
 }
 
 export interface Disease {
