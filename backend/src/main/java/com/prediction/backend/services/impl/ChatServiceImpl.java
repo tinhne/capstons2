@@ -19,7 +19,7 @@ import com.prediction.backend.services.ChatBotService;
 public class ChatServiceImpl implements ChatService {
 
     private final ChatBotService chatBotService;
-
+    // private final AIModelService aiModelService;
     private final Map<UUID, List<String>> userCollectedData = new HashMap<>();
     private final Map<UUID, ConversationDTO> userConversations = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Mono<String> handleData(String userMessage, UUID userId) {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
-
+        conversationDTO.showLastResult();
         return chatBotService.ask(userMessage, conversationDTO, userId)
             .map(reply -> {
                 userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
@@ -48,6 +48,6 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void reset(UUID userId) {
         userCollectedData.remove(userId);
-        userConversations.remove(userId);
+        userConversations.remove(userId); 
     }
 }
