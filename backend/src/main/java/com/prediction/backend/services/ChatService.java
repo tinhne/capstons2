@@ -6,8 +6,6 @@ import com.prediction.backend.models.Conversation;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public interface ChatService {
     /**
@@ -51,7 +49,7 @@ public interface ChatService {
 
     void removeUserFromConversation(String conversationId, String userId);
 
-    Mono<String> handleData(String userMessage, UUID userId);
+    Mono<String> handleData(String userMessage, String conversationId);
 
-    void reset(UUID userId);
+    void reset(String conversationId);
 }

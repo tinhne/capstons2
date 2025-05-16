@@ -1,6 +1,5 @@
 package com.prediction.backend.services.impl;
 
-import com.prediction.backend.config.ChatBotConfig;
 import com.prediction.backend.dto.ConversationDTO;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
@@ -9,7 +8,6 @@ import com.prediction.backend.models.Role;
 import com.prediction.backend.models.User;
 import com.prediction.backend.repositories.UserRepository;
 
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.prediction.backend.models.ChatMessage;
@@ -17,9 +15,6 @@ import com.prediction.backend.services.ChatBotService;
 import com.prediction.backend.services.ChatService;
 import com.prediction.backend.repositories.ChatMessageRepository;
 import com.prediction.backend.repositories.ConversationRepository;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -32,11 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
@@ -44,11 +34,11 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
-    private final Map<UUID, List<String>> userCollectedData = new HashMap<>();
-    private final Map<UUID, ConversationDTO> userConversations = new HashMap<>();
-    private final WebClient webClient;
-    private final Gson gson = new Gson();
+    private final Map<String, List<String>> userCollectedData = new HashMap<>();
+    private final Map<String, ConversationDTO> userConversations = new HashMap<>();
+    
     private final ChatBotService chatBotService;
+    // private final AiModelService aiModelService;
 
     @Override
     public Conversation startConversation(String senderId, String receiverId) {
@@ -148,13 +138,13 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Mono<String> handleData(String userMessage, UUID userId) {
-        ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
+    public Mono<String> handleData(String userMessage, String conversationId) {
+        ConversationDTO conversationDTO = userConversations.computeIfAbsent(conversationId, id -> new ConversationDTO());
 
-        return chatBotService.ask(userMessage, conversationDTO, userId)
+        return chatBotService.ask(userMessage, conversationDTO, conversationId)
                 .flatMap(reply -> {
-                    userCollectedData.computeIfAbsent(userId, id -> new ArrayList<>()).add("User: " + userMessage);
-                    userCollectedData.get(userId).add("Bot: " + reply);
+                    userCollectedData.computeIfAbsent(conversationId, id -> new ArrayList<>()).add("User: " + userMessage);
+                    userCollectedData.get(conversationId).add("Bot: " + reply);
 
                     // Nếu trả về đúng JSON định dạng sức khỏe, gửi đến AIModelService và reset
                     if (ConversationDTO.isValidMedicalJsonFormat(reply)) {
@@ -162,7 +152,7 @@ public class ChatServiceImpl implements ChatService {
                         // aiModelService.predictDiagnosis(reply);
 
                         // Reset cuộc trò chuyện
-                        reset(userId);
+                        reset(conversationId);
 
                         // Thêm thông báo rõ ràng nếu cần
                         return Mono.just("day se do aimodel tra ve!");
@@ -173,8 +163,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void reset(UUID userId) {
-        userCollectedData.remove(userId);
-        userConversations.remove(userId);
+    public void reset(String conversationId) {
+        userCollectedData.remove(conversationId);
+        userConversations.remove(conversationId);
     }
 }

@@ -1,7 +1,6 @@
 package com.prediction.backend.services.impl;
 
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,18 +20,14 @@ import reactor.core.publisher.Mono;
 
 import com.prediction.backend.config.ChatBotConfig;
 import com.prediction.backend.dto.ConversationDTO;
-import com.prediction.backend.models.Conversation;
-import com.prediction.backend.repositories.ConversationRepository;
 
 @Service
 public class ChatBotServiceImpl implements ChatBotService {
 
     private final WebClient webClient;
     private final Gson gson = new Gson();
-    private final ConversationRepository conversationRepository;
 
-    public ChatBotServiceImpl(ConversationRepository conRe) {
-        this.conversationRepository = conRe;
+    public ChatBotServiceImpl() {
         this.webClient = WebClient.builder()
                 .baseUrl(ChatBotConfig.API_URL)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -41,7 +36,7 @@ public class ChatBotServiceImpl implements ChatBotService {
     }
 
     @Override
-    public Mono<String> ask(String userMessage, ConversationDTO conversationDTO, UUID userId) {
+    public Mono<String> ask(String userMessage, ConversationDTO conversationDTO, String conversationId) {
 
         if (conversationDTO.getContents().isEmpty()) {
             String prompt = """
