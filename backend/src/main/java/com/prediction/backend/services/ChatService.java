@@ -53,4 +53,8 @@ public interface ChatService {
     Mono<String> handleData(String userMessage, String conversationId);
 
     void reset(String conversationId);
+
+    void deleteConversation(String conversationId);
+
+    Conversation updateConversation(String conversationId, UpdateConversationRequest request);
 }

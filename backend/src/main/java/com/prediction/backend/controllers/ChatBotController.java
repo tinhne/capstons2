@@ -22,9 +22,6 @@ public class ChatBotController {
         private ChatMessageRepository chatMessageRepository;
 
         @Autowired
-        private DiseaseService diseaseService;
-
-        @Autowired
         private ChatService chatService;
 
         @PostMapping("/message")
