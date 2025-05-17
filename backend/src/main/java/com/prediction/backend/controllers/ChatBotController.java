@@ -3,19 +3,14 @@ package com.prediction.backend.controllers;
 import com.prediction.backend.models.ChatMessage;
 import com.prediction.backend.repositories.ChatMessageRepository;
 import com.prediction.backend.services.ChatService;
-import com.prediction.backend.services.DiseaseService;
-import com.prediction.backend.models.Disease;
 import com.prediction.backend.dto.response.ApiResponse;
 import com.prediction.backend.dto.response.BotResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 import reactor.core.publisher.Mono;
 
