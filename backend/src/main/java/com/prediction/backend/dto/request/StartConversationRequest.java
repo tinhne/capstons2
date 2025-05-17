@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class StartConversationRequest {
     private String senderId;
     private String receiverId;
+    private String firstMessage;
+
 }

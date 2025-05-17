@@ -1,6 +1,34 @@
 import React, { useEffect, useState } from "react";
 import Card from "../../../../components/ui/Card";
 import userService from "../../../users/services/userService";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+
+const diseaseStats = [
+  { name: "Cảm cúm", count: 120 },
+  { name: "Sốt xuất huyết", count: 80 },
+  { name: "Viêm họng", count: 60 },
+  { name: "Covid-19", count: 40 },
+];
+
+const symptomStats = [
+  { name: "Sốt", value: 100 },
+  { name: "Ho", value: 80 },
+  { name: "Đau họng", value: 60 },
+  { name: "Mệt mỏi", value: 40 },
+];
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const DashboardStats: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
@@ -45,7 +73,42 @@ const DashboardStats: React.FC = () => {
           <span className="text-gray-600 mt-2">Tổng số bác sĩ</span>
         </div>
       </Card>
-      {/* Có thể thêm các Card thống kê khác ở đây */}
+      <Card className="p-4">
+        <h3 className="font-semibold mb-2">Thống kê bệnh phổ biến</h3>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={diseaseStats}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#1976d2" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
+      <Card className="p-4">
+        <h3 className="font-semibold mb-2">Thống kê triệu chứng</h3>
+        <ResponsiveContainer width="100%" height={220}>
+          <PieChart>
+            <Pie
+              data={symptomStats}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={70}
+              label
+            >
+              {symptomStats.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Legend />
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </Card>
     </div>
   );
 };

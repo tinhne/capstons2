@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { AuthContext } from "../contexts/AuthContext";
 import { APP_ROUTES } from "../constants/routeConstants";
-import { UserRole } from "../types/user";
+import { UserRole } from "../features/users/types";
 
 interface ProtectedRouteProps {
   children: ReactNode;

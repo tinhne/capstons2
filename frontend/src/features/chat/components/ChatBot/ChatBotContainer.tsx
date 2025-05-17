@@ -46,7 +46,21 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         setLoading(true);
         try {
           const history = await getChatHistory(conversationId);
-          setMessages(history || []);
+
+          // Nếu là chat với bot và chưa có tin nhắn nào, thêm tin nhắn chào hỏi
+          if (isBot && (!history || history.length === 0)) {
+            const welcomeMessage: ChatMessage = {
+              id: uuidv4(),
+              sender: "bot",
+              content: "Hello! What symptoms concern you today?",
+              conversationId: conversationId,
+              senderId: idBot,
+              timestamp: new Date().toISOString(),
+            };
+            setMessages([welcomeMessage]);
+          } else {
+            setMessages(history || []);
+          }
 
           // Kiểm tra xem có bác sĩ trong cuộc trò chuyện không
           if (isBot) {
@@ -133,19 +147,6 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   }, [isBot, conversationId, doctorAdded]);
   const handleSendMessage = async () => {
     if (inputValue.trim() === "" || !conversationId) return;
-
-    // Xác định người nhận tin nhắn
-    let receiverId = "";
-
-    if (isBot) {
-      if (doctorAdded && !doctorLeft) {
-        receiverId = "all";
-      } else {
-        receiverId = "bot";
-      }
-    } else {
-      receiverId = doctorId || "";
-    }
 
     // Tạo message user
     const message: ChatMessage = {

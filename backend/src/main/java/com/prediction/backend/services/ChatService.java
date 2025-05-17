@@ -1,5 +1,6 @@
 package com.prediction.backend.services;
 
+import com.prediction.backend.dto.request.UpdateConversationRequest;
 import com.prediction.backend.models.ChatMessage;
 import com.prediction.backend.models.Conversation;
 
@@ -17,7 +18,7 @@ public interface ChatService {
      * @param receiverId ID of the receiver
      * @return the created or existing conversation
      */
-    Conversation startConversation(String senderId, String receiverId);
+    Conversation startConversation(String senderId, String receiverId, String firstMessage);
 
     /**
      * Send a message in a conversation
@@ -51,7 +52,12 @@ public interface ChatService {
 
     void removeUserFromConversation(String conversationId, String userId);
 
-    Mono<String> handleData(String userMessage, UUID userId);
+    Mono<String> handleData(String userMessage, String userId);
 
-    void reset(UUID userId);
+    void reset(String userId);
+
+    void deleteConversation(String conversationId);
+
+    Conversation updateConversation(String conversationId, UpdateConversationRequest request);
+
 }

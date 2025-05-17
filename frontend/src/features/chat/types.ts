@@ -31,6 +31,7 @@ export interface DiseaseSearchResult {
 export interface Conversation {
   conversationId: string;
   participantIds: string[]; // thay thế userId/doctorId
+  title: string;
   startTime?: string;
   lastMessageTime?: string;
 }

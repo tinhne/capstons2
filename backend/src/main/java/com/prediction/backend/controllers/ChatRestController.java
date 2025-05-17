@@ -7,6 +7,7 @@ import com.prediction.backend.services.ChatService;
 import com.prediction.backend.dto.request.AddUserIntoConversationRequest;
 import com.prediction.backend.dto.request.RemoveUserRequest;
 import com.prediction.backend.dto.request.StartConversationRequest;
+import com.prediction.backend.dto.request.UpdateConversationRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,8 @@ public class ChatRestController {
 
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<Conversation>> startConversation(@RequestBody StartConversationRequest request) {
-        Conversation conversation = chatService.startConversation(request.getSenderId(), request.getReceiverId());
+        Conversation conversation = chatService.startConversation(request.getSenderId(), request.getReceiverId(),
+                request.getFirstMessage());
         return ResponseEntity.ok(ApiResponse.<Conversation>builder()
                 .message("Conversation started")
                 .data(conversation)
@@ -88,5 +90,24 @@ public class ChatRestController {
                 .status(1000)
                 .message("User removed successfully")
                 .build();
+    }
+
+    @DeleteMapping("/conversation/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteConversation(@PathVariable String id) {
+        chatService.deleteConversation(id);
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message("Conversation deleted successfully")
+                .build());
+    }
+
+    @PutMapping("/conversation/{id}")
+    public ResponseEntity<ApiResponse<Conversation>> updateConversation(
+            @PathVariable String id,
+            @RequestBody UpdateConversationRequest request) {
+        Conversation updated = chatService.updateConversation(id, request);
+        return ResponseEntity.ok(ApiResponse.<Conversation>builder()
+                .message("Conversation updated successfully")
+                .data(updated)
+                .build());
     }
 }

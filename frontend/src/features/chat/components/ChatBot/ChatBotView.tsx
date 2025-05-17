@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { ChatMessage } from "../../types";
 import { FiSend } from "react-icons/fi";
 import { BsRobot, BsPerson, BsPersonBadge } from "react-icons/bs";
@@ -38,9 +38,46 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
 }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
+  // State cho hiệu ứng typewriter
+  const [displayedBotText, setDisplayedBotText] = useState<string>("");
+
+  // Xác định tin nhắn bot cuối cùng
+  const lastBotMessage = React.useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].sender === "bot") return messages[i];
+    }
+    return null;
+  }, [messages]);
+
+  // Hiệu ứng typewriter cho tin nhắn bot cuối cùng
+  useEffect(() => {
+    if (!lastBotMessage || typeof lastBotMessage.content !== "string") {
+      setDisplayedBotText("");
+      return;
+    }
+    let i = 0;
+    setDisplayedBotText(""); // reset trước khi chạy lại
+    const text = lastBotMessage.content ?? "";
+    let cancelled = false;
+    function type() {
+      if (cancelled) return;
+      // Sửa lỗi mất chữ đầu và lỗi undefined
+      setDisplayedBotText(text.slice(0, i + 1));
+      i++;
+      if (i < text.length) {
+        setTimeout(type, 18);
+      }
+    }
+    type();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line
+  }, [lastBotMessage?.id]);
+
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, displayedBotText]);
 
   const formatTime = (timestamp?: string): string => {
     if (!timestamp) return "";
@@ -98,7 +135,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
   );
 
   return (
-    <div className="flex flex-col h-[800px] bg-white rounded-xl shadow-lg border overflow-hidden">
+    <div className="flex flex-col h-[800px] bg-white rounded-xl shadow-lg border overflow-hidden ">
       {/* Header */}
       <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 text-white flex items-center gap-3 border-b">
         <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow text-2xl">
@@ -146,8 +183,10 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {messages.map((message) => {
+            {messages.map((message, idx) => {
               const isCurrentUser = message.senderId === currentUserId;
+              const isLastBot =
+                lastBotMessage && message.id === lastBotMessage.id;
               return (
                 <div
                   key={message.id}
@@ -172,11 +211,15 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
                     }`}
                   >
                     <div className="whitespace-pre-line break-words">
-                      {message.content}
+                      {/* Nếu là tin nhắn bot cuối cùng thì dùng hiệu ứng typewriter */}
+                      {isLastBot && !loading
+                        ? displayedBotText
+                        : message.content}
                     </div>
-                    <div className="text-xs text-right mt-1 opacity-70">
+                    {/* Ẩn thời gian nhắn đi */}
+                    {/* <div className="text-xs text-right mt-1 opacity-70">
                       {formatTime(message.timestamp || message.time)}
-                    </div>
+                    </div> */}
                   </div>
                   {isCurrentUser && (
                     <div className="ml-2 flex-shrink-0">

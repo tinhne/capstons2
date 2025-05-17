@@ -2,6 +2,7 @@ package com.prediction.backend.services.impl;
 
 import com.prediction.backend.config.ChatBotConfig;
 import com.prediction.backend.dto.ConversationDTO;
+import com.prediction.backend.dto.request.UpdateConversationRequest;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.exceptions.ErrorCode;
 import com.prediction.backend.models.Conversation;
@@ -44,25 +45,45 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
-    private final Map<UUID, List<String>> userCollectedData = new HashMap<>();
-    private final Map<UUID, ConversationDTO> userConversations = new HashMap<>();
+    private final Map<String, List<String>> userCollectedData = new HashMap<>();
+    private final Map<String, ConversationDTO> userConversations = new HashMap<>();
     private final WebClient webClient;
     private final Gson gson = new Gson();
     private final ChatBotService chatBotService;
 
     @Override
-    public Conversation startConversation(String senderId, String receiverId) {
+    public Conversation startConversation(String senderId, String receiverId, String firstMessage) {
         List<String> participants = List.of(senderId, receiverId);
 
         // Kiểm tra user tồn tại
         userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        userRepository.findById(receiverId)
+        User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        String title;
+        boolean isDoctor = receiver.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("DOCTOR"));
+        boolean isBot = receiver.getRoles().stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase("BOT"));
+
+        if (isDoctor) {
+            title = "Chat với bác sĩ";
+        } else if (isBot && firstMessage != null && !firstMessage.isBlank()) {
+            // Lấy nội dung chính: câu đầu tiên hoặc 10 từ đầu
+            String[] sentences = firstMessage.split("[.!?]");
+            String main = sentences[0].trim();
+            String[] words = main.split("\\s+");
+            title = String.join(" ", java.util.Arrays.copyOfRange(words, 0, Math.min(10, words.length)));
+            if (words.length > 10)
+                title += "...";
+        } else {
+            title = "New Chat";
+        }
         // Tạo mới
         Conversation conversation = new Conversation();
         conversation.setConversationId(UUID.randomUUID().toString());
+        conversation.setTitle(title);
         conversation.setStartTime(Instant.now());
         conversation.setParticipantIds(participants);
 
@@ -148,7 +169,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Mono<String> handleData(String userMessage, UUID userId) {
+    public Mono<String> handleData(String userMessage, String userId) {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(userId, id -> new ConversationDTO());
 
         return chatBotService.ask(userMessage, conversationDTO, userId)
@@ -173,8 +194,28 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void reset(UUID userId) {
+    public void reset(String userId) {
         userCollectedData.remove(userId);
         userConversations.remove(userId);
+    }
+
+    @Override
+    public void deleteConversation(String conversationId) {
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+        // Xoá tất cả message thuộc conversation này (nếu cần)
+        messageRepository.deleteAll(messageRepository.findByConversationIdOrderByTimestampAsc(conversationId));
+        conversationRepository.delete(conv);
+    }
+
+    @Override
+    public Conversation updateConversation(String conversationId, UpdateConversationRequest request) {
+        Conversation conv = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+        if (request.getTitle() != null) {
+            conv.setTitle(request.getTitle());
+        }
+        // Thêm cập nhật các trường khác nếu cần
+        return conversationRepository.save(conv);
     }
 }

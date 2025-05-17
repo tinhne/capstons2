@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { UserRole } from "../features/users/types";
@@ -10,6 +10,22 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Function to check if a path is active
   const isActiveLink = (path: string) => {
@@ -21,89 +37,128 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-gradient-to-r from-blue-600 via-blue-500 to-green-400 shadow-lg rounded-b-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              {/* Logo and app name */}
-              <div className="flex-shrink-0 flex items-center">
-                <Link to="/" className="text-xl font-bold text-blue-600">
-                  Disease Prediction System
-                </Link>
-              </div>
-
-              {/* Navigation Links */}
-              <nav className="ml-6 flex space-x-8">
+          <div className="flex justify-between h-20 items-center">
+            {/* Logo và tên app */}
+            <Link to="/" className="flex items-center space-x-3 group">
+              {/* <img
+                src="/logo.svg"
+                alt="Logo"
+                className="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:scale-110 transition"
+              /> */}
+              <span className="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                Disease Prediction
+              </span>
+            </Link>
+            {/* Navigation Links */}
+            <nav className="flex space-x-8">
+              <Link
+                to="/home"
+                className={`relative px-2 py-1 font-semibold transition ${isActiveLink(
+                  "/home"
+                )} hover:text-white hover:after:w-full after:transition-all after:duration-300 after:block after:h-0.5 after:bg-white after:w-0 after:mx-auto`}
+              >
+                Home
+              </Link>
+              {user?.roles?.some((role) => role.name === UserRole.DOCTOR) && (
                 <Link
-                  to="/home"
-                  className={`inline-flex items-center px-1 pt-1 ${isActiveLink(
-                    "/home"
-                  )}`}
+                  to="/doctor/dashboard"
+                  className={`relative px-2 py-1 font-semibold transition ${isActiveLink(
+                    "/doctor"
+                  )} hover:text-white hover:after:w-full after:transition-all after:duration-300 after:block after:h-0.5 after:bg-white after:w-0 after:mx-auto`}
                 >
-                  Home
+                  Doctor
                 </Link>
-
-                {user &&
-                  user.roles?.some((role) => role.name === UserRole.DOCTOR) && (
-                    <Link
-                      to="/doctor/dashboard"
-                      className={`inline-flex items-center px-1 pt-1 ${isActiveLink(
-                        "/doctor"
-                      )}`}
-                    >
-                      Doctor Dashboard
-                    </Link>
-                  )}
-
-                {user &&
-                  user.roles?.some((role) => role.name === UserRole.ADMIN) && (
-                    <Link
-                      to="/admin"
-                      className={`inline-flex items-center px-1 pt-1 ${isActiveLink(
-                        "/admin"
-                      )}`}
-                    >
-                      Admin
-                    </Link>
-                  )}
-              </nav>
-            </div>
-
-            {/* User information and logout */}
-            <div className="flex items-center">
+              )}
+              {user?.roles?.some((role) => role.name === UserRole.ADMIN) && (
+                <Link
+                  to="/admin"
+                  className={`relative px-2 py-1 font-semibold transition ${isActiveLink(
+                    "/admin"
+                  )} hover:text-white hover:after:w-full after:transition-all after:duration-300 after:block after:h-0.5 after:bg-white after:w-0 after:mx-auto`}
+                >
+                  Admin
+                </Link>
+              )}
+            </nav>
+            {/* User info */}
+            <div className="flex items-center space-x-4">
               {user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.name || user.email}
-                  </span>
-                  <Link
-                    to="/profile/edit"
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Edit Profile
-                  </Link>
+                <div className="relative" ref={dropdownRef}>
                   <button
-                    onClick={logout}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    onClick={() => setDropdownOpen((open) => !open)}
+                    className="flex items-center space-x-2 focus:outline-none"
                   >
-                    Logout
+                    {/* <img
+                      src={user.avatar || "/avatar-default.png"}
+                      alt="avatar"
+                      className="h-10 w-10 rounded-full border-2 border-white shadow-md"
+                    /> */}
+                    <span className="text-white font-semibold drop-shadow">
+                      {user.name || user.email}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-white transition-transform ${
+                        dropdownOpen ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </button>
+                  {dropdownOpen && (
+                    <div
+                      className={`absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 py-2
+                        transition-all duration-200 ease-out
+                        transform opacity-100 scale-100 translate-y-0
+                        animate-dropdown
+                      `}
+                      style={{
+                        animation: "fadeDown 0.2s ease",
+                      }}
+                    >
+                      <Link
+                        to="/profile/edit"
+                        className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Edit Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setDropdownOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="flex space-x-4">
+                <>
                   <Link
                     to="/login"
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="px-3 py-1 border border-white rounded-md text-sm font-medium text-white bg-white/10 hover:bg-white/20 transition"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="px-3 py-1 bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700"
+                    className="px-3 py-1 bg-white rounded-md text-sm font-medium text-blue-700 hover:bg-blue-100 transition"
                   >
                     Register
                   </Link>
-                </div>
+                </>
               )}
             </div>
           </div>
@@ -111,7 +166,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 bg-gray-100">
+      <main className="flex-1 bg-gradient-to-br from-blue-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {children}
           <Outlet />
@@ -119,7 +174,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
+      <footer className="bg-white border-t border-gray-200 rounded-t-xl shadow-inner">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-500">
             &copy; {new Date().getFullYear()} Disease Prediction System. All

@@ -53,7 +53,7 @@ const EditProfile: React.FC = () => {
   const isUser = user?.roles?.some((role) => role.name === UserRole.USER);
 
   return (
-    <div className="max-w-2xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-xl border border-blue-100 h-[800px] flex flex-col">
+    <div className="max-w-2xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-xl border border-blue-100 h-[80vh] flex flex-col">
       <div className="flex flex-col items-center mb-6 flex-shrink-0">
         <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-2 shadow">
           <svg

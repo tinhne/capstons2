@@ -183,12 +183,14 @@ export const disconnectFromChat = (): void => {
 };
 export const createConversation = async (
   senderId: string,
-  receiverId: string
+  receiverId: string,
+  firstMessage: string
 ): Promise<Conversation> => {
   try {
     const response = await apiClient.post("/chat/start", {
       senderId,
       receiverId,
+      firstMessage: firstMessage ?? "",
     });
     console.log("create conversation", response.data);
     return response.data;
@@ -202,7 +204,7 @@ export const chatWithBot = async (
   message: ChatMessage
 ): Promise<{ data: ChatMessage; needDoctor: boolean }> => {
   const response = await apiClient.post(
-    `/chat/bot/message?userId=${idBot}`,
+    `/chat/bot/message?botId=${idBot}&conversationId=${message.conversationId}`,
     message,
     undefined,
     false
@@ -289,6 +291,35 @@ export const removeUserFromConversation = async (
     return response.data;
   } catch (error) {
     console.error("Error removing user from conversation:", error);
+    throw error;
+  }
+};
+export const deleteConversation = async (
+  conversationId: string
+): Promise<any> => {
+  try {
+    const response = await apiClient.delete(
+      `/chat/conversation/${conversationId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting conversation:", error);
+    throw error;
+  }
+};
+
+export const updateConversation = async (
+  conversationId: string,
+  title: string
+): Promise<Conversation> => {
+  try {
+    const response = await apiClient.put(
+      `/chat/conversation/${conversationId}`,
+      { title }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating conversation:", error);
     throw error;
   }
 };

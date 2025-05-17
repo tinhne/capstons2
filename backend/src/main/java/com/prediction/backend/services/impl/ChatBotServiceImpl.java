@@ -41,7 +41,7 @@ public class ChatBotServiceImpl implements ChatBotService {
     }
 
     @Override
-    public Mono<String> ask(String userMessage, ConversationDTO conversationDTO, UUID userId) {
+    public Mono<String> ask(String userMessage, ConversationDTO conversationDTO, String userId) {
 
         if (conversationDTO.getContents().isEmpty()) {
             String prompt = """

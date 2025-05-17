@@ -18,7 +18,7 @@ public class ChatMessage {
     private String id;
 
     private String conversationId; // ID của cuộc trò chuyện
-    private UUID senderId; // ID người gửi
+    private String senderId; // ID người gửi
     private String content; // Nội dung tin nhắn
     private Instant timestamp; // Thời gian gửi
 
