@@ -1,0 +1,94 @@
+antecedents,consequents,support,confidence,lift
+frozenset({'regurgitation'}),frozenset({'regurgitation.1'}),0.01008321691064812,1.0,59.219424460431654
+frozenset({'regurgitation.1'}),frozenset({'regurgitation'}),0.01008321691064812,0.5971223021582733,59.21942446043165
+frozenset({'blood clots during menstrual periods'}),frozenset({'sharp abdominal pain'}),0.005960841482921298,0.5445800961894192,4.1626066132261155
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'skin swelling'})",frozenset({'abnormal appearing skin'}),0.007353864220777906,0.5361677000295247,8.061122233411933
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'acne or pimples'})",frozenset({'abnormal appearing skin'}),0.005928445605296726,0.5348922177566678,8.041945736007328
+"frozenset({'leg pain', 'neck pain'})",frozenset({'low back pain'}),0.006726194091801818,0.5330551989730423,11.909464951632854
+"frozenset({'skin lesion', 'itching of skin'})",frozenset({'abnormal appearing skin'}),0.0077871590840065605,0.5306291390728477,7.977851613293418
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'itching of skin'})",frozenset({'abnormal appearing skin'}),0.006114721901638017,0.5305692199578356,7.976950747183422
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'skin growth'})",frozenset({'abnormal appearing skin'}),0.005989187875842799,0.5304878048780488,7.975726695623122
+"frozenset({'skin lesion', 'acne or pimples'})",frozenset({'abnormal appearing skin'}),0.007499645670088481,0.5291428571428571,7.955505805609916
+"frozenset({'fever', 'sore throat'})",frozenset({'cough'}),0.011188726234586648,0.5276928953399541,5.363480492250781
+frozenset({'ringing in ear'}),frozenset({'ear pain'}),0.00580696106420458,0.526818515797208,12.29168541038752
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'skin lesion'})",frozenset({'abnormal appearing skin'}),0.007248577618498046,0.5258519388954171,7.906027826516213
+frozenset({'warts'}),frozenset({'skin swelling'}),0.006232156958027091,0.5252559726962457,8.553203836299003
+frozenset({'white discharge from eye'}),frozenset({'itchiness of eye'}),0.006851728117597036,0.5248138957816377,18.78263297011544
+frozenset({'wheezing'}),frozenset({'cough'}),0.010314037538723198,0.5241819304383618,5.327794979095375
+"frozenset({'skin dryness, peeling, scaliness, or roughness'})",frozenset({'abnormal appearing skin'}),0.016696025430763935,0.5240879623744756,7.879506963078533
+"frozenset({'nasal congestion', 'fever'})",frozenset({'cough'}),0.012638441758286259,0.5236577181208054,5.322466875261043
+"frozenset({'fever', 'wheezing'})",frozenset({'cough'}),0.005021361031808703,0.5232067510548524,5.317883237538711
+"frozenset({'pelvic pain', 'lower abdominal pain'})",frozenset({'sharp abdominal pain'}),0.007414606491323979,0.5220986598232107,3.990765269138043
+frozenset({'white discharge from eye'}),frozenset({'lacrimation'}),0.006799084816457105,0.5207816377171216,17.559314790559068
+"frozenset({'chest tightness', 'cough'})",frozenset({'sharp chest pain'}),0.005106400210573204,0.5206440957886045,5.353533320890945
+"frozenset({'skin moles', 'abnormal appearing skin'})",frozenset({'skin swelling'}),0.006920569357549252,0.5204019488428745,8.474161507220813
+"frozenset({'nasal congestion', 'vomiting'})",frozenset({'cough'}),0.0060215837534673715,0.51993006993007,5.2845789890879615
+"frozenset({'blood in stool', 'nausea'})",frozenset({'sharp abdominal pain'}),0.0053574682621636395,0.5198428290766208,3.973522376770549
+frozenset({'foreign body sensation in eye'}),frozenset({'diminished vision'}),0.011565328311972302,0.5195561215208295,14.63462831401406
+"frozenset({'skin growth', 'skin moles'})",frozenset({'skin swelling'}),0.0059851383911397275,0.5195079086115992,8.459603065749514
+frozenset({'cramps and spasms'}),frozenset({'sharp abdominal pain'}),0.011395249954443297,0.5194757245707956,3.9707163402400445
+"frozenset({'skin moles', 'skin swelling'})",frozenset({'abnormal appearing skin'}),0.006920569357549252,0.5189796538111145,7.80270505999304
+"frozenset({'skin dryness, peeling, scaliness, or roughness', 'skin rash'})",frozenset({'abnormal appearing skin'}),0.005657130130190933,0.5189450222882616,7.802184385325709
+frozenset({'foreign body sensation in eye'}),frozenset({'pain in eye'}),0.011545080888456944,0.5186465344733491,13.548838300594646
+"frozenset({'itchiness of eye', 'diminished vision'})",frozenset({'lacrimation'}),0.005454655895037357,0.5178777393310265,17.46140337781272
+frozenset({'pulling at ears'}),frozenset({'nasal congestion'}),0.0074186559760270505,0.5172219085262564,7.8842817408034795
+frozenset({'skin moles'}),frozenset({'skin swelling'}),0.013334953127214562,0.5171980524579864,8.421989651449882
+"frozenset({'skin growth', 'skin moles'})",frozenset({'abnormal appearing skin'}),0.005956791998218226,0.5170474516695958,7.773654974279959
+"frozenset({'vomiting', 'sore throat'})",frozenset({'cough'}),0.00530482496102371,0.5167652859960552,5.25241206578432
+frozenset({'increased heart rate'}),frozenset({'sharp chest pain'}),0.00665330336714653,0.5166666666666666,5.312635326449033
+"frozenset({'skin moles', 'skin lesion'})",frozenset({'skin swelling'}),0.006369839437931523,0.5165845648604269,8.411999694655993
+"frozenset({'coryza', 'sore throat'})",frozenset({'cough'}),0.007511794124197696,0.5164253897550112,5.248957354010999
+"frozenset({'nasal congestion', 'coryza'})",frozenset({'cough'}),0.008107068375549212,0.5158464313321309,5.243072809734651
+"frozenset({'low back pain', 'neck pain'})",frozenset({'back pain'}),0.008196157039016785,0.5158002038735984,5.840445749257909
+frozenset({'skin moles'}),frozenset({'abnormal appearing skin'}),0.013298507764886919,0.5157845138997958,7.754667079755562
+frozenset({'foreign body sensation in eye'}),frozenset({'symptoms of eye'}),0.0114802891332078,0.5157358559214117,15.210604435747404
+frozenset({'increased heart rate'}),frozenset({'shortness of breath'}),0.006641154913037316,0.5157232704402516,5.9662364386240005
+frozenset({'warts'}),frozenset({'abnormal appearing skin'}),0.006118771386341088,0.5156996587030717,7.753391307058146
+"frozenset({'lacrimation', 'foreign body sensation in eye'})",frozenset({'diminished vision'}),0.005001113608293344,0.5145833333333333,14.494557003535988
+frozenset({'fluid in ear'}),frozenset({'plugged feeling in ear'}),0.006552066249569742,0.513162067871868,29.929807947713382
+"frozenset({'insomnia', 'excessive anger'})",frozenset({'depression'}),0.005065905363542489,0.5131255127153405,12.003957913744767
+"frozenset({'skin moles', 'irregular appearing scalp'})",frozenset({'skin swelling'}),0.005402012593897426,0.5130769230769231,8.35488168606863
+"frozenset({'skin moles', 'skin lesion'})",frozenset({'abnormal appearing skin'}),0.006321245621494664,0.5126436781609195,7.7074455466330765
+frozenset({'fluid in ear'}),frozenset({'ear pain'}),0.006543967280163599,0.5125277513479226,11.958254493255174
+"frozenset({'nasal congestion', 'shortness of breath'})",frozenset({'cough'}),0.005005163092996416,0.5124378109452736,5.208427528147867
+frozenset({'increased heart rate'}),frozenset({'irregular heartbeat'}),0.006592561096600458,0.5119496855345912,20.387585082138305
+frozenset({'coryza'}),frozenset({'cough'}),0.01630727489926907,0.5117549879273098,5.201487302177704
+frozenset({'hurts to breath'}),frozenset({'shortness of breath'}),0.005118548664682419,0.5105008077544426,5.90581944958872
+"frozenset({'coryza', 'fever'})",frozenset({'cough'}),0.007685921966429772,0.5103522452272117,5.1872297990465
+frozenset({'symptoms of bladder'}),frozenset({'retention of urine'}),0.005989187875842799,0.5103519668737061,15.12588411661394
+"frozenset({'foreign body sensation in eye', 'symptoms of eye'})",frozenset({'pain in eye'}),0.005847455911235295,0.5093474426807759,13.30591391439799
+"frozenset({'skin swelling', 'acne or pimples'})",frozenset({'abnormal appearing skin'}),0.00733766628196562,0.5091317785894914,7.654645178921277
+frozenset({'blood clots during menstrual periods'}),frozenset({'cramps and spasms'}),0.005572090951426431,0.5090640029596745,23.206721471455936
+"frozenset({'itching of skin', 'acne or pimples'})",frozenset({'abnormal appearing skin'}),0.00583125797242301,0.5088339222614842,7.650166997434534
+"frozenset({'burning abdominal pain', 'nausea'})",frozenset({'sharp abdominal pain'}),0.0109538561218085,0.5085542395187065,3.887235790322437
+frozenset({'white discharge from eye'}),frozenset({'pain in eye'}),0.006633055943631173,0.5080645161290323,13.272399443085144
+frozenset({'vaginal pain'}),frozenset({'vaginal discharge'}),0.005981088906436656,0.5075601374570446,18.671151220665855
+"frozenset({'foreign body sensation in eye', 'pain in eye'})",frozenset({'diminished vision'}),0.00585960436534451,0.5075412136092599,14.29619767249215
+"frozenset({'delusions or hallucinations', 'excessive anger'})",frozenset({'depression'}),0.005406062078600498,0.507411630558723,11.870288471800288
+"frozenset({'leg pain', 'neck pain'})",frozenset({'back pain'}),0.006402235315556095,0.5073812580231065,5.745117371842635
+"frozenset({'skin swelling', 'itching of skin'})",frozenset({'abnormal appearing skin'}),0.008297394156593573,0.5069272637308263,7.62150095232931
+"frozenset({'foreign body sensation in eye', 'diminished vision'})",frozenset({'pain in eye'}),0.00585960436534451,0.5066526610644257,13.235516913842655
+frozenset({'symptoms of bladder'}),frozenset({'involuntary urination'}),0.0059446435441090125,0.5065562456866806,19.92855378223631
+"frozenset({'foreign body sensation in eye', 'pain in eye'})",frozenset({'symptoms of eye'}),0.005847455911235295,0.5064889512451771,14.937885353545953
+"frozenset({'ear pain', 'fever'})",frozenset({'cough'}),0.0060944744781226586,0.5062226707029935,5.145256726076339
+"frozenset({'skin moles', 'irregular appearing scalp'})",frozenset({'abnormal appearing skin'}),0.005329121869242139,0.5061538461538462,7.609872848612576
+frozenset({'spotting or bleeding during pregnancy'}),frozenset({'sharp abdominal pain'}),0.005503249711474215,0.5059568131049889,3.8673818433222356
+"frozenset({'vomiting', 'burning abdominal pain'})",frozenset({'sharp abdominal pain'}),0.009795703496730042,0.5046943459211349,3.857731923530339
+"frozenset({'skin growth', 'skin lesion'})",frozenset({'abnormal appearing skin'}),0.007523942578306911,0.504343105320304,7.582648897614764
+frozenset({'palpitations'}),frozenset({'shortness of breath'}),0.012541254125412541,0.5041510662542732,5.832361334964935
+frozenset({'upper abdominal pain'}),frozenset({'sharp abdominal pain'}),0.013027192289781126,0.5040739580068945,3.8529898647355854
+"frozenset({'upper abdominal pain', 'nausea'})",frozenset({'sharp abdominal pain'}),0.006215959019214805,0.5039395929087328,3.851962818300895
+"frozenset({'foreign body sensation in eye', 'symptoms of eye'})",frozenset({'diminished vision'}),0.005782664155986151,0.5037037037037037,14.188104381328973
+"frozenset({'anxiety and nervousness', 'excessive anger'})",frozenset({'depression'}),0.005628783737269432,0.5034407823252445,11.777395224640726
+"frozenset({'low back pain', 'arm pain'})",frozenset({'back pain'}),0.006248354896839377,0.5034257748776508,5.700329129128409
+"frozenset({'lacrimation', 'eye redness'})",frozenset({'pain in eye'}),0.005163092996416206,0.5027602523659306,13.133833758648548
+"frozenset({'shortness of breath', 'chest tightness'})",frozenset({'sharp chest pain'}),0.00926522100062767,0.5027466490881125,5.169502467482675
+frozenset({'chest tightness'}),frozenset({'sharp chest pain'}),0.01902852861973314,0.5024593669803251,5.166548483467538
+"frozenset({'skin growth', 'acne or pimples'})",frozenset({'abnormal appearing skin'}),0.005450606410334285,0.5024262784621127,7.553829974723071
+"frozenset({'sharp chest pain', 'palpitations'})",frozenset({'shortness of breath'}),0.005341270323351354,0.5022848438690023,5.8107716091647506
+"frozenset({'skin lesion', 'skin swelling'})",frozenset({'abnormal appearing skin'}),0.010678491161999636,0.5018078020932446,7.544531366083184
+frozenset({'pulling at ears'}),frozenset({'cough'}),0.007191884832655045,0.5014116318464145,5.096357236841983
+frozenset({'ringing in ear'}),frozenset({'diminished hearing'}),0.005515398165583429,0.5003673769287288,22.684637763110874
+"frozenset({'foreign body sensation in eye', 'diminished vision'})",frozenset({'symptoms of eye'}),0.005782664155986151,0.5,14.746506628448584
+"frozenset({'itchiness of eye', 'symptoms of eye'})",frozenset({'pain in eye'}),0.005361517746866711,0.5,13.061726436052046
+"frozenset({'acne or pimples', 'irregular appearing scalp'})",frozenset({'abnormal appearing skin'}),0.0056530806454878615,0.5,7.517351598173517
