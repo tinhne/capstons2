@@ -128,7 +128,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
             id: uuidv4(),
             sender: "system",
             content:
-              "Bác sĩ đã rời khỏi cuộc trò chuyện. Bạn đang tiếp tục chat với bot.",
+              "The doctor has left the conversation. You are now continuing the chat with the bot.",
             conversationId: conversationId,
             senderId: "system",
             timestamp: new Date().toISOString(),
@@ -215,7 +215,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       const systemMessage: ChatMessage = {
         id: uuidv4(),
         sender: "system",
-        content: `Bác sĩ đã tham gia cuộc trò chuyện. Vui lòng tiếp tục cuộc trò chuyện với bác sĩ.`,
+        content: `The doctor has joined the conversation. Please continue the conversation with the doctor.`,
         conversationId: conversationId,
         senderId: "system",
         timestamp: new Date().toISOString(),
@@ -244,14 +244,14 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   const handleLeaveConversation = async () => {
     if (!conversationId || !userId) return;
 
-    if (window.confirm("Bạn có chắc muốn thoát khỏi cuộc trò chuyện này?")) {
+    if (window.confirm("Are you sure you want to leave this conversation?")) {
       setLoading(true);
       try {
-        // Gửi thông báo bác sĩ rời khỏi cuộc trò chuyện
+        // Send notification that doctor left the conversation
         const leaveMessage: ChatMessage = {
           id: uuidv4(),
           sender: "system",
-          content: "Bác sĩ đã rời khỏi cuộc trò chuyện.",
+          content: "The doctor has left the conversation.",
           conversationId: conversationId,
           senderId: "system",
           timestamp: new Date().toISOString(),
@@ -263,10 +263,10 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         // Sau đó gọi API để xóa bác sĩ khỏi cuộc trò chuyện
         await removeUserFromConversation(conversationId, userId);
 
-        // Chuyển hướng hoặc hiển thị thông báo
+        // Redirect or show notification
       } catch (error) {
         console.error("Error leaving conversation:", error);
-        alert("Không thể thoát khỏi cuộc trò chuyện. Vui lòng thử lại.");
+        alert("Unable to leave the conversation. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -274,11 +274,11 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   };
   return (
     <>
-      {/* Hiển thị hộp thoại xác nhận khi bot đề xuất kết nối với bác sĩ */}
+      {/* Show confirmation dialog when bot suggests connecting to a doctor */}
       {shouldConnectDoctor && !doctorAdded && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg">
-            <p>Bạn có muốn kết nối với bác sĩ không?</p>
+            <p>Would you like to connect with a doctor?</p>
             <div className="flex gap-4 mt-4">
               <button
                 onClick={handlePromptYes}
@@ -297,12 +297,12 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         </div>
       )}
 
-      {/* Modal hiển thị danh sách bác sĩ */}
+      {/* Modal to show doctor list */}
       {showDoctorList && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <p>Chọn bác sĩ để thêm vào cuộc trò chuyện:</p>
+              <p>Select a doctor to add to the conversation:</p>
               <button
                 onClick={() => setShowDoctorList(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -312,7 +312,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
             </div>
             <DoctorList
               onSelectDoctor={handleSelectDoctor}
-              mode="add" // Quan trọng: Đặt mode="add" để không tạo conversation mới
+              mode="add" // Important: Set mode="add" to not create a new conversation
             />
           </div>
         </div>

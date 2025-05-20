@@ -38,10 +38,10 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
 }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
-  // State cho hiệu ứng typewriter
+  // State for typewriter effect
   const [displayedBotText, setDisplayedBotText] = useState<string>("");
 
-  // Xác định tin nhắn bot cuối cùng
+  // Identify the last bot message
   const lastBotMessage = React.useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].sender === "bot") return messages[i];
@@ -49,7 +49,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
     return null;
   }, [messages]);
 
-  // Hiệu ứng typewriter cho tin nhắn bot cuối cùng
+  // Typewriter effect for the last bot message
   useEffect(() => {
     if (!lastBotMessage || typeof lastBotMessage.content !== "string") {
       setDisplayedBotText("");
@@ -98,7 +98,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
     return <span className="text-gray-400">?</span>;
   };
 
-  // Animation ba chấm
+  // Animation dots
   const TypingDots = () => (
     <div className="flex items-center gap-1 h-7">
       <span
@@ -157,11 +157,11 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
           </h2>
           <p className="text-xs text-blue-100">
             {isBot
-              ? "Trợ lý sức khỏe AI"
+              ? "AI Health Assistant"
               : isDoctor
-              ? "Bạn đang trò chuyện với bệnh nhân"
+              ? "You are chatting with a patient"
               : doctorId
-              ? "Bạn đang kết nối với bác sĩ"
+              ? "You are connected with a doctor"
               : "AI Assistant"}
           </p>
         </div>
@@ -170,7 +170,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
             onClick={onLeaveConversation}
             className="ml-auto bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs shadow"
           >
-            Thoát
+            Leave
           </button>
         )}
       </div>
@@ -178,8 +178,8 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
       <div className="flex-1 px-4 py-3 overflow-y-auto bg-gray-50">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
-            <p>Chưa có tin nhắn nào.</p>
-            <p className="text-sm">Hãy bắt đầu cuộc trò chuyện!</p>
+            <p>No messages yet.</p>
+            <p className="text-sm">Start the conversation!</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -252,7 +252,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
             value={inputValue}
             onChange={onInputChange}
             onKeyPress={onKeyPress}
-            placeholder="Nhập tin nhắn..."
+            placeholder="Enter your message..."
             className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             disabled={loading}
             autoFocus
@@ -261,7 +261,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
             onClick={onSendMessage}
             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow disabled:bg-gray-300"
             disabled={loading || inputValue.trim() === ""}
-            aria-label="Gửi tin nhắn"
+            aria-label="Send message"
           >
             <FiSend size={22} />
           </button>

@@ -15,17 +15,17 @@ import {
 } from "recharts";
 
 const diseaseStats = [
-  { name: "Cảm cúm", count: 120 },
-  { name: "Sốt xuất huyết", count: 80 },
-  { name: "Viêm họng", count: 60 },
+  { name: "Flu", count: 120 },
+  { name: "Dengue Fever", count: 80 },
+  { name: "Sore Throat", count: 60 },
   { name: "Covid-19", count: 40 },
 ];
 
 const symptomStats = [
-  { name: "Sốt", value: 100 },
-  { name: "Ho", value: 80 },
-  { name: "Đau họng", value: 60 },
-  { name: "Mệt mỏi", value: 40 },
+  { name: "Fever", value: 100 },
+  { name: "Cough", value: 80 },
+  { name: "Sore Throat", value: 60 },
+  { name: "Fatigue", value: 40 },
 ];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -46,7 +46,7 @@ const DashboardStats: React.FC = () => {
         const doctors = await userService.fetchAllDoctors();
         setTotalDoctors(doctors.length);
       } catch (err: any) {
-        setError("Không thể tải dữ liệu thống kê");
+        setError("Failed to load statistics data");
       } finally {
         setLoading(false);
       }
@@ -54,7 +54,7 @@ const DashboardStats: React.FC = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <div>Đang tải thống kê...</div>;
+  if (loading) return <div>Loading statistics...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
@@ -62,7 +62,7 @@ const DashboardStats: React.FC = () => {
       <Card>
         <div className="flex flex-col items-center">
           <span className="text-3xl font-bold text-blue-700">{totalUsers}</span>
-          <span className="text-gray-600 mt-2">Tổng số người dùng</span>
+          <span className="text-gray-600 mt-2">Total Users</span>
         </div>
       </Card>
       <Card>
@@ -70,11 +70,11 @@ const DashboardStats: React.FC = () => {
           <span className="text-3xl font-bold text-green-600">
             {totalDoctors}
           </span>
-          <span className="text-gray-600 mt-2">Tổng số bác sĩ</span>
+          <span className="text-gray-600 mt-2">Total Doctors</span>
         </div>
       </Card>
       <Card className="p-4">
-        <h3 className="font-semibold mb-2">Thống kê bệnh phổ biến</h3>
+        <h3 className="font-semibold mb-2">Popular Diseases Statistics</h3>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={diseaseStats}>
             <XAxis dataKey="name" />
@@ -85,7 +85,7 @@ const DashboardStats: React.FC = () => {
         </ResponsiveContainer>
       </Card>
       <Card className="p-4">
-        <h3 className="font-semibold mb-2">Thống kê triệu chứng</h3>
+        <h3 className="font-semibold mb-2">Symptom Statistics</h3>
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>
             <Pie

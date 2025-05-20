@@ -16,33 +16,33 @@ interface ChatMessage {
 }
 
 const MessageContent: React.FC = () => {
-  // Dữ liệu tin nhắn giả
+  // Sample message data
   const messages = [
     {
       id: 1,
       sender: "John Doe",
-      content: "Xin chào, tôi có câu hỏi về triệu chứng của tôi.",
+      content: "Hello, I have a question about my symptoms.",
       time: "10:30 AM",
       unread: true,
     },
     {
       id: 2,
       sender: "Jane Smith",
-      content: "Tôi cần tư vấn về chẩn đoán gần đây của tôi.",
+      content: "I need advice about my recent diagnosis.",
       time: "Yesterday",
       unread: false,
     },
     {
       id: 3,
       sender: "Mike Johnson",
-      content: "Làm thế nào để đặt lịch hẹn?",
+      content: "How can I make an appointment?",
       time: "2 days ago",
       unread: false,
     },
     {
       id: 4,
       sender: "Sarah Williams",
-      content: "Cảm ơn bác sĩ vì lời khuyên!",
+      content: "Thank you, doctor, for your advice!",
       time: "3 days ago",
       unread: false,
     },
@@ -53,13 +53,13 @@ const MessageContent: React.FC = () => {
     1: [
       {
         id: 1,
-        text: "Xin chào, tôi có câu hỏi về triệu chứng của tôi.",
+        text: "Hello, I have a question about my symptoms.",
         sender: "user",
         timestamp: "10:30 AM",
       },
       {
         id: 2,
-        text: "Vâng, tôi có thể giúp gì cho bạn?",
+        text: "Yes, how can I help you?",
         sender: "admin",
         timestamp: "10:31 AM",
       },
@@ -67,13 +67,13 @@ const MessageContent: React.FC = () => {
     2: [
       {
         id: 1,
-        text: "Tôi cần tư vấn về chẩn đoán gần đây của tôi.",
+        text: "I need advice about my recent diagnosis.",
         sender: "user",
         timestamp: "Yesterday",
       },
       {
         id: 2,
-        text: "Bạn có thể chia sẻ thêm chi tiết không?",
+        text: "Can you share more details?",
         sender: "admin",
         timestamp: "Yesterday",
       },
@@ -81,7 +81,7 @@ const MessageContent: React.FC = () => {
     3: [
       {
         id: 1,
-        text: "Làm thế nào để đặt lịch hẹn?",
+        text: "How can I make an appointment?",
         sender: "user",
         timestamp: "2 days ago",
       },
@@ -89,13 +89,13 @@ const MessageContent: React.FC = () => {
     4: [
       {
         id: 1,
-        text: "Cảm ơn bác sĩ vì lời khuyên!",
+        text: "Thank you, doctor, for your advice!",
         sender: "user",
         timestamp: "3 days ago",
       },
       {
         id: 2,
-        text: "Không có gì, rất vui được giúp đỡ!",
+        text: "You're welcome, happy to help!",
         sender: "admin",
         timestamp: "3 days ago",
       },
@@ -216,7 +216,7 @@ const MessageContent: React.FC = () => {
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Nhập tin nhắn..."
+                  placeholder="Type a message..."
                   className="flex-1 border border-gray-300 rounded-l-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 />
@@ -224,14 +224,14 @@ const MessageContent: React.FC = () => {
                   onClick={handleSendMessage}
                   className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none"
                 >
-                  Gửi
+                  Send
                 </button>
               </div>
             </div>
           </>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
-            Chọn một cuộc trò chuyện để bắt đầu
+            Select a conversation to start
           </div>
         )}
       </div>

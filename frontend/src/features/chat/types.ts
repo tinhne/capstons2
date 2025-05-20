@@ -29,6 +29,7 @@ export interface DiseaseSearchResult {
 }
 
 export interface Conversation {
+  id: string;
   conversationId: string;
   participantIds: string[]; // thay thế userId/doctorId
   title: string;

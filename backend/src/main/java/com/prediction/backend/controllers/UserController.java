@@ -70,7 +70,7 @@ public class UserController {
 		UserResponse updateResponse = userService.updateUser(id, user);
 		return ApiResponse.<UserResponse>builder()
 				.data(updateResponse)
-				.message("Cập nhật " + updateResponse.getName() + " thành công")
+				.message("Successfully updated " + updateResponse.getName())
 				.build();
 	}
 

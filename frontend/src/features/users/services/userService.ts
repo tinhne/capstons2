@@ -3,12 +3,12 @@ import apiClient from "../../../utils/apiClient";
 import { CreateUser, UserProfile, UserProfileUpdate } from "../types";
 
 /**
- * Service class quản lý các operations liên quan đến người dùng
+ * Service class managing user-related operations
  */
 class UserService {
   /**
-   * Hàm lấy thông tin người dùng hiện tại
-   * @returns Promise<UserProfile> thông tin người dùng
+   * Fetch current user info
+   * @returns Promise<UserProfile> user info
    */
   async fetchMyInfo(): Promise<UserProfile> {
     try {
@@ -17,37 +17,35 @@ class UserService {
       );
 
       if (response.status !== 1000) {
-        throw new Error(
-          response.message || "Không thể tải thông tin người dùng"
-        );
+        throw new Error(response.message || "Unable to load user information");
       }
 
       return response.data;
     } catch (error: any) {
       console.error("Error fetching user info:", error);
 
-      // Chi tiết hóa thông báo lỗi để dễ dàng debug
+      // Detailed error message for easier debugging
       if (error.response) {
         console.error("Response status:", error.response.status);
         console.error("Response data:", error.response.data);
         throw new Error(
           error.response.data?.message ||
-            `Lỗi khi tải thông tin người dùng (${error.response.status})`
+            `Error loading user information (${error.response.status})`
         );
       } else if (error.request) {
         console.error("No response received:", error.request);
-        throw new Error("Không nhận được phản hồi từ máy chủ");
+        throw new Error("No response received from server");
       } else {
         console.error("Error message:", error.message);
-        throw new Error(`Lỗi khi tải thông tin người dùng: ${error.message}`);
+        throw new Error(`Error loading user information: ${error.message}`);
       }
     }
   }
 
   /**
-   * Hàm cập nhật thông tin người dùng
-   * @param userData thông tin người dùng cần cập nhật
-   * @returns Promise<UserProfile> thông tin người dùng đã cập nhật
+   * Update user information
+   * @param userData user info to update
+   * @returns Promise<UserProfile> updated user info
    */
   async updateUserInfo(
     userData: Partial<UserProfileUpdate>
@@ -60,7 +58,7 @@ class UserService {
 
       if (response.status !== 1000) {
         throw new Error(
-          response.message || "Không thể cập nhật thông tin người dùng"
+          response.message || "Unable to update user information"
         );
       }
 
@@ -71,20 +69,18 @@ class UserService {
       if (error.response) {
         throw new Error(
           error.response.data?.message ||
-            `Lỗi khi cập nhật thông tin người dùng (${error.response.status})`
+            `Error updating user information (${error.response.status})`
         );
       }
 
-      throw new Error(
-        `Lỗi khi cập nhật thông tin người dùng: ${error.message}`
-      );
+      throw new Error(`Error updating user information: ${error.message}`);
     }
   }
 
   /**
-   * Hàm lấy thông tin người dùng bằng ID
-   * @param userId ID của người dùng cần lấy thông tin
-   * @returns Promise<UserProfile> thông tin người dùng
+   * Fetch user info by ID
+   * @param userId user ID to fetch
+   * @returns Promise<UserProfile> user info
    */
   async fetchUserById(userId: string): Promise<UserProfile> {
     try {
@@ -93,9 +89,7 @@ class UserService {
       );
 
       if (response.status !== 1000) {
-        throw new Error(
-          response.message || "Không thể tải thông tin người dùng"
-        );
+        throw new Error(response.message || "Unable to load user information");
       }
 
       return response.data;
@@ -105,42 +99,42 @@ class UserService {
       if (error.response) {
         throw new Error(
           error.response.data?.message ||
-            `Lỗi khi tải thông tin người dùng (${error.response.status})`
+            `Error loading user information (${error.response.status})`
         );
       }
 
-      throw new Error(`Lỗi khi tải thông tin người dùng: ${error.message}`);
+      throw new Error(`Error loading user information: ${error.message}`);
     }
   }
 
   /**
-   * Lấy tất cả người dùng
+   * Fetch all users
    */
   async fetchAllUsers(): Promise<UserProfile[]> {
     const response = await apiClient.get<ApiResponse<UserProfile[]>>("/users");
     if (response.status !== 1000) {
-      throw new Error(response.message || "Không thể tải danh sách người dùng");
+      throw new Error(response.message || "Unable to load user list");
     }
     return response.data;
   }
 
   /**
-   * Lấy tất cả bác sĩ
+   * Fetch all doctors
    */
   async fetchAllDoctors(): Promise<UserProfile[]> {
     const response = await apiClient.get<ApiResponse<UserProfile[]>>(
       "/users/doctors"
     );
     if (response.status !== 1000) {
-      throw new Error(response.message || "Không thể tải danh sách bác sĩ");
+      throw new Error(response.message || "Unable to load doctor list");
     }
     return response.data;
   }
 
   /**
-   * Tạo mới một user có role là Doctor
-   * @param doctorData Thông tin user cần tạo
-   * @returns Promise<UserProfile> thông tin user Doctor vừa tạo
+   * Create a new user with Doctor role
+   * @param doctorData user info to create
+   * @returns Promise<UserProfile> created Doctor user info
    */
   async createDoctor(doctorData: Partial<CreateUser>): Promise<CreateUser> {
     try {
@@ -149,7 +143,7 @@ class UserService {
         doctorData
       );
       if (response.status !== 1000) {
-        throw new Error(response.message || "Không thể tạo bác sĩ mới");
+        throw new Error(response.message || "Unable to create new doctor");
       }
       return response.data;
     } catch (error: any) {
@@ -157,16 +151,16 @@ class UserService {
       if (error.response) {
         throw new Error(
           error.response.data?.message ||
-            `Lỗi khi tạo bác sĩ mới (${error.response.status})`
+            `Error creating new doctor (${error.response.status})`
         );
       }
-      throw new Error(`Lỗi khi tạo bác sĩ mới: ${error.message}`);
+      throw new Error(`Error creating new doctor: ${error.message}`);
     }
   }
 
   /**
-   * Xóa người dùng theo id
-   * @param userId ID của người dùng cần xóa
+   * Delete user by id
+   * @param userId user ID to delete
    * @returns Promise<void>
    */
   async deleteUser(userId: string): Promise<void> {
@@ -175,17 +169,17 @@ class UserService {
         `/users/${userId}`
       );
       if (response.status !== 1000) {
-        throw new Error(response.message || "Không thể xóa người dùng");
+        throw new Error(response.message || "Unable to delete user");
       }
     } catch (error: any) {
       console.error("Error deleting user:", error);
       if (error.response) {
         throw new Error(
           error.response.data?.message ||
-            `Lỗi khi xóa người dùng (${error.response.status})`
+            `Error deleting user (${error.response.status})`
         );
       }
-      throw new Error(`Lỗi khi xóa người dùng: ${error.message}`);
+      throw new Error(`Error deleting user: ${error.message}`);
     }
   }
 }
@@ -194,7 +188,7 @@ class UserService {
 const userService = new UserService();
 export default userService;
 
-// Export các hàm riêng lẻ để tương thích ngược với mã cũ
+// Export individual functions for backward compatibility
 export const fetchMyInfo = () => userService.fetchMyInfo();
 export const updateUserInfo = (userData: Partial<UserProfile>) =>
   userService.updateUserInfo(userData);

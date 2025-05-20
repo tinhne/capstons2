@@ -18,7 +18,7 @@ const EditProfile: React.FC = () => {
         const profile = await userService.fetchMyInfo();
         setForm(profile);
       } catch (err: any) {
-        setError("Không thể tải hồ sơ người dùng");
+        setError("Cannot load user profile");
       } finally {
         setLoading(false);
       }
@@ -41,9 +41,9 @@ const EditProfile: React.FC = () => {
     setMessage("");
     try {
       await userService.updateUserInfo(form);
-      setMessage("Cập nhật thành công!");
+      setMessage("Update successful!");
     } catch (err: any) {
-      setError("Cập nhật thất bại!");
+      setError("Update failed!");
     } finally {
       setLoading(false);
     }
@@ -71,9 +71,9 @@ const EditProfile: React.FC = () => {
             />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-blue-700">Cập nhật hồ sơ</h2>
+        <h2 className="text-2xl font-bold text-blue-700">Update Profile</h2>
         <p className="text-gray-500 text-sm">
-          Cập nhật thông tin cá nhân của bạn
+          Update your personal information
         </p>
       </div>
       <form
@@ -83,14 +83,14 @@ const EditProfile: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Họ và tên
+              Full Name
             </label>
             <input
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               value={form?.name || ""}
               onChange={(e) => handleChange("name", e.target.value)}
               required
-              placeholder="Nhập họ và tên"
+              placeholder="Enter your full name"
             />
           </div>
           <div>
@@ -102,13 +102,13 @@ const EditProfile: React.FC = () => {
               value={form?.email || ""}
               disabled
               type="email"
-              placeholder="Nhập email"
+              placeholder="Enter email"
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Giới tính
+              Gender
             </label>
             <select
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
@@ -120,27 +120,27 @@ const EditProfile: React.FC = () => {
                 )
               }
             >
-              <option value="">Chọn giới tính</option>
-              <option value="Male">Nam</option>
-              <option value="Female">Nữ</option>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
             </select>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Địa chỉ
+              Address
             </label>
             <input
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               value={form?.address || ""}
               onChange={(e) => handleChange("address", e.target.value)}
-              placeholder="Nhập địa chỉ"
+              placeholder="Enter address"
             />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Tuổi
+              Age
             </label>
             <input
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
@@ -153,31 +153,31 @@ const EditProfile: React.FC = () => {
               }
               type="number"
               min="0"
-              placeholder="Nhập tuổi"
+              placeholder="Enter age"
             />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Quận/Huyện
+              District
             </label>
             <input
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               value={form?.district || ""}
               onChange={(e) => handleChange("district", e.target.value)}
-              placeholder="Nhập quận/huyện"
+              placeholder="Enter district"
             />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Tỉnh/Thành phố
+              City/Province
             </label>
             <input
               className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               value={form?.city || ""}
               onChange={(e) => handleChange("city", e.target.value)}
-              placeholder="Nhập tỉnh/thành phố"
+              placeholder="Enter city/province"
             />
           </div>
         </div>
@@ -185,7 +185,7 @@ const EditProfile: React.FC = () => {
           {isUser && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Bệnh nền
+                Underlying Disease
               </label>
               <input
                 className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
@@ -193,20 +193,20 @@ const EditProfile: React.FC = () => {
                 onChange={(e) =>
                   handleChange("underlying_disease", e.target.value)
                 }
-                placeholder="Nhập bệnh nền (nếu có)"
+                placeholder="Enter underlying disease (if any)"
               />
             </div>
           )}
           {isDoctor && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Chuyên môn
+                Specialization
               </label>
               <input
                 className="w-full border border-blue-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 value={form?.specialization || ""}
                 onChange={(e) => handleChange("specialization", e.target.value)}
-                placeholder="Nhập chuyên môn (nếu là bác sĩ)"
+                placeholder="Enter specialization (if doctor)"
               />
             </div>
           )}
@@ -237,10 +237,10 @@ const EditProfile: React.FC = () => {
                     d="M4 12a8 8 0 018-8v8z"
                   ></path>
                 </svg>
-                Đang lưu...
+                Saving...
               </span>
             ) : (
-              "Lưu thay đổi"
+              "Save changes"
             )}
           </button>
           {message && (

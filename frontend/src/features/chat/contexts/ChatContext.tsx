@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
 import { ChatMessage, Conversation } from "../types";
 
-// Định nghĩa kiểu state
+// Define state type
 interface ChatContextState {
   conversations: Conversation[];
   activeConversationId: string | null;
@@ -10,7 +10,7 @@ interface ChatContextState {
   error: string | null;
 }
 
-// Định nghĩa các hành động có thể xảy ra
+// Define possible actions
 type ChatAction =
   | { type: "SET_CONVERSATIONS"; payload: Conversation[] }
   | { type: "SET_ACTIVE_CONVERSATION"; payload: string }
@@ -19,7 +19,7 @@ type ChatAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null };
 
-// Tạo context với kiểu dữ liệu
+// Create context with type
 const ChatContext = createContext<
   | {
       state: ChatContextState;
@@ -28,7 +28,7 @@ const ChatContext = createContext<
   | undefined
 >(undefined);
 
-// Trạng thái ban đầu
+// Initial state
 const initialState: ChatContextState = {
   conversations: [],
   activeConversationId: null,
@@ -37,7 +37,7 @@ const initialState: ChatContextState = {
   error: null,
 };
 
-// Reducer function để xử lý các action
+// Reducer function to handle actions
 function chatReducer(
   state: ChatContextState,
   action: ChatAction
@@ -60,7 +60,7 @@ function chatReducer(
   }
 }
 
-// Props cho ChatProvider
+// Props for ChatProvider
 interface ChatProviderProps {
   children: ReactNode;
 }
@@ -76,7 +76,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook để sử dụng chat context
+// Custom hook to use chat context
 export const useChatContext = () => {
   const context = useContext(ChatContext);
   if (context === undefined) {

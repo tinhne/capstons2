@@ -23,8 +23,8 @@ const DoctorList: React.FC = () => {
       const data = await userService.fetchAllDoctors();
       setDoctors(data);
     } catch (err: any) {
-      setError("Không thể tải danh sách bác sĩ");
-      showToast({ type: "error", message: "Không thể tải danh sách bác sĩ" });
+      setError("Failed to load doctor list");
+      showToast({ type: "error", message: "Failed to load doctor list" });
     } finally {
       setLoading(false);
     }
@@ -64,10 +64,10 @@ const DoctorList: React.FC = () => {
     setLoading(true);
     try {
       await userService.deleteUser(id);
-      showToast({ type: "success", message: "Xóa bác sĩ thành công" });
+      showToast({ type: "success", message: "Doctor deleted successfully" });
       await fetchDoctors();
     } catch {
-      showToast({ type: "error", message: "Xóa bác sĩ thất bại" });
+      showToast({ type: "error", message: "Failed to delete doctor" });
     } finally {
       setLoading(false);
       setConfirmDeleteId(null);
@@ -81,44 +81,44 @@ const DoctorList: React.FC = () => {
     try {
       if (editingId) {
         await userService.updateUserInfo({ id: editingId, ...formData });
-        showToast({ type: "success", message: "Cập nhật bác sĩ thành công" });
+        showToast({ type: "success", message: "Doctor updated successfully" });
       } else {
         if (!formData.password) {
-          setError("Vui lòng nhập mật khẩu cho bác sĩ mới");
+          setError("Please enter a password for the new doctor");
           showToast({
             type: "error",
-            message: "Vui lòng nhập mật khẩu cho bác sĩ mới",
+            message: "Please enter a password for the new doctor",
           });
           setLoading(false);
           return;
         }
         await userService.createDoctor(formData);
-        showToast({ type: "success", message: "Thêm bác sĩ thành công" });
+        showToast({ type: "success", message: "Doctor added successfully" });
       }
       setShowForm(false);
       await fetchDoctors();
     } catch {
-      setError("Lưu thất bại");
-      showToast({ type: "error", message: "Lưu bác sĩ thất bại" });
+      setError("Save failed");
+      showToast({ type: "error", message: "Failed to save doctor" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card cardTitle="Danh sách bác sĩ" className="mt-6">
+    <Card cardTitle="Doctor List" className="mt-6">
       <div className="mb-4 flex justify-end">
         <Button onClick={handleAdd} color="primary">
-          Thêm bác sĩ
+          Add Doctor
         </Button>
       </div>
-      {loading && <div>Đang tải...</div>}
+      {loading && <div>Loading...</div>}
       <table className="min-w-full text-sm">
         <thead>
           <tr className="bg-gray-100">
-            <th className="p-2 text-left">Họ tên</th>
+            <th className="p-2 text-left">Full Name</th>
             <th className="p-2 text-left">Email</th>
-            <th className="p-2 text-left">Hành động</th>
+            <th className="p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -132,29 +132,29 @@ const DoctorList: React.FC = () => {
                   onClick={() => handleEdit(doctor)}
                   color="secondary"
                 >
-                  Sửa
+                  Edit
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => setConfirmDeleteId(doctor.id)}
                   color="danger"
                 >
-                  Xóa
+                  Delete
                 </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {/* Modal xác nhận xóa */}
+      {/* Delete confirmation modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-4 text-center text-red-600">
-              Xác nhận xóa bác sĩ
+              Confirm delete doctor
             </h3>
             <p className="mb-6 text-center">
-              Bạn có chắc chắn muốn xóa bác sĩ này không?
+              Are you sure you want to delete this doctor?
             </p>
             <div className="flex gap-2 justify-center">
               <Button
@@ -162,14 +162,14 @@ const DoctorList: React.FC = () => {
                 onClick={() => handleDelete(confirmDeleteId)}
                 disabled={loading}
               >
-                Xóa
+                Delete
               </Button>
               <Button
                 color="secondary"
                 onClick={() => setConfirmDeleteId(null)}
                 disabled={loading}
               >
-                Hủy
+                Cancel
               </Button>
             </div>
           </div>
@@ -182,11 +182,11 @@ const DoctorList: React.FC = () => {
             className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative"
           >
             <h2 className="text-xl font-semibold mb-4 text-center">
-              {editingId ? "Chỉnh sửa bác sĩ" : "Thêm bác sĩ"}
+              {editingId ? "Edit Doctor" : "Add Doctor"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="Họ tên"
+                label="Full Name"
                 name="name"
                 value={formData.name || ""}
                 onChange={handleInputChange}
@@ -202,7 +202,7 @@ const DoctorList: React.FC = () => {
               />
               {!editingId && (
                 <Input
-                  label="Mật khẩu"
+                  label="Password"
                   name="password"
                   value={formData.password || ""}
                   onChange={handleInputChange}
@@ -211,7 +211,7 @@ const DoctorList: React.FC = () => {
                 />
               )}
               <Input
-                label="Tuổi"
+                label="Age"
                 name="age"
                 value={formData.age || ""}
                 onChange={handleInputChange}
@@ -219,7 +219,7 @@ const DoctorList: React.FC = () => {
                 min={18}
               />
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Giới tính</label>
+                <label className="mb-1 font-medium">Gender</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
                     <input
@@ -229,7 +229,7 @@ const DoctorList: React.FC = () => {
                       checked={formData.gender === "Male"}
                       onChange={handleInputChange}
                     />
-                    Nam
+                    Male
                   </label>
                   <label className="flex items-center gap-1">
                     <input
@@ -239,7 +239,7 @@ const DoctorList: React.FC = () => {
                       checked={formData.gender === "Female"}
                       onChange={handleInputChange}
                     />
-                    Nữ
+                    Female
                   </label>
                   <label className="flex items-center gap-1">
                     <input
@@ -249,36 +249,36 @@ const DoctorList: React.FC = () => {
                       checked={formData.gender === "Other"}
                       onChange={handleInputChange}
                     />
-                    Khác
+                    Other
                   </label>
                 </div>
               </div>
               <Input
-                label="Địa chỉ"
+                label="Address"
                 name="address"
                 value={formData.address || ""}
                 onChange={handleInputChange}
               />
               <Input
-                label="Quận/Huyện"
+                label="District"
                 name="district"
                 value={formData.district || ""}
                 onChange={handleInputChange}
               />
               <Input
-                label="Thành phố"
+                label="City"
                 name="city"
                 value={formData.city || ""}
                 onChange={handleInputChange}
               />
               <Input
-                label="Chuyên khoa"
+                label="Specialization"
                 name="specialization"
                 value={formData.specialization || ""}
                 onChange={handleInputChange}
               />
               {/* <Input
-                label="Bệnh nền"
+                label="Underlying disease"
                 name="underlying_disease"
                 value={formData.underlying_disease || ""}
                 onChange={handleInputChange}
@@ -286,21 +286,21 @@ const DoctorList: React.FC = () => {
             </div>
             <div className="flex gap-2 justify-end mt-6">
               <Button type="submit" color="primary">
-                Lưu
+                Save
               </Button>
               <Button
                 type="button"
                 onClick={() => setShowForm(false)}
                 color="secondary"
               >
-                Hủy
+                Cancel
               </Button>
             </div>
             <button
               type="button"
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
               onClick={() => setShowForm(false)}
-              aria-label="Đóng"
+              aria-label="Close"
             >
               ×
             </button>

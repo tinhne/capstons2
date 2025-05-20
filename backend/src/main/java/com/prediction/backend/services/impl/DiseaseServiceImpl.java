@@ -57,7 +57,7 @@ public class DiseaseServiceImpl implements DiseaseService {
     }
 
     /**
-     * Lấy thông tin chi tiết của một bệnh dựa trên ID, kèm theo triệu chứng
+     * Get detailed information of a disease by ID, including symptoms
      */
     @Override
     public DiseaseResponse getDiseaseDetailsById(String diseaseId) throws AppException {
@@ -70,7 +70,7 @@ public class DiseaseServiceImpl implements DiseaseService {
     }
 
     /**
-     * Trích xuất danh sách Symptom từ kết quả truy vấn Repository
+     * Extract a list of Symptom from the Repository query result
      */
     private List<Symptom> extractSymptomsFromResult(List<Map<String, Object>> resultList) {
         List<Symptom> symptoms = new ArrayList<>();
@@ -78,14 +78,14 @@ public class DiseaseServiceImpl implements DiseaseService {
         for (Map<String, Object> result : resultList) {
             try {
                 Symptom symptom = new Symptom();
-                // Đặt các giá trị từ map vào symptom
+                // Set values from map to symptom
                 if (result.containsKey("symptom_id")) {
                     symptom.setSymptomId(result.get("symptom_id").toString());
                 }
                 if (result.containsKey("symptom_name")) {
                     symptom.setNameEn(result.get("symptom_name").toString());
                 }
-                // Thêm các thuộc tính khác nếu cần
+                // Add other properties if needed
 
                 symptoms.add(symptom);
             } catch (Exception e) {
@@ -113,7 +113,7 @@ public class DiseaseServiceImpl implements DiseaseService {
     }
 
     /**
-     * Tìm kiếm bệnh theo từ khóa
+     * Search diseases by keyword
      */
     @Override
     public List<Disease> searchDiseases(String keyword) {
@@ -142,7 +142,7 @@ public class DiseaseServiceImpl implements DiseaseService {
     @Override
     public DiseaseResponse createDisease(DiseaseRequest diseaseRequest) throws AppException {
         try {
-            // Kiểm tra xem tên bệnh đã tồn tại chưa
+            // Check if the disease name already exists
             if (!diseaseRepository.findByNameEnIgnoreCase(diseaseRequest.getNameEn()).isEmpty()) {
                 throw new AppException(ErrorCode.DISEASE_NAME_EN_EXISTED);
             }
@@ -152,7 +152,7 @@ public class DiseaseServiceImpl implements DiseaseService {
                 throw new AppException(ErrorCode.DISEASE_NAME_VN_EXISTED);
             }
 
-            // Tạo entity mới
+            // Create new entity
             Disease disease = new Disease();
             disease.setDiseaseId(UUID.randomUUID().toString().substring(0, 20));
             disease.setOriginalId(diseaseRequest.getOriginalId());
@@ -163,7 +163,7 @@ public class DiseaseServiceImpl implements DiseaseService {
             disease.setSeverity(diseaseRequest.getSeverity());
             disease.setSpecialization(diseaseRequest.getSpecialization());
 
-            // Lưu vào database
+            // Save to database
             Disease savedDisease = diseaseRepository.save(disease);
 
             return DiseaseResponse.fromEntity(savedDisease);
@@ -182,11 +182,11 @@ public class DiseaseServiceImpl implements DiseaseService {
     @Override
     public DiseaseResponse updateDisease(String diseaseId, DiseaseRequest diseaseRequest) throws AppException {
         try {
-            // Tìm bệnh theo ID
+            // Find disease by ID
             Disease existingDisease = diseaseRepository.findById(diseaseId)
                     .orElseThrow(() -> new AppException(ErrorCode.DISEASE_NOT_FOUND));
 
-            // Kiểm tra xem tên cập nhật có xung đột không
+            // Check if the updated name conflicts
             List<Disease> diseasesWithSameNameEn = diseaseRepository.findByNameEnIgnoreCase(diseaseRequest.getNameEn());
             if (!diseasesWithSameNameEn.isEmpty() &&
                     !diseasesWithSameNameEn.get(0).getDiseaseId().equals(diseaseId)) {
@@ -202,7 +202,7 @@ public class DiseaseServiceImpl implements DiseaseService {
                 }
             }
 
-            // Cập nhật thông tin
+            // Update information
             existingDisease.setOriginalId(diseaseRequest.getOriginalId());
             existingDisease.setNameEn(diseaseRequest.getNameEn());
             existingDisease.setNameVn(diseaseRequest.getNameVn());
@@ -211,7 +211,7 @@ public class DiseaseServiceImpl implements DiseaseService {
             existingDisease.setSeverity(diseaseRequest.getSeverity());
             existingDisease.setSpecialization(diseaseRequest.getSpecialization());
 
-            // Lưu vào database
+            // Save to database
             Disease updatedDisease = diseaseRepository.save(existingDisease);
 
             return DiseaseResponse.fromEntity(updatedDisease);
@@ -229,13 +229,13 @@ public class DiseaseServiceImpl implements DiseaseService {
      */
     @Override
     public void deleteDisease(String diseaseId) throws AppException {
-        // Kiểm tra xem bệnh có tồn tại không
+        // Check if the disease exists
         if (!diseaseRepository.existsById(diseaseId)) {
             throw new AppException(ErrorCode.DISEASE_NOT_FOUND);
         }
 
         try {
-            // Xóa bệnh
+            // Delete disease
             diseaseRepository.deleteById(diseaseId);
         } catch (Exception e) {
             log.error("Error deleting disease: ", e);

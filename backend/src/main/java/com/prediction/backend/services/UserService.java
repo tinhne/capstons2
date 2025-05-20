@@ -38,6 +38,5 @@ public interface UserService {
 	List<User> findAllByRole(String role);
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostAuthorize("returnObject.id == authentication.name")
 	UserResponse createDoctorUser(UserCreateRequest user);
 }

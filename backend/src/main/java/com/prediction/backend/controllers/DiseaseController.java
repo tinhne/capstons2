@@ -31,7 +31,7 @@ public class DiseaseController {
     }
 
     /**
-     * Retrieve list of disease
+     * Retrieve list of diseases
      */
     @GetMapping("/diseases")
     public ApiResponse<List<Disease>> getAllDiseases() {
@@ -39,13 +39,13 @@ public class DiseaseController {
 
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
-                .message("Đã tìm thấy " + diseases.size() + " bệnh")
+                .message("Found " + diseases.size() + " diseases")
                 .data(diseases)
                 .build();
     }
 
     /**
-     * Lấy thông tin chi tiết của một bệnh theo ID
+     * Get detailed information of a disease by ID
      */
     @GetMapping("/diseases/{id}")
     public ApiResponse<DiseaseResponse> getDiseaseById(@PathVariable("id") String diseaseId) {
@@ -54,7 +54,7 @@ public class DiseaseController {
 
             return ApiResponse.<DiseaseResponse>builder()
                     .status(1000)
-                    .message("Đã tìm thấy bệnh")
+                    .message("Disease found")
                     .data(disease)
                     .build();
         } catch (AppException e) {
@@ -63,7 +63,7 @@ public class DiseaseController {
     }
 
     /**
-     * Tìm bệnh theo tên tiếng Anh
+     * Find diseases by English name
      */
     @GetMapping("/diseases/name-en/{name}")
     public ApiResponse<List<Disease>> getDiseasesByNameEn(@PathVariable("name") String name) {
@@ -71,13 +71,13 @@ public class DiseaseController {
 
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
-                .message("Tìm thấy " + diseases.size() + " bệnh theo tên tiếng Anh: " + name)
+                .message("Found " + diseases.size() + " diseases by English name: " + name)
                 .data(diseases)
                 .build();
     }
 
     /**
-     * Tìm bệnh theo tên tiếng Việt
+     * Find diseases by Vietnamese name
      */
     @GetMapping("/diseases/name-vn/{name}")
     public ApiResponse<List<Disease>> getDiseasesByNameVn(@PathVariable("name") String name) {
@@ -85,13 +85,13 @@ public class DiseaseController {
 
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
-                .message("Tìm thấy " + diseases.size() + " bệnh theo tên tiếng Việt: " + name)
+                .message("Found " + diseases.size() + " diseases by Vietnamese name: " + name)
                 .data(diseases)
                 .build();
     }
 
     /**
-     * Tìm kiếm bệnh theo từ khóa
+     * Search diseases by keyword
      */
     @GetMapping("/diseases/search")
     public ApiResponse<List<Disease>> searchDiseases(@RequestParam("keyword") String keyword) {
@@ -99,13 +99,13 @@ public class DiseaseController {
 
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
-                .message("Tìm thấy " + diseases.size() + " bệnh theo từ khóa: " + keyword)
+                .message("Found " + diseases.size() + " diseases by keyword: " + keyword)
                 .data(diseases)
                 .build();
     }
 
     /**
-     * Tìm bệnh theo mức độ nghiêm trọng
+     * Find diseases by severity
      */
     @GetMapping("/diseases/severity/{severity}")
     public ApiResponse<List<Disease>> getDiseasesBySeverity(@PathVariable("severity") String severity) {
@@ -115,7 +115,7 @@ public class DiseaseController {
 
             return ApiResponse.<List<Disease>>builder()
                     .status(1000)
-                    .message("Tìm thấy " + diseases.size() + " bệnh với mức độ nghiêm trọng: " + severity)
+                    .message("Found " + diseases.size() + " diseases with severity: " + severity)
                     .data(diseases)
                     .build();
         } catch (IllegalArgumentException e) {
@@ -124,7 +124,7 @@ public class DiseaseController {
     }
 
     /**
-     * Tìm bệnh theo chuyên khoa
+     * Find diseases by specialization
      */
     @GetMapping("/diseases/specialization/{specialization}")
     public ApiResponse<List<Disease>> getDiseasesBySpecialization(
@@ -133,13 +133,13 @@ public class DiseaseController {
 
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
-                .message("Tìm thấy " + diseases.size() + " bệnh theo chuyên khoa: " + specialization)
+                .message("Found " + diseases.size() + " diseases by specialization: " + specialization)
                 .data(diseases)
                 .build();
     }
 
     /**
-     * Tạo bệnh mới
+     * Create a new disease
      */
     @PostMapping("/diseases")
     public ResponseEntity<ApiResponse<DiseaseResponse>> createDisease(
@@ -148,7 +148,7 @@ public class DiseaseController {
 
         ApiResponse<DiseaseResponse> response = ApiResponse.<DiseaseResponse>builder()
                 .status(1000)
-                .message("Tạo bệnh mới thành công")
+                .message("Successfully created new disease")
                 .data(diseaseResponse)
                 .build();
 
@@ -156,7 +156,7 @@ public class DiseaseController {
     }
 
     /**
-     * Cập nhật thông tin bệnh
+     * Update disease information
      */
     @PutMapping("/diseases/{id}")
     public ApiResponse<DiseaseResponse> updateDisease(
@@ -167,13 +167,13 @@ public class DiseaseController {
 
         return ApiResponse.<DiseaseResponse>builder()
                 .status(1000)
-                .message("Cập nhật bệnh thành công")
+                .message("Disease updated successfully")
                 .data(diseaseResponse)
                 .build();
     }
 
     /**
-     * Xóa bệnh
+     * Delete disease
      */
     @DeleteMapping("/diseases/{id}")
     public ApiResponse<Void> deleteDisease(@PathVariable("id") String diseaseId) {
@@ -181,7 +181,7 @@ public class DiseaseController {
 
         return ApiResponse.<Void>builder()
                 .status(1000)
-                .message("Đã xóa bệnh thành công")
+                .message("Disease deleted successfully")
                 .build();
     }
 }

@@ -15,6 +15,8 @@ import { AuthProvider } from "../contexts/AuthContext";
 
 // Lazy load các component để cải thiện performance
 const AuthPage = lazy(() => import("../features/auth/AuthPage"));
+const Register = lazy(() => import("../features/auth/components/RegisterForm"));
+
 // const ChatPage = lazy(() => import("../features/chat/ChatPage"));
 const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 import ChatPage from "../features/chat/ChatPage";
@@ -40,17 +42,9 @@ const Root = () => {
 // Danh sách các route công khai (không cần đăng nhập)
 const publicRoutes: RouteObject[] = [
   {
-    path: APP_ROUTES.PUBLIC.LOGIN,
+    path: "/",
     element: <AuthLayout />,
     children: [
-      {
-        index: true,
-        element: (
-          <Suspense fallback={<SuspenseFallback />}>
-            <AuthPage />
-          </Suspense>
-        ),
-      },
       {
         path: "login",
         element: (
@@ -116,10 +110,10 @@ const privateRoutes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="/home" replace />, // Trang mặc định chuyển về /chat
+        element: <Navigate to="home" replace />, // Trang mặc định chuyển về /chat
       },
       {
-        path: "/home", // Trang danh sách chat, Health Assistant, danh sách bác sĩ
+        path: "home", // Trang danh sách chat, Health Assistant, danh sách bác sĩ
         element: <ChatPage />,
       },
       {
