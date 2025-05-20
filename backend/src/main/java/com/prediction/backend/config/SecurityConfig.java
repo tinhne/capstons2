@@ -33,11 +33,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-        "/api/users",
-        "/api/auth/login",
-        "/api/auth/introspect",
-        "/api/auth/logout",
-        "/api/auth/refresh"
+            "/api/users",
+            "/api/auth/login",
+            "/api/auth/introspect",
+            "/api/auth/logout",
+            "/api/auth/refresh",
     };
     @Value("${jwt.signerKey}")
     private String SIGNING_KEY;
@@ -45,34 +45,32 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity
-//                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
-//                .cors(Customizer.withDefaults()) // Bật CORS
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll() // Cho phép tất cả API không cần auth
-//                )
-//                .oauth2ResourceServer(oauth2 -> oauth2.disable()); // Tắt xác thực JWT
+        // httpSecurity
+        // .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+        // .cors(Customizer.withDefaults()) // Bật CORS
+        // .authorizeHttpRequests(auth -> auth
+        // .anyRequest().permitAll() // Cho phép tất cả API không cần auth
+        // )
+        // .oauth2ResourceServer(oauth2 -> oauth2.disable()); // Tắt xác thực JWT
         httpSecurity.cors(Customizer.withDefaults());
 
         httpSecurity.authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .anyRequest()
-                .authenticated()
-        );
+                .authenticated());
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
-        );
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntrypoint()));
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -80,12 +78,12 @@ public class SecurityConfig {
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         corsConfiguration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
-    
+
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -98,10 +96,11 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder() {
         SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNING_KEY.getBytes(), "HS256");
         return NimbusJwtDecoder
-            .withSecretKey(secretKeySpec)
-            .macAlgorithm(MacAlgorithm.HS256)
-            .build();
+                .withSecretKey(secretKeySpec)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

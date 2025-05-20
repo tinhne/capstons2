@@ -1,6 +1,5 @@
 package com.prediction.backend.mapper;
 
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -16,6 +15,6 @@ public interface UserMapper {
 
     @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User updatedUser, UserUpdateRequest userRequest);
-    
+
     UserResponse toUserResponse(User user);
 }

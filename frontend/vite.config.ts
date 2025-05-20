@@ -12,6 +12,13 @@ export default defineConfig({
         changeOrigin: true, // Đảm bảo rằng CORS được xử lý đúng
         secure: false, // Nếu backend sử dụng HTTP không có HTTPS
       },
+      "/ws": {
+        target: "ws://localhost:8080",
+        ws: true,
+      },
     },
+  },
+  define: {
+    global: "window", // This provides a polyfill for the global object
   },
 });

@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../redux/authSlice";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { login, logout } from "../redux/authSlice";
 import { AppDispatch, RootState } from "../../../redux/store";
+import { APP_ROUTES, createPath } from "../../../constants/routeConstants";
+import {
+  extractRolesFromToken,
+  getUserIdFromToken,
+  hasRoleFromToken,
+} from "../../../utils/jwtUtils";
+import { jwtDecode } from "jwt-decode";
+import { useToast } from "../../../contexts/ToastContext";
 
 // SVG Google icon component
 const GoogleIcon = () => (
@@ -42,22 +50,76 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showToast } = useToast();
 
-  const { isAuthenticated, loading, error, user } = useSelector(
+  // Get redirect path from location state if available
+  const redirectPath = location.state?.from || APP_ROUTES.PRIVATE.DASHBOARD;
+
+  const { isAuthenticated, loading, error, user, token } = useSelector(
     (state: RootState) => state.auth
   );
 
-  // Effect to handle redirection based on authentication status and role
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      // Check if user has admin role
-      if (user.role === "ROLE_ADMIN") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate(`/user/chatbot/${user.id}`);
+  // console.log("Current auth state:", {
+  //   isAuthenticated,
+  //   hasUser: !!user,
+  //   hasToken: !!token,
+  //   location: location.pathname,
+  //   redirectPath,
+  // });
+  const isTokenValid = (token: string): boolean => {
+    try {
+      const decodedToken: any = jwtDecode(token); // Thay đổi ở đây
+      const currentTime = Date.now() / 1000;
+
+      // Kiểm tra exp (expiration time)
+      if (decodedToken.exp && decodedToken.exp < currentTime) {
+        return false;
       }
+      return true;
+    } catch (error) {
+      console.error("Invalid token:", error);
+      return false;
     }
-  }, [isAuthenticated, user, navigate]);
+  };
+
+  // Effect to handle redirection based on authentication status and token
+  useEffect(() => {
+    if (isAuthenticated && token && !error) {
+      // Decode token to get user role and ID
+      if (!isTokenValid(token)) {
+        // Token hết hạn, nên logout hoặc xóa token ở đây
+        dispatch(logout());
+        return;
+      }
+      const roles = extractRolesFromToken(token);
+      const userId = getUserIdFromToken(token);
+
+      console.log("Token decoded info:", {
+        roles,
+        userId,
+        isAdmin: hasRoleFromToken(token, "ADMIN"),
+      });
+
+      // Force a small delay to ensure state is properly updated
+      setTimeout(() => {
+        // Check if user has admin role
+        if (hasRoleFromToken(token, "ADMIN")) {
+          console.log("Redirecting to admin dashboard");
+          navigate(APP_ROUTES.ADMIN.DASHBOARD);
+        } else {
+          console.log("Redirecting to chat page");
+          navigate(`/home`); // Chuyển hướng trực tiếp đến /chat
+        }
+      }, 100);
+    }
+  }, [isAuthenticated, token, error]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({ type: "error", message: error });
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +128,10 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    dispatch(loginUser({ email, password }));
+    console.log("Submitting login form with email:", email);
+
+    // Dispatch login action
+    dispatch(login({ email, password }));
   };
 
   return (
@@ -142,9 +207,6 @@ const LoginForm: React.FC = () => {
                 />
               </div>
 
-              {/* Error Message */}
-              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-
               {/* Sign in Button */}
               <button
                 className="bg-white text-zinc-950 hover:bg-white/90 active:bg-white/80 mt-2 rounded-lg px-4 py-4 text-base font-medium transition-colors disabled:opacity-50"
@@ -159,20 +221,20 @@ const LoginForm: React.FC = () => {
           {/* Links */}
           <div className="space-y-2 mt-4 text-sm">
             <p>
-              <a
-                href="/dashboard/signin/forgot_password"
+              <Link
+                to={APP_ROUTES.PUBLIC.FORGOT_PASSWORD}
                 className="text-white hover:underline"
               >
                 Forgot your password?
-              </a>
+              </Link>
             </p>
             <p>
-              <a
-                href="/dashboard/signin/signup"
+              <Link
+                to={APP_ROUTES.PUBLIC.REGISTER}
                 className="text-white hover:underline"
               >
                 Don't have an account? Sign up
-              </a>
+              </Link>
             </p>
           </div>
         </div>

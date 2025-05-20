@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import DashboardStats from "./Dasboard/DashboardStats";
 import DateSelector from "./Dasboard/DateSelector";
 import MessageContent from "./Chat/MessageContent";
+import DoctorList from "./Doctors/DoctorList";
 
 // Định nghĩa các trang có thể hiển thị
-type PageType = "dashboard" | "analytics" | "message" | "settings";
+type PageType = "dashboard" | "doctors" | "message" | "settings";
 
 const AnalyticsDashboard: React.FC = () => {
   // State để theo dõi trang hiện tại
@@ -25,12 +27,17 @@ const AnalyticsDashboard: React.FC = () => {
         // Đây là nội dung mặc định của dashboard
         return (
           <>
+            <DashboardStats />
             <DateSelector />
             {/* Các component khác của dashboard */}
           </>
         );
-      case "analytics":
-        return <div className="p-4">Nội dung Analytics</div>;
+      case "doctors":
+        return (
+          <>
+            <DoctorList />
+          </>
+        );
       case "settings":
         return <div className="p-4">Nội dung Settings</div>;
       default:
@@ -50,7 +57,6 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="h-full overflow-y-auto">
           {/* Header */}
           <Header />
-
           {/* Content */}
           {renderContent()}
         </div>

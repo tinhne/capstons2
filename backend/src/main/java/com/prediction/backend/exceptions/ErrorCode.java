@@ -15,6 +15,7 @@ public enum ErrorCode {
     WRONG_PASSWORD(1006, "Wrong Password", HttpStatus.UNAUTHORIZED),
     UNAUTHENTICATED(1007, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1008, "You do not have permission", HttpStatus.FORBIDDEN),
+    USER_NOT_FOUND(1008, "USER DOES NOT EXIST", HttpStatus.NOT_FOUND),
 
     // JWT specific error codes
     TOKEN_EXPIRED(1010, "Token expired", HttpStatus.UNAUTHORIZED),
@@ -55,8 +56,10 @@ public enum ErrorCode {
     JWT_TOKEN_PARSE_ERROR(5004, "Error parsing JWT token", HttpStatus.BAD_REQUEST),
     JWT_DECODER_INITIALIZATION_ERROR(5005, "Failed to initialize JWT decoder", HttpStatus.INTERNAL_SERVER_ERROR),
     JWT_INTROSPECTION_ERROR(5006, "Error during token introspection", HttpStatus.INTERNAL_SERVER_ERROR),
-    JWT_UNEXPECTED_ERROR(5007, "Unexpected error during JWT processing", HttpStatus.INTERNAL_SERVER_ERROR);
-    ;
+    JWT_UNEXPECTED_ERROR(5007, "Unexpected error during JWT processing", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    CONVERSATION_NOT_FOUND(6000, "Conversation not found", HttpStatus.NOT_FOUND),
+    USER_NOT_IN_CONVERSATION(6001, "User not in conversation", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

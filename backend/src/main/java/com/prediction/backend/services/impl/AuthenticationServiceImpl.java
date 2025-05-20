@@ -92,13 +92,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
+                .user(user)
+                .expiresIn(VALID_DURATION)
+                .refreshToken(token) // For simplicity, using same token as refresh token
                 .build();
     }
 
     String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .issuer("disease-prediction.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
@@ -181,6 +184,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var newToken = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(newToken)
+                .refreshToken(newToken) // For simplicity, using same token as refresh token
+                .expiresIn(VALID_DURATION)
+                .user(user)
                 .authenticated(true)
                 .build();
     }
