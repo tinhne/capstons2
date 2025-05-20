@@ -18,7 +18,7 @@ const ChatPage: React.FC = () => {
   const [isBotConversation, setIsBotConversation] = useState<boolean>(false);
   const [otherUserId, setOtherUserId] = useState<string | undefined>(undefined);
 
-  // Lấy botId từ biến môi trường
+  // Get botId from environment variable
   const botId = import.meta.env.VITE_BOT_ID;
 
   // Nếu không có người dùng đăng nhập, chuyển hướng đến trang đăng nhập
@@ -110,7 +110,7 @@ const ChatPage: React.FC = () => {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Đang chuyển hướng...
+        Redirecting...
       </div>
     );
   }
@@ -141,7 +141,7 @@ const ChatPage: React.FC = () => {
             <div className="flex flex-col items-center justify-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500 mb-4"></div>
               <p className="text-lg text-blue-600 font-semibold">
-                Đang xử lý...
+                Processing...
               </p>
             </div>
           ) : conversationIdParam ? (
@@ -168,7 +168,7 @@ const ChatPage: React.FC = () => {
                   onClick={() => window.location.reload()}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
-                  Thử lại
+                  Try again
                 </button>
               </div>
             )
@@ -178,34 +178,34 @@ const ChatPage: React.FC = () => {
               {isUser && (
                 <div className="bg-white rounded-xl shadow-lg p-8 mb-6 flex flex-col gap-6">
                   <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                    Chọn hình thức chat
+                    Choose chat type
                   </h2>
                   <div className="flex flex-col md:flex-row md:space-x-8 space-y-4 md:space-y-0">
                     {/* Chat with Bot */}
                     <div className="flex-1 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg p-6 shadow flex flex-col justify-between">
                       <div>
                         <h3 className="text-xl font-semibold mb-2">
-                          Trợ lý sức khỏe AI
+                          AI Health Assistant
                         </h3>
                         <p className="text-gray-600 mb-3">
-                          Chat với AI để nhận thông tin sức khỏe tổng quát.
+                          Chat with AI to get general health information.
                         </p>
                       </div>
                       <button
                         onClick={handleBotSelect}
                         className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition mt-2"
                       >
-                        Bắt đầu chat
+                        Start chat
                       </button>
                     </div>
                     {/* Chat with Doctor */}
                     <div className="flex-1 bg-gradient-to-br from-blue-100 to-green-100 rounded-lg p-6 shadow flex flex-col justify-between">
                       <div>
                         <h3 className="text-xl font-semibold mb-2">
-                          Bác sĩ trực tuyến
+                          Online Doctor
                         </h3>
                         <p className="text-gray-600 mb-3">
-                          Chọn bác sĩ để tư vấn trực tiếp.
+                          Choose a doctor for direct consultation.
                         </p>
                       </div>
                       <DoctorList onSelectDoctor={handleDoctorSelect} />
@@ -217,7 +217,7 @@ const ChatPage: React.FC = () => {
               {!isUser && !isDoctor && (
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                    Bác sĩ trực tuyến
+                    Online Doctor
                   </h2>
                   <DoctorList onSelectDoctor={handleDoctorSelect} />
                 </div>

@@ -39,7 +39,7 @@ const AnalyticsDashboard: React.FC = () => {
           </>
         );
       case "settings":
-        return <div className="p-4">Nội dung Settings</div>;
+        return <div className="p-4">Settings Content</div>;
       default:
         return <DateSelector />;
     }

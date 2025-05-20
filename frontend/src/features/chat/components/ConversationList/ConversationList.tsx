@@ -42,13 +42,13 @@ const EditModal: React.FC<{
               d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6"
             />
           </svg>
-          Chỉnh sửa tiêu đề
+          Edit Title
         </h3>
         <input
           className="w-full border-2 border-blue-400 focus:ring-2 focus:ring-blue-300 px-3 py-2 rounded outline-none transition-all duration-150 mb-4"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Nhập tiêu đề mới..."
+          placeholder="Enter new title..."
           autoFocus
         />
         <div className="flex justify-end gap-2">
@@ -69,7 +69,7 @@ const EditModal: React.FC<{
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Lưu
+            Save
           </button>
           <button
             className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition"
@@ -88,7 +88,7 @@ const EditModal: React.FC<{
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-            Hủy
+            Cancel
           </button>
         </div>
       </div>
@@ -167,14 +167,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
   };
 
   const handleDeleteConversation = async (conversationId: string) => {
-    if (!window.confirm("Bạn có chắc muốn xoá cuộc hội thoại này?")) return;
+    if (!window.confirm("Are you sure you want to delete this conversation?"))
+      return;
     try {
       await deleteConversation(conversationId);
       setConversations((prev) =>
         prev.filter((c) => c.conversationId !== conversationId)
       );
     } catch (err) {
-      alert("Xoá cuộc hội thoại thất bại!");
+      alert("Failed to delete conversation!");
     }
   };
 
@@ -195,7 +196,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       );
       setEditingId(null);
     } catch (err) {
-      alert("Cập nhật tiêu đề thất bại!");
+      alert("Failed to update title!");
     }
   };
 
@@ -275,7 +276,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                       </h4>
                       <button
                         className="ml-2 text-blue-500 hover:text-blue-700 text-xs"
-                        title="Chỉnh sửa tiêu đề"
+                        title="Edit title"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditClick(conversation);
@@ -293,7 +294,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 </div>
                 <button
                   className="ml-4 text-red-500 hover:text-red-700"
-                  title="Xoá hội thoại"
+                  title="Delete conversation"
                   onClick={() =>
                     handleDeleteConversation(conversation.conversationId)
                   }

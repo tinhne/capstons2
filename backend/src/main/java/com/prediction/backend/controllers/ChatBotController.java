@@ -27,13 +27,13 @@ public class ChatBotController {
         @PostMapping("/message")
         public ApiResponse<BotResponse> chatWithBot(@RequestParam("botId") String botId,
                         @RequestBody ChatMessage userMessage) {
-                // 1. Lưu tin nhắn user vào DB
+                // 1. Save user message to DB
                 userMessage.setTimestamp(Instant.now());
                 chatMessageRepository.save(userMessage);
 
                 boolean needDoctor = false;
 
-                // 4. Tạo tin nhắn bot
+                // 4. Create bot message
                 ChatMessage botMessage = new ChatMessage();
                 botMessage.setConversationId(userMessage.getConversationId());
                 botMessage.setSenderId(botId);
@@ -42,13 +42,13 @@ public class ChatBotController {
                 botMessage.setTimestamp(Instant.now());
                 botMessage.setSender("bot");
 
-                // 5. Lưu tin nhắn bot vào DB
+                // 5. Save bot message to DB
                 chatMessageRepository.save(botMessage);
                 BotResponse botResponse = new BotResponse(botMessage, needDoctor);
 
-                // 6. Trả về tin nhắn bot cho frontend
+                // 6. Return bot message to frontend
                 return ApiResponse.<BotResponse>builder()
-                                .message("Bot trả lời thành công")
+                                .message("Bot replied successfully")
                                 .data(botResponse)
                                 .build();
         }

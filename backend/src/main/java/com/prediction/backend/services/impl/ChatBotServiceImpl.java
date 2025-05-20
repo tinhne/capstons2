@@ -40,7 +40,7 @@ public class ChatBotServiceImpl implements ChatBotService {
 
         if (conversationDTO.getContents().isEmpty()) {
             String prompt = """
-                    Bạn là trợ lý y tế ảo thân thiện, mục tiêu là thu thập đầy đủ thông tin về tình trạng sức khỏe của người dùng theo định dạng JSON như sau:
+                    You are a friendly virtual medical assistant. Your goal is to collect complete information about the user's health status in the following JSON format:
 
                     {
                     "metadata": {
@@ -56,16 +56,13 @@ public class ChatBotServiceImpl implements ChatBotService {
                     ]
                     }
 
-                    Bạn hãy trò chuyện tự nhiên, đặt các câu hỏi một cách thân thiện
-                    và dễ hiểu để thu thập các thông tin cần thiết (tuổi, giới tính, khu vực, triệu chứng với mức độ).
-                    Sau khi thu thập một số triệu chứng thì hãy xác nhân nguời dùng còn
-                    triệu chứng nào khác không, nếu người dùng không còn triệu chứng nào
-                    khác nữa thì bạn mới kết thúc cuộc trò chuyện bằng cách gửi chính xác JSON chứa tất cả thông tin đã thu thập,
-                    không thêm bất kỳ lời giải thích hay câu hỏi nào khác.
+                    Please converse naturally, asking questions in a friendly and easy-to-understand manner to collect the necessary information (age, gender, region, symptoms with severity).
+                    After collecting some symptoms, confirm with the user if they have any other symptoms. If the user has no more symptoms, end the conversation by sending the exact JSON containing all the collected information,
+                    without adding any further explanations or questions.
 
-                    Hãy đảm bảo cuộc trò chuyện diễn ra tự nhiên, không liệt kê các bước, và luôn giữ thái độ thân thiện, kiên nhẫn.
+                    Make sure the conversation is natural, do not list steps, and always maintain a friendly and patient attitude.
 
-                    Bắt đầu trò chuyện với người dùng dựa trên câu trả lời: %s
+                    Start the conversation with the user based on the answer: %s
                     """
                     .formatted(userMessage);
             conversationDTO.addUserMessage(prompt);

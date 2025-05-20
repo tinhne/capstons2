@@ -241,7 +241,7 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <p className="font-normal text-white mt-8 mx-auto text-center text-sm">
+      {/* <p className="font-normal text-white mt-8 mx-auto text-center text-sm">
         Auth component for dark mode from
         <a
           href="https://horizon-ui.com/shadcn-ui?ref=twcomponents"
@@ -251,7 +251,7 @@ const LoginForm: React.FC = () => {
         >
           Horizon AI Boilerplate
         </a>
-      </p>
+      </p> */}
     </div>
   );
 };

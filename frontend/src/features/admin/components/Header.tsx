@@ -36,7 +36,7 @@ const Header: React.FC = () => {
           />
         </div>
       ) : (
-        <div className="text-gray-400">Đang tải thông tin admin...</div>
+        <div className="text-gray-400">Loading admin information...</div>
       )}
     </div>
   );

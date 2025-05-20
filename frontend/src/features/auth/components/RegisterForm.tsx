@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { register } from "../redux/authSlice";
-import { Link, useNavigate } from "react-router-dom";
-import { AppDispatch, RootState } from "../../../redux/store";
 import { APP_ROUTES } from "../../../constants/routeConstants";
 import { useToast } from "../../../contexts/ToastContext";
+import { RootState, AppDispatch } from "../../../redux/store";
 
 const RegisterForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,7 +19,6 @@ const RegisterForm: React.FC = () => {
     confirmPassword: "",
     gender: "male",
     address: "",
-    district: "",
     city: "",
     phone: "",
     acceptTerms: false,
@@ -35,14 +34,11 @@ const RegisterForm: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target as HTMLInputElement;
-
     setFormData({
       ...formData,
       [name]:
         type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     });
-
-    // Clear validation errors when user types
     if (name === "password" || name === "confirmPassword") {
       setValidationErrors({
         ...validationErrors,
@@ -52,35 +48,23 @@ const RegisterForm: React.FC = () => {
   };
 
   const validateForm = () => {
-    const errors: {
-      password?: string;
-      confirmPassword?: string;
-      acceptTerms?: string;
-    } = {};
-
+    const errors: typeof validationErrors = {};
     if (formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
-
     if (formData.password !== formData.confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
-
     if (!formData.acceptTerms) {
       errors.acceptTerms = "You must accept the terms and conditions";
     }
-
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     const result = await dispatch(
       register({
         name: formData.name,
@@ -89,19 +73,17 @@ const RegisterForm: React.FC = () => {
         confirmPassword: formData.confirmPassword,
         gender: formData.gender as "Male" | "Female" | "Other",
         address: formData.address,
-        district: formData.district,
         city: formData.city,
         phone: formData.phone,
         acceptTerms: formData.acceptTerms,
       })
     );
-
     if (register.fulfilled.match(result)) {
       showToast({
         type: "success",
-        message: "Đăng ký thành công! Vui lòng đăng nhập.",
+        message: "Registration successful! Please log in.",
       });
-      navigate(APP_ROUTES.PUBLIC.LOGIN); // Redirect to login after successful registration
+      navigate(APP_ROUTES.PUBLIC.LOGIN);
     }
   };
 
@@ -112,255 +94,194 @@ const RegisterForm: React.FC = () => {
   }, [error]);
 
   return (
-    <>
-      <section className="bg-zinc-950 dark:bg-zinc-950">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-          <div className="w-full bg-zinc-900 rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-zinc-900 dark:border-zinc-800">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl dark:text-white">
-                Create an account
-              </h1>
-
-              {error && (
-                <div
-                  className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-300"
-                  role="alert"
-                >
-                  {error}
-                </div>
-              )}
-
-              <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                    placeholder="Your Full Name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Your email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                    placeholder="name@company.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className={`rounded-lg border bg-zinc-950 text-white border-${
-                      validationErrors.password ? "red-500" : "zinc-800"
-                    } px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full`}
-                    required
-                  />
-                  {validationErrors.password && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {validationErrors.password}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Confirm password
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className={`rounded-lg border bg-zinc-950 text-white border-${
-                      validationErrors.confirmPassword ? "red-500" : "zinc-800"
-                    } px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full`}
-                    required
-                  />
-                  {validationErrors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {validationErrors.confirmPassword}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label
-                    htmlFor="gender"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Gender
-                  </label>
-                  <select
-                    name="gender"
-                    id="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                  >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    id="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+84 123 456 789"
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="address"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    id="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="123 Le Loi Street"
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="district"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    District
-                  </label>
-                  <input
-                    type="text"
-                    name="district"
-                    id="district"
-                    value={formData.district}
-                    onChange={handleChange}
-                    placeholder="District 1"
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="city"
-                    className="block mb-2 text-sm font-medium text-white dark:text-white"
-                  >
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    id="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Ho Chi Minh City"
-                    className="rounded-lg border bg-zinc-950 text-white border-zinc-800 px-4 py-3 min-h-[44px] text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-600 block w-full"
-                  />
-                </div>
-                <div className="flex items-start">
-                  <div className="flex items-center h-5">
-                    <input
-                      id="acceptTerms"
-                      name="acceptTerms"
-                      type="checkbox"
-                      checked={formData.acceptTerms}
-                      onChange={handleChange}
-                      className={`w-4 h-4 border ${
-                        validationErrors.acceptTerms
-                          ? "border-red-500"
-                          : "border-zinc-800"
-                      } rounded bg-zinc-950 focus:ring-3 focus:ring-primary-300 dark:bg-zinc-900 dark:border-zinc-700`}
-                    />
-                  </div>
-                  <div className="ml-3 text-sm">
-                    <label
-                      htmlFor="acceptTerms"
-                      className="font-light text-zinc-400 dark:text-zinc-400"
-                    >
-                      I accept the{" "}
-                      <a
-                        className="font-medium text-blue-500 hover:underline dark:text-blue-400"
-                        href="#"
-                      >
-                        Terms and Conditions
-                      </a>
-                    </label>
-                    {validationErrors.acceptTerms && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {validationErrors.acceptTerms}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-white text-zinc-950 hover:bg-white/90 active:bg-white/80 rounded-lg px-4 py-4 text-base font-medium transition-colors disabled:opacity-50"
-                >
-                  {loading ? "Creating account..." : "Create an account"}
-                </button>
-                <p className="text-sm font-light text-zinc-400 dark:text-zinc-400">
-                  Already have an account?{" "}
-                  <Link
-                    to={APP_ROUTES.PUBLIC.LOGIN}
-                    className="font-medium text-blue-500 hover:underline dark:text-blue-400"
-                  >
-                    Login here
-                  </Link>
+    <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-zinc-900 to-zinc-950">
+      <div className="w-full max-w-md bg-zinc-900 rounded-2xl shadow-lg p-8">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg mb-2">
+            <svg
+              className="w-12 h-12 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-white">
+            Create a new account
+          </h2>
+        </div>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-zinc-300 mb-1">Full Name</label>
+            <input
+              type="text"
+              name="name"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              autoComplete="name"
+            />
+          </div>
+          <div>
+            <label className="block text-zinc-300 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <div className="flex gap-2">
+            <div className="w-1/2">
+              <label className="block text-zinc-300 mb-1">Password</label>
+              <input
+                type="password"
+                name="password"
+                className={`w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border ${
+                  validationErrors.password
+                    ? "border-red-500"
+                    : "border-zinc-700"
+                } focus:border-blue-500 focus:outline-none`}
+                value={formData.password}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+              />
+              {validationErrors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validationErrors.password}
                 </p>
-              </form>
+              )}
+            </div>
+            <div className="w-1/2">
+              <label className="block text-zinc-300 mb-1">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                className={`w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border ${
+                  validationErrors.confirmPassword
+                    ? "border-red-500"
+                    : "border-zinc-700"
+                } focus:border-blue-500 focus:outline-none`}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+              />
+              {validationErrors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validationErrors.confirmPassword}
+                </p>
+              )}
             </div>
           </div>
-        </div>
-      </section>
-    </>
+          <div className="flex gap-2">
+            <div className="w-1/2">
+              <label className="block text-zinc-300 mb-1">Gender</label>
+              <select
+                name="gender"
+                className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="w-1/2">
+              <label className="block text-zinc-300 mb-1">Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+                value={formData.phone}
+                onChange={handleChange}
+                autoComplete="tel"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-zinc-300 mb-1">Address</label>
+            <input
+              type="text"
+              name="address"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+              value={formData.address}
+              onChange={handleChange}
+              autoComplete="address"
+            />
+          </div>
+          <div>
+            <label className="block text-zinc-300 mb-1">City</label>
+            <input
+              type="text"
+              name="city"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:border-blue-500 focus:outline-none"
+              value={formData.city}
+              onChange={handleChange}
+              autoComplete="address-level2"
+            />
+          </div>
+          <div className="flex items-center mt-2">
+            <input
+              type="checkbox"
+              name="acceptTerms"
+              checked={formData.acceptTerms}
+              onChange={handleChange}
+              className="mr-2 accent-blue-500"
+              required
+            />
+            <label className="text-zinc-300 text-sm">
+              I agree to the{" "}
+              <a href="/terms" className="text-blue-400 hover:underline">
+                Terms of Service
+              </a>
+            </label>
+          </div>
+          {validationErrors.acceptTerms && (
+            <p className="text-red-500 text-xs mt-1">
+              {validationErrors.acceptTerms}
+            </p>
+          )}
+          <button
+            type="submit"
+            className="w-full py-2 mt-4 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold hover:from-blue-600 hover:to-cyan-500 transition-all shadow-lg"
+            disabled={loading}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+          <div className="text-center mt-4">
+            <span className="text-zinc-400 text-sm">
+              Already have an account?{" "}
+              <a
+                href={APP_ROUTES.PUBLIC.LOGIN}
+                className="text-blue-400 hover:underline"
+              >
+                Log in
+              </a>
+            </span>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 };
 

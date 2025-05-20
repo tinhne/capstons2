@@ -37,7 +37,7 @@ public class ChatServiceImpl implements ChatService {
     private final UserRepository userRepository;
     private final Map<String, List<String>> userCollectedData = new HashMap<>();
     private final Map<String, ConversationDTO> userConversations = new HashMap<>();
-    
+
     private final ChatBotService chatBotService;
     // private final AiModelService aiModelService;
 
@@ -45,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
     public Conversation startConversation(String senderId, String receiverId, String firstMessage) {
         List<String> participants = List.of(senderId, receiverId);
 
-        // Kiểm tra user tồn tại
+        // Check if user exists
         userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         User receiver = userRepository.findById(receiverId)
@@ -58,9 +58,9 @@ public class ChatServiceImpl implements ChatService {
                 .anyMatch(role -> role.getName().equalsIgnoreCase("BOT"));
 
         if (isDoctor) {
-            title = "Chat với bác sĩ";
+            title = "Chat with doctor";
         } else if (isBot && firstMessage != null && !firstMessage.isBlank()) {
-            // Lấy nội dung chính: câu đầu tiên hoặc 10 từ đầu
+            // Get the main content: first sentence or first 10 words
             String[] sentences = firstMessage.split("[.!?]");
             String main = sentences[0].trim();
             String[] words = main.split("\\s+");
@@ -70,7 +70,7 @@ public class ChatServiceImpl implements ChatService {
         } else {
             title = "New Chat";
         }
-        // Tạo mới
+        // Create new conversation
         Conversation conversation = new Conversation();
         conversation.setConversationId(UUID.randomUUID().toString());
         conversation.setTitle(title);
@@ -160,11 +160,13 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Mono<String> handleData(String userMessage, String conversationId) {
-        ConversationDTO conversationDTO = userConversations.computeIfAbsent(conversationId, id -> new ConversationDTO());
+        ConversationDTO conversationDTO = userConversations.computeIfAbsent(conversationId,
+                id -> new ConversationDTO());
 
         return chatBotService.ask(userMessage, conversationDTO, conversationId)
                 .flatMap(reply -> {
-                    userCollectedData.computeIfAbsent(conversationId, id -> new ArrayList<>()).add("User: " + userMessage);
+                    userCollectedData.computeIfAbsent(conversationId, id -> new ArrayList<>())
+                            .add("User: " + userMessage);
                     userCollectedData.get(conversationId).add("Bot: " + reply);
 
                     // Nếu trả về đúng JSON định dạng sức khỏe, gửi đến AIModelService và reset

@@ -8,12 +8,12 @@ const initialState: UserState = {
   error: null,
 };
 
-// Tạo async thunk để gọi API getMyInfo từ service
+// Create async thunk to call getMyInfo API from service
 export const fetchUserProfile = createAsyncThunk(
   "user/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      // Gọi service thay vì trực tiếp gọi API
+      // Call service instead of directly calling API
       return await fetchMyInfo();
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -21,12 +21,12 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
-// Thêm async thunk cho việc cập nhật thông tin user
+// Add async thunk for updating user info
 export const updateProfile = createAsyncThunk(
   "user/updateProfile",
   async (userData: Partial<UserProfile>, { rejectWithValue }) => {
     try {
-      // Gọi service để cập nhật
+      // Call service to update
       return await updateUserInfo(userData);
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -64,15 +64,15 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Xử lý cases cho updateProfile
+      // Handle cases for updateProfile
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProfile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.profile = action.payload;
-      })
+      // .addCase(updateProfile.fulfilled, (state, action) => {
+      // state.loading = false;
+      // state.profile = action.payload;
+      // })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;

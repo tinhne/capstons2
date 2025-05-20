@@ -62,20 +62,20 @@ public class UserServiceImpl implements UserService {
 		if (userRepository.existsByEmail(userRequest.getEmail())) {
 			throw new AppException(ErrorCode.EMAIL_EXISTED);
 		}
-		User newuser = userMapper.toUser(userRequest);
-		newuser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+		User newUser = userMapper.toUser(userRequest);
+		newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
 		HashSet<Role> roles = new HashSet<>();
 		roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
-		newuser.setRoles(roles);
+		newUser.setRoles(roles);
 
-		return userMapper.toUserResponse(userRepository.save(newuser));
+		return userMapper.toUserResponse(userRepository.save(newUser));
 	}
 
 	@Override
 	public UserResponse updateUser(String id, UserUpdateRequest userRequest) {
-		User updatedUser = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EMAIL_EXISTED));
+		User updatedUser = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
 		userMapper.updateUser(updatedUser, userRequest);
 		// updatedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		// var roles = roleRepository.findAllById(userRequest.getRoles());
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
 		return sanitizedUser;
 	}
 
-	// Create user doctor
+	// Create doctor user
 	@Override
 	public UserResponse createDoctorUser(UserCreateRequest userRequest) {
 		if (userRepository.existsByEmail(userRequest.getEmail())) {
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
 		newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
 		HashSet<Role> roles = new HashSet<>();
-		// Gán role Doctor
+		// Assign Doctor role
 		roleRepository.findById(PredefinedRole.DOCTOR_ROLE).ifPresent(roles::add);
 
 		newUser.setRoles(roles);

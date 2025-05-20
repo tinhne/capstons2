@@ -22,13 +22,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     }).format(date);
   };
 
-  // Hiển thị chữ cái đầu tiên của tên bác sĩ hoặc người dùng
+  // Display the first letter of the doctor's or user's name
   const getInitials = (name?: string) => {
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
   };
 
-  // Tạo màu ngẫu nhiên cho avatar dựa trên ID
+  // Generate a random color for the avatar based on ID
   const getAvatarColor = (id: string) => {
     const colors = [
       "bg-blue-500",
@@ -39,7 +39,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       "bg-indigo-500",
     ];
 
-    // Sử dụng id để chọn màu nhất quán
+    // Use id to consistently select a color
     const colorIndex =
       Math.abs(
         id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -63,23 +63,19 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             conversation.id
           )}`}
         >
-          {getInitials(conversation.doctorName || conversation.userName)}
+          {getInitials(conversation.title)}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center">
             <h3 className="font-medium truncate">
-              {conversation.doctorName || "Bác sĩ"}
+              {conversation.title || "Doctor"}
             </h3>
-            <span className="text-xs text-gray-500">
-              {conversation.lastMessageAt
-                ? formatDate(conversation.lastMessageAt)
-                : formatDate(conversation.startedAt)}
-            </span>
+            {/* <span className="text-xs text-gray-500"></span> */}
           </div>
 
           <p className="text-sm text-gray-500 truncate">
-            Nhấn để xem cuộc trò chuyện
+            Tap to view the conversation
           </p>
         </div>
       </div>

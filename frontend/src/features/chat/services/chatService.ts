@@ -21,7 +21,7 @@ let stompClient: Client | null = null;
 
 const API_URL = "/api/health";
 
-// API calls cho chẩn đoán bệnh
+// API calls for disease diagnosis
 export const searchDisease = async (
   search: SymptomSearch
 ): Promise<DiseaseSearchResult> => {
@@ -209,7 +209,7 @@ export const chatWithBot = async (
     undefined,
     false
   );
-  // response.data.data sẽ là { message, needDoctor }
+  // response.data.data will be { message, needDoctor }
   console.log("hi", response.data);
   return response.data;
 };
@@ -233,10 +233,10 @@ export const addUserToConversation = async (
   userId: string
 ): Promise<any> => {
   try {
-    // Truyền userId trong body dưới dạng object
+    // Pass userId in body as object
     const response = await apiClient.post(
       `/chat/conversation/${conversationId}/add-user`,
-      { userId } // Đảm bảo truyền đúng format {userId: "..."}
+      { userId } // Ensure correct format {userId: "..."}
     );
     return response.data;
   } catch (error) {
@@ -244,7 +244,7 @@ export const addUserToConversation = async (
     throw error;
   }
 };
-// Thêm hàm kiểm tra bác sĩ có trong cuộc trò chuyện không
+// Add function to check if doctor is in the conversation
 export const checkDoctorInConversation = async (
   conversationId: string
 ): Promise<boolean> => {
@@ -254,19 +254,19 @@ export const checkDoctorInConversation = async (
     );
     const conversation = response.data;
 
-    // Kiểm tra có bác sĩ nào trong conversation không
-    // Giả sử có một API endpoint trả về role của mỗi user
+    // Check if there is any doctor in the conversation
+    // Assume there is an API endpoint that returns the role of each user
     const participants = conversation.participantIds || [];
 
     if (participants.length <= 2) {
-      return false; // Chỉ có user và bot
+      return false; // Only user and bot
     }
 
-    // Kiểm tra từng participant xem có role là doctor không
-    // Đây là giả định, bạn cần điều chỉnh theo API thực tế của bạn
+    // Check each participant to see if there is a doctor
+    // This is an assumption, adjust according to your actual API
     for (const participantId of participants) {
       if (participantId !== "bot" && participantId !== conversation.senderId) {
-        // Đây có thể là bác sĩ, nhưng cần kiểm tra thêm
+        // This could be a doctor, but further checking may be needed
         return true;
       }
     }
@@ -278,7 +278,7 @@ export const checkDoctorInConversation = async (
   }
 };
 
-// Thêm hàm để xử lý khi bác sĩ rời đi (nếu cần)
+// Add function to handle when doctor leaves (if needed)
 export const removeUserFromConversation = async (
   conversationId: string,
   userId: string

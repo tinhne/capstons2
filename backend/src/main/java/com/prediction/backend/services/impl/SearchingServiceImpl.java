@@ -99,19 +99,19 @@ public class SearchingServiceImpl implements SearchingService {
                 throw new AppException(ErrorCode.NO_DISEASES_FOUND);
             }
 
-            // Tạo response
+            // Create response
             return SearchingResponse.builder()
                     .diseases(diseases)
                     .matchedSymptomCount(symptomIds.size())
-                    .message("Chẩn đoán thành công, tìm thấy " + diseases.size()
-                            + " bệnh phù hợp với tất cả triệu chứng")
+                    .message("Diagnosis successful, found " + diseases.size()
+                            + " diseases matching all symptoms")
                     .build();
 
         } catch (AppException e) {
-            // Chuyển tiếp các lỗi nghiệp vụ đã được xác định
+            // Forward known business exceptions
             throw e;
         } catch (Exception e) {
-            // Xử lý các lỗi khác không mong đợi
+            // Handle unexpected errors
             throw new AppException(ErrorCode.DIAGNOSIS_PROCESSING_ERROR);
         }
     }
