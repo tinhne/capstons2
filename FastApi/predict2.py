@@ -29,18 +29,20 @@ class SymptomsInput(BaseModel):
 
 # Hàm tiện ích
 def load_model_and_encoders():
-    """Tải model, label encoder và danh sách triệu chứng"""
+    """Tải model, label encoder, danh sách triệu chứng VÀ luật kết hợp"""
     try:
         model = xgb.Booster()
         model.load_model('model2/xgboost_model_1.json')
         label_encoder = joblib.load('model2/label_encoder_1.pkl')
         symptoms = joblib.load('model2/all_symptoms_1.pkl')
+        rules = pd.read_csv('symptom_association_rules.csv') #<----- Tải Rules
         logger.info("Model and encoders loaded successfully")
         logger.info(f"Number of classes: {len(label_encoder.classes_)}")
-        return model, label_encoder, symptoms
+        return model, label_encoder, symptoms, rules #<---- Return rules
     except Exception as e:
         logger.error(f"Error loading model: {str(e)}")
         raise Exception(f"Error loading model: {str(e)}")
+
 
 def prepare_input(symptoms_list: List[str], all_symptoms: List[str]) -> tuple:
     """Chuẩn bị input từ danh sách triệu chứng"""
@@ -52,6 +54,18 @@ def prepare_input(symptoms_list: List[str], all_symptoms: List[str]) -> tuple:
         else:
             invalid_symptoms.append(symptom)
     return input_data, invalid_symptoms
+
+def suggest_symptoms(input_symptoms, rules, top_n=5):
+    suggestions = []
+    for _, rule in rules.iterrows():
+        antecedents = set(rule['antecedents'].strip("frozenset({})").replace("'", "").split(', '))
+        consequents = set(rule['consequents'].strip("frozenset({})").replace("'", "").split(', '))
+        # Kiểm tra nếu input_symptoms liên quan đến antecedents
+        if set(input_symptoms).issubset(antecedents) or set(input_symptoms).intersection(antecedents):
+            suggestions.extend(consequents - set(input_symptoms))
+    # Loại bỏ trùng lặp và lấy top_n
+    suggestions = list(set(suggestions))[:top_n]
+    return suggestions
 
 def predict_top_k_diseases(model: xgb.Booster, label_encoder, input_data: pd.DataFrame, k: int = 3) -> List[dict]:
     """Dự đoán top k bệnh với phần trăm xác suất"""
@@ -96,7 +110,7 @@ def predict_top_k_diseases(model: xgb.Booster, label_encoder, input_data: pd.Dat
         raise
 
 # Tải mô hình khi khởi động
-model, label_encoder, all_symptoms = load_model_and_encoders()
+model, label_encoder, all_symptoms, rules = load_model_and_encoders()
 
 # Endpoints
 @app.get("/")
@@ -104,6 +118,11 @@ async def root():
     """Kiểm tra API"""
     logger.info("Root endpoint accessed")
     return {"message": "Disease Prediction API is running"}
+
+@app.post("/suggest_symptoms")
+async def suggest_symptoms_endpoint(input_data: SymptomsInput):
+    suggestions = suggest_symptoms(input_data.symptoms, rules) #<---- Sử dụng rules
+    return {"input_symptoms": input_data.symptoms, "suggested_symptoms": suggestions}
 
 @app.get("/data")
 async def get_data():

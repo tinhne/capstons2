@@ -1858,3 +1858,11 @@ Stack trace:
   1.06634461e-05 1.01876476e-05 1.23266782e-05 1.00483621e-05
   9.87933072e-06 1.03099574e-05 1.00686411e-05]]
 2025-05-20 18:16:45,419 - __main__ - INFO - Predicted top diseases: ['injury to the hand', 'rheumatoid arthritis', 'injury to the arm']
+2025-05-20 19:30:51,308 - __main__ - INFO - Model and encoders loaded successfully
+2025-05-20 19:30:51,309 - __main__ - INFO - Number of classes: 727
+2025-05-20 19:40:41,200 - __main__ - INFO - Model and encoders loaded successfully
+2025-05-20 19:40:41,203 - __main__ - INFO - Number of classes: 727
+2025-05-20 19:41:39,091 - __main__ - INFO - Model and encoders loaded successfully
+2025-05-20 19:41:39,094 - __main__ - INFO - Number of classes: 727
+2025-05-20 19:45:13,591 - __main__ - INFO - Model and encoders loaded successfully
+2025-05-20 19:45:13,594 - __main__ - INFO - Number of classes: 727
