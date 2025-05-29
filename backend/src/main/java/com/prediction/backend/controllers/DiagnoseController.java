@@ -12,11 +12,17 @@ import com.prediction.backend.dto.request.DiagnosisRequest;
 import com.prediction.backend.dto.response.ApiResponse;
 import com.prediction.backend.dto.response.DiagnoseDiseaseResponse;
 import com.prediction.backend.dto.response.GetAllDiagnoseDiseaseResponse; // Ensure this import is correct and matches the class definition
+import com.prediction.backend.models.Disease;
+import com.prediction.backend.models.DiseaseSymptom;
 import com.prediction.backend.models.Notification;
 import com.prediction.backend.models.PatientCase;
+import com.prediction.backend.models.Symptom;
 import com.prediction.backend.models.User;
+import com.prediction.backend.repositories.DiseaseRepository;
+import com.prediction.backend.repositories.DiseaseSymptomRepository;
 import com.prediction.backend.repositories.NotificationRepository;
 import com.prediction.backend.repositories.PatientCaseRepository;
+import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.repositories.UserRepository;
 import com.prediction.backend.services.PatientCaseService;
 
@@ -37,6 +43,15 @@ public class DiagnoseController {
     NotificationRepository notificationRepository;
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    DiseaseRepository diseaseRe; 
+
+    @Autowired
+    SymptomRepository symptomRe;
+
+    @Autowired
+    DiseaseSymptomRepository diseaseSymptomRe;
 
     @PostMapping("/diagnose")
     public ApiResponse<PatientCase> diagnose(@RequestBody DiagnosisRequest dr, @RequestParam String id_doctor) {
@@ -58,8 +73,46 @@ public class DiagnoseController {
         log.setPredictedDisease(pRequest.getPredicted_disease());
         log.setStatus("");
         patientCaseRepository.save(log);
+
+        String diseasePrediction = pRequest.getPredicted_disease().trim();
+        Disease disease = diseaseRe.findByNameVnIgnoreCase(diseasePrediction).stream().findFirst()
+                .orElseGet(() -> diseaseRe.findByNameEnIgnoreCase(diseasePrediction).stream().findFirst().orElse(null));
+
+        if (disease == null) {
+            // Tạo mới nếu chưa có
+            disease = new Disease();
+            disease.setDiseaseId(Disease.generateDiseaseIdLimited20());
+            disease.setNameVn(diseasePrediction);
+            disease.setNameEn(diseasePrediction); // Nếu không có nameEn
+            diseaseRe.save(disease);
+        }
+
+        String diseaseId = disease.getDiseaseId();
+
+        // 3. Duyệt từng triệu chứng
+        List<String> symptoms = pRequest.getSymptoms();
+        for (String symptomText : symptoms) {
+            String symptomName = symptomText.trim();
+
+            // Tìm symptom theo name hoặc synonym
+            List<Symptom> matched = symptomRe.findByNameOrSynonym(symptomName);
+            Symptom symptom = matched.isEmpty() ? null : matched.get(0);
+
+            if (symptom == null) {
+                // Nếu chưa có, tạo mới
+                symptom = new Symptom();
+                symptom.setSymptomId(Symptom.generateSymptomIdLimited20());
+                symptom.setNameVn(symptomName);
+                symptom.setNameEn(symptomName);
+                symptomRe.save(symptom);
+            }
+
+            // 4. Tạo liên kết disease - symptom
+            DiseaseSymptom ds = new DiseaseSymptom(diseaseId, symptom.getSymptomId(), 0);
+            diseaseSymptomRe.save(ds);
+        }
         return ApiResponse.<PatientCase>builder()
-                .message("Cập nhật thành công")
+                .message("Completed update")
                 .build();
     }
 

@@ -10,7 +10,9 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * Represents a symptom entity in the database.
@@ -131,5 +133,11 @@ public class Symptom {
     // Getter method
     public String getSymptomId() {
     	return this.symptomId;
+    }
+    public static String generateSymptomIdLimited20() {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmssSS");
+    String timestamp = formatter.format(new Date());
+    String random2Digits = String.format("%02d", (int)(Math.random() * 100));
+    return "SYM-" + timestamp + random2Digits; // đúng 20 ký tự
     }
 }

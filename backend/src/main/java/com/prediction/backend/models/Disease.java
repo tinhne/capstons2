@@ -13,8 +13,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 //import org.hibernate.annotations.CreationTimestamp;
 //import org.hibernate.annotations.UpdateTimestamp;
 
+import java.text.SimpleDateFormat;
 //import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -120,4 +122,12 @@ public class Disease {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
+
+    public static String generateDiseaseIdLimited20() {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmssSS");
+    String timestamp = formatter.format(new Date());
+    String random2Digits = String.format("%02d", (int)(Math.random() * 100));
+    return "DIS-" + timestamp + random2Digits; // đúng 20 ký tự
+}
+
 }
