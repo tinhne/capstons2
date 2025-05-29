@@ -1,10 +1,6 @@
 package com.prediction.backend.dto.request;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.AccessLevel;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -18,4 +14,3 @@ public class ChatMessageRequest {
     String senderRole; // "DOCTOR" or "USER"
     String content;
 }
-

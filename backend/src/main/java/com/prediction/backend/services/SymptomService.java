@@ -2,6 +2,8 @@ package com.prediction.backend.services;
 
 import com.prediction.backend.dto.response.SymptomResponse;
 import com.prediction.backend.models.Symptom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -69,4 +71,23 @@ public interface SymptomService {
      *         SymptomResponse DTOs
      */
     List<SymptomResponse> getSymptomsBySynonym(String keyword);
+
+    /**
+     * Retrieves a paginated list of symptoms.
+     *
+     * @param pageable the pagination information
+     * @return a page of symptoms as Symptom DTOs
+     */
+    Page<SymptomResponse> getSymptomsPaging(Pageable pageable);
+
+    /**
+     * Searches for symptoms by a keyword within their synonyms and retrieves a
+     * paginated list of results.
+     *
+     * @param keyword  the keyword to search for within the synonym field
+     * @param pageable the pagination information
+     * @return a page of symptoms whose synonyms contain the provided keyword as
+     *         Symptom DTOs
+     */
+    Page<SymptomResponse> searchSymptomsPaging(String keyword, Pageable pageable);
 }

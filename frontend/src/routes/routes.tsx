@@ -22,6 +22,13 @@ const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 import ChatPage from "../features/chat/ChatPage";
 import EditProfile from "../features/users/components/Profile";
 
+//Doctor
+import DoctorDashboard from "../features/doctor/DoctorDashboard";
+import {
+  LogsPage,
+  LogDetailPage,
+} from "../features/doctor/components/Diagnose_diseases ";
+
 // Loading component cho Suspense
 const SuspenseFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -161,6 +168,48 @@ const adminRoutes: RouteObject[] = [
   },
 ];
 
+// Danh sách các route cho doctor
+const doctorRoutes: RouteObject[] = [
+  {
+    path: APP_ROUTES.DOCTOR.INDEX,
+    element: (
+      <ProtectedRoute requiredRole="DOCTOR">
+        <MainLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="home" replace />, // Trang mặc định chuyển về /chat
+      },
+      {
+        path: APP_ROUTES.DOCTOR.DASHBOARD,
+        element: (
+          <Suspense fallback={<SuspenseFallback />}>
+            <DoctorDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: APP_ROUTES.DOCTOR.DIAGNOSE_DISEASES,
+        element: (
+          <Suspense fallback={<SuspenseFallback />}>
+            <LogsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: APP_ROUTES.DOCTOR.DIAGNOSE_DISEASES_DETAILS, // Trang chi tiết log
+        element: (
+          <Suspense fallback={<SuspenseFallback />}>
+            <LogDetailPage />
+          </Suspense>
+        ),
+      },
+    ],
+  },
+];
+
 // Root routes - Wrap everything with the Root component that provides AuthProvider
 const routes: RouteObject[] = [
   {
@@ -173,6 +222,7 @@ const routes: RouteObject[] = [
       ...publicRoutes,
       ...privateRoutes,
       ...adminRoutes,
+      ...doctorRoutes,
       // Catch-all route for 404
       {
         path: "*",

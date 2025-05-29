@@ -1,6 +1,9 @@
 package com.prediction.backend.repositories;
 
+import com.prediction.backend.dto.response.SymptomResponse;
 import com.prediction.backend.models.Symptom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,4 +61,14 @@ public interface SymptomRepository extends JpaRepository<Symptom, String> {
      * @return a list of symptoms with the specified frequency
      */
     List<Symptom> findByFrequency(Symptom.Frequency frequency);
+
+    /**
+     * Retrieves a paginated list of symptoms by their English or Vietnamese name, ignoring case sensitivity.
+     *
+     * @param nameEn   the English name of the symptom to search for
+     * @param nameVn   the Vietnamese name of the symptom to search for
+     * @param pageable  the pagination information
+     * @return a paginated list of symptoms matching the provided English or Vietnamese name
+     */
+    Page<SymptomResponse> findByNameEnContainingIgnoreCaseOrNameVnContainingIgnoreCase(String nameEn, String nameVn, Pageable pageable);
 }

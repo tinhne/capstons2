@@ -171,9 +171,9 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
           const botResponse = await chatWithBot(idBot, message);
           setMessages((prev) => [...prev, botResponse.data]);
 
-          if (botResponse.needDoctor && !doctorAdded) {
-            setShouldConnectDoctor(true);
-          }
+          // if (botResponse.needDoctor && !doctorAdded) {
+          //   setShouldConnectDoctor(true);
+          // }
 
           setLoading(false);
         }, 1000);

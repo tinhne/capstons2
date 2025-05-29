@@ -1,6 +1,7 @@
 package com.prediction.backend.services;
 
 import com.prediction.backend.dto.request.UpdateConversationRequest;
+import com.prediction.backend.dto.response.BotResponseDetail;
 import com.prediction.backend.models.ChatMessage;
 import com.prediction.backend.models.Conversation;
 
@@ -50,7 +51,8 @@ public interface ChatService {
 
     void removeUserFromConversation(String conversationId, String userId);
 
-    Mono<String> handleData(String userMessage, String conversationId);
+    BotResponseDetail handleData(String userMessage, String conversationId, int age, String gender,
+            String underlying_disease);
 
     void reset(String conversationId);
 

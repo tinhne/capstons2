@@ -148,7 +148,7 @@ const ChatPage: React.FC = () => {
             conversationId ? (
               <div className="flex-1 flex flex-col justify-end">
                 <div className="h-full flex items-center justify-center">
-                  <div className="w-full h-[800px] max-h-[80vh] box-border">
+                  <div className="w-full h-full box-border">
                     <ChatBot
                       userId={user.id}
                       doctorId={isBotConversation ? undefined : otherUserId}

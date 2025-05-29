@@ -62,6 +62,16 @@ export const APP_ROUTES = {
     PREDICT: "/predict",
     HISTORY: "/predict/history",
   },
+
+  /**
+   * Các route cho doctor
+   */
+  DOCTOR: {
+    INDEX: "/",
+    DASHBOARD: "/doctor/dashboard",
+    DIAGNOSE_DISEASES: "/doctor/diagnose-diseases",
+    DIAGNOSE_DISEASES_DETAILS: "/doctor/diagnose-diseases/:id",
+  },
 };
 
 /**

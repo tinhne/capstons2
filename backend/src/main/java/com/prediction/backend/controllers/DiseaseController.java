@@ -9,6 +9,8 @@ import com.prediction.backend.models.Disease;
 import com.prediction.backend.services.DiseaseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,31 @@ public class DiseaseController {
         return ApiResponse.<List<Disease>>builder()
                 .status(1000)
                 .message("Found " + diseases.size() + " diseases")
+                .data(diseases)
+                .build();
+    }
+
+    @GetMapping("/diseases/paging")
+    public ApiResponse<Page<Disease>> getDiseasesPaging(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Disease> diseases = diseaseService.getDiseasesPaging(PageRequest.of(page, size));
+        return ApiResponse.<Page<Disease>>builder()
+                .status(1000)
+                .message("Found " + diseases.getTotalElements() + " diseases")
+                .data(diseases)
+                .build();
+    }
+
+    @GetMapping("/diseases/search-paging")
+    public ApiResponse<Page<Disease>> searchDiseasesPaging(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Disease> diseases = diseaseService.searchDiseasesPaging(keyword, PageRequest.of(page, size));
+        return ApiResponse.<Page<Disease>>builder()
+                .status(1000)
+                .message("Found " + diseases.getTotalElements() + " diseases by keyword: " + keyword)
                 .data(diseases)
                 .build();
     }

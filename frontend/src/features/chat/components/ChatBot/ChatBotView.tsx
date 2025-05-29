@@ -135,7 +135,7 @@ const ChatBotView: React.FC<ChatBotViewProps> = ({
   );
 
   return (
-    <div className="flex flex-col h-[800px] bg-white rounded-xl shadow-lg border overflow-hidden ">
+    <div className="flex flex-col h-[80vh] bg-white rounded-xl shadow-lg border overflow-hidden ">
       {/* Header */}
       <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 text-white flex items-center gap-3 border-b">
         <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow text-2xl">

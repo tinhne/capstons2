@@ -1,6 +1,8 @@
 package com.prediction.backend.repositories;
 
 import com.prediction.backend.models.Disease;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,5 +60,16 @@ public interface DiseaseRepository extends JpaRepository<Disease, String> {
      * @return a list of diseases related to the specified specialization
      */
     List<Disease> findBySpecialization(String specialization);
+
+    /**
+     * Retrieves a paginated list of diseases by their English or Vietnamese name,
+     * ignoring case sensitivity.
+     *
+     * @param nameEn   the English name of the disease to search for
+     * @param nameVn   the Vietnamese name of the disease to search for
+     * @param pageable  pagination information
+     * @return a paginated list of diseases matching the provided names
+     */
+    Page<Disease> findByNameEnContainingIgnoreCaseOrNameVnContainingIgnoreCase(String nameEn, String nameVn, Pageable pageable);
 
 }

@@ -11,4 +11,6 @@ export type { CardProps } from "./Card";
 export { default as Toast } from "./Toast";
 export type { ToastProps, ToastType } from "./Toast";
 
+export { default as ErrorBoundary } from "./ErrorBoundary";
+
 // Thêm các exports cho components UI khác khi cần

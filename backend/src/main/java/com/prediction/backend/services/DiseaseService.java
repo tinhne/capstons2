@@ -4,6 +4,8 @@ import com.prediction.backend.dto.request.DiseaseRequest;
 import com.prediction.backend.dto.response.DiseaseResponse;
 import com.prediction.backend.exceptions.AppException;
 import com.prediction.backend.models.Disease;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -107,4 +109,8 @@ public interface DiseaseService {
      *                      deletion
      */
     void deleteDisease(String diseaseId) throws AppException;
+
+    Page<Disease> getDiseasesPaging(Pageable pageable);
+
+    Page<Disease> searchDiseasesPaging(String keyword, Pageable pageable);
 }

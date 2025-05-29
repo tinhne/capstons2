@@ -6,6 +6,9 @@ import com.prediction.backend.repositories.DiseaseSymptomRepository;
 import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.repositories.DiseaseRepository;
 import com.prediction.backend.services.SearchingService;
+
+import jakarta.validation.constraints.Null;
+
 import com.prediction.backend.dto.DiseaseMatchDTO;
 import com.prediction.backend.dto.request.SearchingRequest;
 import com.prediction.backend.dto.response.SearchingResponse;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Objects;
@@ -60,7 +64,7 @@ public class SearchingServiceImpl implements SearchingService {
      *         match the provided names.
      */
     @Override
-    public SearchingResponse search(SearchingRequest searchingRequest) throws AppException {
+    public SearchingResponse search(SearchingRequest searchingRequest) {
         try {
             // Kiểm tra dữ liệu đầu vào
             if (searchingRequest == null || searchingRequest.getSymptomNames() == null ||
@@ -80,7 +84,11 @@ public class SearchingServiceImpl implements SearchingService {
 
             // Kiểm tra nếu không tìm thấy triệu chứng nào phù hợp
             if (symptomIds.isEmpty()) {
-                throw new AppException(ErrorCode.NO_MATCHING_SYMPTOMS);
+                return SearchingResponse.builder()
+                        .diseases(Collections.emptyList())
+                        .matchedSymptomCount(0)
+                        .message("Không tìm thấy triệu chứng nào phù hợp trong cơ sở dữ liệu")
+                        .build();
             }
 
             // Tìm các bệnh có tất cả các triệu chứng

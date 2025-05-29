@@ -1,19 +1,14 @@
 package com.prediction.backend.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.AccessLevel;
-
 import java.util.List;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SearchingRequest {
     @NotEmpty(message = "SYMPTOMS_EMPTY")

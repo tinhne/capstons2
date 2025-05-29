@@ -8,6 +8,8 @@ import com.prediction.backend.repositories.SymptomRepository;
 import com.prediction.backend.services.SymptomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -109,5 +111,17 @@ public class SymptomServiceImpl implements SymptomService {
         return symptoms.stream()
                 .map(SymptomResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<SymptomResponse> getSymptomsPaging(Pageable pageable) {
+        return symptomRepository.findAll(pageable)
+                .map(SymptomResponse::fromEntity);
+    }
+
+    @Override
+    public Page<SymptomResponse> searchSymptomsPaging(String keyword, Pageable pageable) {
+        return symptomRepository.findByNameEnContainingIgnoreCaseOrNameVnContainingIgnoreCase(keyword, keyword,
+                pageable);
     }
 }
