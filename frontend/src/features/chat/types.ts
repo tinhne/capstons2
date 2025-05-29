@@ -8,6 +8,20 @@ export interface ChatMessage {
   time?: string; // For backward compatibility
   isRead?: boolean;
 }
+export interface DiagnosisData {
+  symptomStartTime: string;
+  age: number;
+  gender: string;
+  region: string;
+  symptoms: string[];
+  risk_factors: string[];
+}
+export interface UserChatDetail {
+  userMessage: ChatMessage;
+  age?: number;
+  gender?: string;
+  underlying_disease?: string;
+}
 
 export interface DiseaseData {
   id: string;

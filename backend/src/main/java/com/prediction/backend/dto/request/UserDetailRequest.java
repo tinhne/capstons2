@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 public class UserDetailRequest {
     ChatMessage userMessage;
-    int age;
+    Integer age;
     String gender;
     String underlying_disease;
 }

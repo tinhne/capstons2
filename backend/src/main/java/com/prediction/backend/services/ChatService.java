@@ -51,7 +51,7 @@ public interface ChatService {
 
     void removeUserFromConversation(String conversationId, String userId);
 
-    BotResponseDetail handleData(String userMessage, String conversationId, int age, String gender,
+    BotResponseDetail handleData(String userMessage, String conversationId, Integer age, String gender,
             String underlying_disease);
 
     void reset(String conversationId);

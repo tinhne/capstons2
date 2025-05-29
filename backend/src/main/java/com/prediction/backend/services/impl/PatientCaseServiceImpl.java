@@ -53,6 +53,7 @@ public class PatientCaseServiceImpl implements PatientCaseService {
         patientCase.setSymptoms(dr.getSymptoms());
         patientCase.setRiskFactors(dr.getRiskFactors());
         patientCase.setStatus("pending");
+        patientCase.setCreatedAt(LocalDateTime.now());
 
         patientCase.setUser(sender);
 

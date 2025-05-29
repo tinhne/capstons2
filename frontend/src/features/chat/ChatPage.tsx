@@ -20,7 +20,6 @@ const ChatPage: React.FC = () => {
 
   // Get botId from environment variable
   const botId = import.meta.env.VITE_BOT_ID;
-
   // Nếu không có người dùng đăng nhập, chuyển hướng đến trang đăng nhập
   useEffect(() => {
     if (!user) {
@@ -155,6 +154,7 @@ const ChatPage: React.FC = () => {
                       isBot={isBotConversation}
                       isDoctor={isDoctor}
                       conversationId={conversationId}
+                      user={user}
                     />
                   </div>
                 </div>

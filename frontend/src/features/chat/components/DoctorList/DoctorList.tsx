@@ -5,17 +5,16 @@ import { useAuth } from "../../../../hooks/useAuth";
 
 interface DoctorListProps {
   onSelectDoctor: (doctorId: string) => void;
-  mode?: "add" | "create"; // add: thêm vào conversation, create: tạo mới (mặc định)
+  // mode?: "add" | "create" | "send"; // add: thêm vào conversation, create: tạo mới, send: gửi data
 }
 
 const DoctorList: React.FC<DoctorListProps> = ({
   onSelectDoctor,
-  mode = "create",
+  // mode = "create",
 }) => {
   const [doctors, setDoctors] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -90,7 +89,8 @@ const DoctorList: React.FC<DoctorListProps> = ({
               onClick={() => onSelectDoctor(doctor.id)}
               className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm"
             >
-              {mode === "add" ? "Add to Chat" : "Chat Now"}
+              {/* {mode === "add" ? "Add to Chat" : mode === "send" ? "Send Data" : "Start Chat"} */}
+              Select
             </button>
           </li>
         ))}

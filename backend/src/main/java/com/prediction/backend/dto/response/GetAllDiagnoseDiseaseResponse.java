@@ -24,4 +24,5 @@ public class GetAllDiagnoseDiseaseResponse {
     String notificationTitle;
     String notificationContent;
     String status;
+    LocalDateTime createAt;
 }

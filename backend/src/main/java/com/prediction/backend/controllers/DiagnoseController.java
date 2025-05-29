@@ -1,5 +1,6 @@
 package com.prediction.backend.controllers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import com.prediction.backend.models.User;
 import com.prediction.backend.repositories.NotificationRepository;
 import com.prediction.backend.repositories.PatientCaseRepository;
 import com.prediction.backend.repositories.UserRepository;
+import com.prediction.backend.services.NotificationService;
 import com.prediction.backend.services.PatientCaseService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,8 @@ public class DiagnoseController {
     NotificationRepository notificationRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     @PostMapping("/diagnose")
     public ApiResponse<PatientCase> diagnose(@RequestBody DiagnosisRequest dr, @RequestParam String id_doctor) {
@@ -49,6 +53,22 @@ public class DiagnoseController {
                 .build();
     }
 
+    // @PutMapping("/diagnose_disease")
+    // public ApiResponse<PatientCase> diagnoseDisease(@RequestBody
+    // DiagnoseDiseaseRequest pRequest) {
+    // PatientCase log = patientCaseRepository.findById(pRequest.getId())
+    // .orElseThrow(() -> new RuntimeException("Không tìm thấy log"));
+    // log.setSymptoms(pRequest.getSymptoms());
+    // log.setRiskFactors(pRequest.getRiskFactors());
+    // log.setPredictedDisease(pRequest.getPredicted_disease());
+    // log.setUpdatedAt(LocalDateTime.now());
+    // log.setStatus("");
+
+    // patientCaseRepository.save(log);
+    // return ApiResponse.<PatientCase>builder()
+    // .message("Cập nhật thành công")
+    // .build();
+    // }
     @PutMapping("/diagnose_disease")
     public ApiResponse<PatientCase> diagnoseDisease(@RequestBody DiagnoseDiseaseRequest pRequest) {
         PatientCase log = patientCaseRepository.findById(pRequest.getId())
@@ -56,8 +76,23 @@ public class DiagnoseController {
         log.setSymptoms(pRequest.getSymptoms());
         log.setRiskFactors(pRequest.getRiskFactors());
         log.setPredictedDisease(pRequest.getPredicted_disease());
+        log.setUpdatedAt(java.time.LocalDateTime.now());
         log.setStatus("");
+
         patientCaseRepository.save(log);
+
+        // Gửi notification cho user
+        if (log.getUser() != null) {
+            Notification notification = new Notification();
+            notification.setTitle("Kết quả chuẩn đoán bệnh");
+            notification.setContent("Bệnh của bạn đã được bác sĩ chuẩn đoán: " + pRequest.getPredicted_disease());
+            notification.setReceiver(log.getUser());
+            notification.setCreatedAt(java.time.LocalDateTime.now());
+            // Lưu notification nếu cần
+            notificationRepository.save(notification);
+            notificationService.notifyUser(log.getUser().getId(), notification);
+        }
+
         return ApiResponse.<PatientCase>builder()
                 .message("Cập nhật thành công")
                 .build();
@@ -91,6 +126,7 @@ public class DiagnoseController {
                             .notificationTitle(noti.getTitle())
                             .notificationContent(noti.getContent())
                             .status(pcs.getStatus())
+                            .createAt(noti.getCreatedAt())
                             .build();
                 })
                 .filter(java.util.Objects::nonNull) // Chỉ giữ lại các bản ghi có patientCase

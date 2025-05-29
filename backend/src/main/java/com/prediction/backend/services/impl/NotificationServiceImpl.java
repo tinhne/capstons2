@@ -18,4 +18,13 @@ public class NotificationServiceImpl implements NotificationService {
         // Gửi notification tới topic riêng của bác sĩ theo userId
         messagingTemplate.convertAndSend("/topic/doctor-notifications/" + id_doctor, notification);
     }
+
+    @Override
+    public void notifyUser(String userId, Notification notification) {
+        // Gửi đến user qua queue
+        messagingTemplate.convertAndSendToUser(
+                userId, // userId phải là String
+                "/queue/notifications",
+                notification);
+    }
 }

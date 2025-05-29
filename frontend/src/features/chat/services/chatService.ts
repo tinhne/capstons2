@@ -5,6 +5,8 @@ import {
   DiseaseSearchResult,
   ChatMessage,
   Conversation,
+  UserChatDetail,
+  DiagnosisData,
 } from "../types";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -201,11 +203,11 @@ export const createConversation = async (
 };
 export const chatWithBot = async (
   idBot: String,
-  message: ChatMessage
-): Promise<{ data: ChatMessage; needDoctor: boolean }> => {
+  userChatDetail: UserChatDetail
+): Promise<{ data: ChatMessage; log: string; needDoctor: boolean }> => {
   const response = await apiClient.post(
-    `/chat/bot/message?botId=${idBot}&conversationId=${message.conversationId}`,
-    message,
+    `/chat/bot/message?botId=${idBot}&conversationId=${userChatDetail.userMessage.conversationId}`,
+    userChatDetail,
     undefined,
     false
   );
@@ -320,6 +322,32 @@ export const updateConversation = async (
     return response.data;
   } catch (error) {
     console.error("Error updating conversation:", error);
+    throw error;
+  }
+};
+export const sendDiagnosisToDoctor = async (
+  doctorId: string,
+  diagnosisData: DiagnosisData
+): Promise<any> => {
+  try {
+    // ✅ Format symptomStartTime để có đầy đủ datetime
+    const formattedData = {
+      ...diagnosisData,
+      // Convert YYYY-MM-DD to YYYY-MM-DDTHH:MM:SS format
+      symptomStartTime: diagnosisData.symptomStartTime.includes("T")
+        ? diagnosisData.symptomStartTime
+        : `${diagnosisData.symptomStartTime}T12:00:00`, // Add default time 12:00:00
+    };
+
+    console.log("Sending formatted diagnosis data:", formattedData);
+
+    const response = await apiClient.post(
+      `/diagnose?id_doctor=${doctorId}`,
+      formattedData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error sending diagnosis to doctor:", error);
     throw error;
   }
 };

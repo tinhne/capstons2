@@ -14,66 +14,61 @@ import {
   PolarRadiusAxis,
   Radar,
 } from "recharts";
-import { fetchDemographicData } from "../../services/logChartsService";
 
 interface SeasonData {
   name: string;
   value: number;
 }
 
-const SeasonChart: React.FC<{
+interface SeasonChartProps {
   height?: number;
   width?: number;
   chartType?: "radar" | "area";
-}> = ({ height = 300, width = 500, chartType = "radar" }) => {
-  const [data, setData] = useState<SeasonData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  data?: Record<string, number>; // ✅ Nhận data từ props
+}
 
+const SeasonChart: React.FC<SeasonChartProps> = ({
+  height = 300,
+  width = 500,
+  chartType = "radar",
+  data: propData, // ✅ Rename để tránh conflict
+}) => {
+  const [chartData, setChartData] = useState<SeasonData[]>([]);
+
+  // ✅ Process data từ props
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchDemographicData();
-        console.log("Season response:", response); // Debug log
+    if (propData && Object.keys(propData).length > 0) {
+      // Order seasons chronologically
+      const seasons = ["Xuân", "Hạ", "Thu", "Đông"];
+      const formattedData = seasons
+        .filter((season) => propData[season] !== undefined)
+        .map((season) => ({
+          name: season,
+          value: Number(propData[season]),
+        }));
+      setChartData(formattedData);
+    }
+  }, [propData]);
 
-        // Check if we have the expected data structure
-        if (response && response.seasonData) {
-          // Order seasons chronologically
-          const seasons = ["Xuân-Hè", "Hè-Thu", "Thu-Đông", "Đông-Xuân"];
-          const formattedData = seasons
-            .filter((season) => response.seasonData[season] !== undefined)
-            .map((season) => ({
-              name: season,
-              value: Number(response.seasonData[season]),
-            }));
-          setData(formattedData);
-        } else {
-          console.error("Unexpected data structure:", response); // Debug log
-          setError("No season data available");
-        }
-      } catch (err) {
-        console.error("Error fetching season data:", err);
-        setError("Failed to load season data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading)
+  // ✅ Loading state nếu chưa có data
+  if (!propData || Object.keys(propData).length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         Đang tải dữ liệu...
       </div>
     );
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (data.length === 0) return <div>Không có dữ liệu</div>;
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-full text-gray-500">
+        Không có dữ liệu mùa
+      </div>
+    );
+  }
 
   // Calculate total for percentage
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   // Create a formatter function for percentages
   const formatPercent = (value: number) => {
@@ -82,17 +77,17 @@ const SeasonChart: React.FC<{
 
   // Season colors
   const seasonColors = {
-    "Xuân-Hè": "#4CAF50", // Spring-Summer: Green
-    "Hè-Thu": "#FF9800", // Summer-Fall: Orange
-    "Thu-Đông": "#795548", // Fall-Winter: Brown
-    "Đông-Xuân": "#2196F3", // Winter-Spring: Blue
+    Xuân: "#4CAF50", // Spring: Green
+    Hạ: "#FF9800", // Summer: Orange
+    Thu: "#795548", // Fall: Brown
+    Đông: "#2196F3", // Winter: Blue
   };
 
   return (
     <div>
       {chartType === "radar" ? (
         <ResponsiveContainer width="100%" height={height}>
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
             <PolarGrid />
             <PolarAngleAxis dataKey="name" />
             <PolarRadiusAxis angle={30} domain={[0, "auto"]} />
@@ -115,7 +110,7 @@ const SeasonChart: React.FC<{
       ) : (
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart
-            data={data}
+            data={chartData}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
@@ -143,7 +138,7 @@ const SeasonChart: React.FC<{
       <div className="mt-4 bg-gray-50 p-3 rounded-lg text-sm">
         <div className="font-medium mb-2">Chi tiết theo mùa:</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {data.map((item) => {
+          {chartData.map((item) => {
             const seasonColor = (seasonColors as any)[item.name] || "#8884d8";
             return (
               <div key={item.name} className="flex items-center gap-2">
@@ -171,16 +166,18 @@ const SeasonChart: React.FC<{
       <div className="mt-4 bg-indigo-50 p-3 rounded-lg text-sm">
         <h4 className="font-medium text-indigo-700 mb-2">Phân tích theo mùa</h4>
         <p className="text-indigo-700">
-          {data.sort((a, b) => b.value - a.value)[0]?.name} có số ca bệnh cao
-          nhất với{" "}
-          {data.sort((a, b) => b.value - a.value)[0]?.value.toLocaleString()}{" "}
+          {chartData.sort((a, b) => b.value - a.value)[0]?.name} có số ca bệnh
+          cao nhất với{" "}
+          {chartData
+            .sort((a, b) => b.value - a.value)[0]
+            ?.value.toLocaleString()}{" "}
           ca, chiếm{" "}
-          {formatPercent(data.sort((a, b) => b.value - a.value)[0]?.value)}%
-          tổng số ca. Phân bố ca bệnh theo mùa khá đồng đều, chênh lệch giữa mùa
-          cao nhất và thấp nhất là{" "}
+          {formatPercent(chartData.sort((a, b) => b.value - a.value)[0]?.value)}
+          % tổng số ca. Phân bố ca bệnh theo mùa khá đồng đều, chênh lệch giữa
+          mùa cao nhất và thấp nhất là{" "}
           {Math.abs(
-            data.sort((a, b) => b.value - a.value)[0]?.value -
-              data.sort((a, b) => a.value - b.value)[0]?.value
+            chartData.sort((a, b) => b.value - a.value)[0]?.value -
+              chartData.sort((a, b) => a.value - b.value)[0]?.value
           ).toLocaleString()}{" "}
           ca.
         </p>

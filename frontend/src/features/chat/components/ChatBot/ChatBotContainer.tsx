@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import ChatBotView from "./ChatBotView";
-import { ChatMessage } from "../../types";
+import { ChatMessage, DiagnosisData, UserChatDetail } from "../../types";
 import {
   chatWithBot,
   connectToChat,
   disconnectFromChat,
   getChatHistory,
   sendMessage,
-  addUserToConversation,
   checkDoctorInConversation,
   removeUserFromConversation,
+  sendDiagnosisToDoctor,
 } from "../../services/chatService";
 import { useAuth } from "../../../../hooks/useAuth";
 import { v4 as uuidv4 } from "uuid";
 import DoctorList from "../DoctorList";
+import { User } from "../../../auth/types";
 
 export interface ChatBotContainerProps {
   userId: string;
@@ -21,6 +22,7 @@ export interface ChatBotContainerProps {
   isDoctor?: boolean;
   isBot?: boolean;
   conversationId?: string;
+  user: User;
 }
 
 const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
@@ -29,16 +31,19 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   isDoctor = false,
   isBot = false,
   conversationId,
+  user,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [shouldConnectDoctor, setShouldConnectDoctor] = useState(false);
   const [showDoctorList, setShowDoctorList] = useState(false);
-  const { user } = useAuth();
   const [doctorAdded, setDoctorAdded] = useState(false);
   const [doctorLeft, setDoctorLeft] = useState(false);
+  // Thêm state mới để lưu dữ liệu chuẩn đoán
+  const [diagnosisData, setDiagnosisData] = useState<any>(null);
   const idBot = import.meta.env.VITE_BOT_ID;
+
   // Trong useEffect load chat history
   useEffect(() => {
     const loadHistory = async () => {
@@ -107,6 +112,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       return [...prevMessages, message]; // Thêm mới nếu chưa có
     });
   };
+
   // Thêm vào useEffect để kiểm tra bác sĩ còn trong cuộc trò chuyện không
   useEffect(() => {
     if (!isBot || !conversationId || !doctorAdded) return;
@@ -145,6 +151,22 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
 
     return () => clearInterval(checkInterval);
   }, [isBot, conversationId, doctorAdded]);
+  const parseDiagnosisData = (logString: string): DiagnosisData | null => {
+    try {
+      const parsedData = JSON.parse(logString);
+      return {
+        symptomStartTime: parsedData.symptomStartTime || "",
+        age: parsedData.age || 0,
+        gender: parsedData.gender || "",
+        region: parsedData.region || "",
+        symptoms: parsedData.symptoms || [],
+        risk_factors: parsedData.risk_factors || [],
+      };
+    } catch (error) {
+      console.error("Error parsing diagnosis data:", error);
+      return null;
+    }
+  };
   const handleSendMessage = async () => {
     if (inputValue.trim() === "" || !conversationId) return;
 
@@ -158,6 +180,13 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       timestamp: new Date().toISOString(),
     };
 
+    const userChatDetail: UserChatDetail = {
+      userMessage: message,
+      age: user.age,
+      gender: user.gender,
+      underlying_disease: user.underlyingDisease,
+    };
+
     setInputValue(""); // Clear input trước
 
     try {
@@ -168,12 +197,16 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
 
         setLoading(true);
         setTimeout(async () => {
-          const botResponse = await chatWithBot(idBot, message);
+          const botResponse = await chatWithBot(idBot, userChatDetail);
           setMessages((prev) => [...prev, botResponse.data]);
 
-          // if (botResponse.needDoctor && !doctorAdded) {
-          //   setShouldConnectDoctor(true);
-          // }
+          // ✅ Kích hoạt logic khi cần bác sĩ
+          if (botResponse.needDoctor && !doctorAdded) {
+            const diagnosisData = parseDiagnosisData(botResponse.log);
+
+            setDiagnosisData(diagnosisData); // Lưu dữ liệu chuẩn đoán
+            setShouldConnectDoctor(true);
+          }
 
           setLoading(false);
         }, 1000);
@@ -188,6 +221,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       console.error("Failed to send message:", error);
     }
   };
+
   // Người dùng chọn YES để kết nối với bác sĩ
   const handlePromptYes = () => {
     setShowDoctorList(true); // Hiển thị danh sách bác sĩ
@@ -197,36 +231,39 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
   // Người dùng chọn NO để từ chối kết nối với bác sĩ
   const handlePromptNo = () => {
     setShouldConnectDoctor(false);
+    setDiagnosisData(null); // Clear diagnosis data
   };
 
-  // Xử lý khi chọn bác sĩ từ danh sách
+  // ✅ Xử lý khi chọn bác sĩ từ danh sách - CHỈ GỬI DỮ LIỆU CHUẨN ĐOÁN
   const handleSelectDoctor = async (selectedDoctorId: string) => {
-    if (!conversationId) return;
+    if (!diagnosisData) return;
 
     setLoading(true);
     try {
-      // Thêm bác sĩ vào cuộc trò chuyện hiện tại
-      await addUserToConversation(conversationId, selectedDoctorId);
+      // ✅ CHỈ gửi dữ liệu chuẩn đoán cho bác sĩ - KHÔNG thêm vào cuộc trò chuyện
+      await sendDiagnosisToDoctor(selectedDoctorId, diagnosisData);
 
-      // Đánh dấu là bác sĩ đã được thêm vào
-      setDoctorAdded(true);
-
-      // Hiển thị thông báo hệ thống
+      // Hiển thị thông báo thành công
       const systemMessage: ChatMessage = {
         id: uuidv4(),
         sender: "system",
-        content: `The doctor has joined the conversation. Please continue the conversation with the doctor.`,
-        conversationId: conversationId,
+        content: `✅ Your medical data has been sent to the doctor successfully. The doctor will review your case and may contact you soon.`,
+        conversationId: conversationId || "",
         senderId: "system",
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, systemMessage]);
 
-      // Đóng danh sách bác sĩ
+      // Đóng danh sách bác sĩ và clear data
       setShowDoctorList(false);
+      setDiagnosisData(null);
+      setShouldConnectDoctor(false);
+
+      // Hiển thị notification thành công
+      alert("Đã gửi dữ liệu chuẩn đoán cho bác sĩ thành công!");
     } catch (error) {
-      console.error("Failed to add doctor:", error);
-      alert("Không thể thêm bác sĩ vào cuộc trò chuyện. Vui lòng thử lại.");
+      console.error("Failed to send diagnosis to doctor:", error);
+      alert("Không thể gửi dữ liệu cho bác sĩ. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -241,6 +278,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       handleSendMessage();
     }
   };
+
   const handleLeaveConversation = async () => {
     if (!conversationId || !userId) return;
 
@@ -272,25 +310,38 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
       }
     }
   };
+
   return (
     <>
-      {/* Show confirmation dialog when bot suggests connecting to a doctor */}
+      {/* ✅ Show confirmation dialog when bot suggests connecting to a doctor */}
       {shouldConnectDoctor && !doctorAdded && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-          <div className="bg-white p-6 rounded shadow-lg">
-            <p>Would you like to connect with a doctor?</p>
-            <div className="flex gap-4 mt-4">
-              <button
-                onClick={handlePromptYes}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Yes
-              </button>
+          <div className="bg-white p-6 rounded shadow-lg max-w-md">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold mb-2">
+                Medical Consultation Recommended
+              </h3>
+              <p className="text-gray-700 mb-4">
+                Based on your symptoms, our AI recommends sending your data to a
+                doctor for proper diagnosis and treatment.
+              </p>
+              <p className="text-sm text-gray-600">
+                Would you like to send your medical data to an available doctor
+                now?
+              </p>
+            </div>
+            <div className="flex gap-4 justify-end">
               <button
                 onClick={handlePromptNo}
-                className="bg-gray-300 px-4 py-2 rounded"
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
               >
-                No
+                No, continue with bot
+              </button>
+              <button
+                onClick={handlePromptYes}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Yes, send to doctor
               </button>
             </div>
           </div>
@@ -302,7 +353,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <p>Select a doctor to add to the conversation:</p>
+              <p>Select a doctor to send your diagnosis data:</p>
               <button
                 onClick={() => setShowDoctorList(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -312,7 +363,7 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
             </div>
             <DoctorList
               onSelectDoctor={handleSelectDoctor}
-              mode="add" // Important: Set mode="add" to not create a new conversation
+              // mode="send" // Thay đổi mode từ "add" thành "send"
             />
           </div>
         </div>
@@ -330,9 +381,9 @@ const ChatBotContainer: React.FC<ChatBotContainerProps> = ({
         doctorId={doctorId}
         isBot={isBot}
         shouldConnectDoctor={shouldConnectDoctor}
-        doctorAdded={doctorAdded} // Truyền prop mới
+        doctorAdded={doctorAdded}
         onLeaveConversation={isDoctor ? handleLeaveConversation : undefined}
-        currentUserId={userId} // Thêm dòng này
+        currentUserId={userId}
       />
     </>
   );

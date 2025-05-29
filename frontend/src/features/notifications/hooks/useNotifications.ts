@@ -33,11 +33,17 @@ export function useNotificationSocket(
 ) {
   useEffect(() => {
     if (!userId) return;
-    
+
     const client = new Client({
       brokerURL: undefined,
       webSocketFactory: () => new SockJS("/ws"),
       onConnect: () => {
+        // Đăng ký cả hai topic nếu muốn nhận cả hai loại thông báo
+        client.subscribe(`/user/queue/notifications`, (message) => {
+          const notification: Notification = JSON.parse(message.body);
+          onNotification(notification);
+        });
+        // Nếu vẫn muốn nhận thông báo từ topic cũ cho bác sĩ
         client.subscribe(`/topic/doctor-notifications/${userId}`, (message) => {
           const notification: Notification = JSON.parse(message.body);
           onNotification(notification);

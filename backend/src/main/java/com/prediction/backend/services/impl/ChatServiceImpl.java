@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -304,15 +305,16 @@ public class ChatServiceImpl implements ChatService {
     // .build();
     // }
     @Override
-    public BotResponseDetail handleData(String userMessage, String conversationId, int ageProvided,
+    public BotResponseDetail handleData(String userMessage, String conversationId, Integer ageProvided,
             String genderProvided,
             String underlyingDisease) {
         ConversationDTO conversationDTO = userConversations.computeIfAbsent(conversationId,
                 id -> new ConversationDTO());
         AtomicBoolean isNeededDoctor = new AtomicBoolean(false);
         List<String> collectedData = userCollectedData.computeIfAbsent(conversationId, id -> new ArrayList<>());
-        userMessage += "\nUser detail: age: " + ageProvided + " gender: " + genderProvided + " underlying_disease"
-                + underlyingDisease;
+        // userMessage += "\nUser detail: age: " + ageProvided + " gender: " +
+        // genderProvided + " underlying_disease"
+        // + underlyingDisease;
         try {
             // Gọi model chat để trả lời
             String reply = chatBotService.ask(userMessage, conversationDTO, conversationId).block(); // cần viết hàm
@@ -359,8 +361,11 @@ public class ChatServiceImpl implements ChatService {
                 String gender = obj.get("gender").getAsString();
                 String region = obj.get("region").getAsString();
                 // LocalDateTime time = LocalDateTime.now();
-                LocalDateTime time = LocalDateTime.parse(obj.get("symptomStartTime").getAsString());
+                String dateString = obj.get("symptomStartTime").getAsString(); // "2024-10-27"
 
+                // Parse thành LocalDate trước, sau đó convert sang LocalDateTime
+                LocalDate date = LocalDate.parse(dateString);
+                LocalDateTime time = date.atStartOfDay();
                 List<String> symptoms = new ArrayList<>();
                 for (JsonElement el : obj.getAsJsonArray("symptoms")) {
                     symptoms.add(el.getAsString());
@@ -386,7 +391,7 @@ public class ChatServiceImpl implements ChatService {
                     reset(conversationId);
                     return BotResponseDetail.builder()
                             .data("We will call doctor for you")
-                            .isNeededDoctor(isNeededDoctor.get())
+                            .isNeededDoctor(true)
                             .log(jsonReply)
                             .build();
                 }
@@ -399,7 +404,7 @@ public class ChatServiceImpl implements ChatService {
                     reset(conversationId);
                     return BotResponseDetail.builder()
                             .data("Predict: " + result)
-                            .isNeededDoctor(isNeededDoctor.get())
+                            .isNeededDoctor(true)
                             .log(jsonReply)
                             .build();
                 } else {

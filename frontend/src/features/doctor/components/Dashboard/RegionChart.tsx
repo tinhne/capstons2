@@ -7,67 +7,59 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { fetchDemographicData } from "../../services/logChartsService";
 
 interface RegionData {
   name: string;
   value: number;
 }
 
+interface ChartProps {
+  height?: number;
+  width?: number;
+  data?: Record<string, number>; // ✅ Nhận data từ props
+}
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-const RegionChart: React.FC<{ height?: number; width?: number }> = ({
+const RegionChart: React.FC<ChartProps> = ({
   height = 300,
   width = 500,
+  data: propData, // ✅ Rename để tránh conflict
 }) => {
-  const [data, setData] = useState<RegionData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<RegionData[]>([]);
 
+  // ✅ Process data từ props
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchDemographicData();
-        console.log("Region response:", response); // Debug log
+    if (propData && Object.keys(propData).length > 0) {
+      const formattedData = Object.entries(propData).map(([name, value]) => ({
+        name,
+        value: Number(value),
+      }));
+      setChartData(formattedData);
+    }
+  }, [propData]);
 
-        // Check if we have the expected data structure
-        if (response && response.regionData) {
-          const formattedData = Object.entries(response.regionData).map(
-            ([name, value]) => ({
-              name,
-              value: Number(value),
-            })
-          );
-          setData(formattedData);
-        } else {
-          console.error("Unexpected data structure:", response); // Debug log
-          setError("No region data available");
-        }
-      } catch (err) {
-        console.error("Error fetching region data:", err);
-        setError("Failed to load region data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading)
+  // ✅ Loading state nếu chưa có data
+  if (!propData || Object.keys(propData).length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         Đang tải dữ liệu...
       </div>
     );
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (data.length === 0) return <div>Không có dữ liệu</div>;
+  }
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  if (chartData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-full text-gray-500">
+        Không có dữ liệu vùng miền
+      </div>
+    );
+  }
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   // Sort data by value for better visualization
-  const sortedData = [...data].sort((a, b) => b.value - a.value);
+  const sortedData = [...chartData].sort((a, b) => b.value - a.value);
 
   // Create a formatter function for percentages
   const formatPercent = (value: number) => {

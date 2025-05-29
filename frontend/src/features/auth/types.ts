@@ -19,6 +19,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   roles?: Role[];
+  underlyingDisease: string;
 }
 
 /**

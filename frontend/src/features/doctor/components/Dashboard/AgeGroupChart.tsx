@@ -10,63 +10,55 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
-import { fetchDemographicData } from "../../services/logChartsService";
 
 interface AgeGroupData {
   name: string;
   value: number;
 }
 
-const AgeGroupChart: React.FC<{ height?: number; width?: number }> = ({
+interface ChartProps {
+  height?: number;
+  width?: number;
+  data?: Record<string, number>; // ✅ Nhận data từ props
+}
+
+const AgeGroupChart: React.FC<ChartProps> = ({
   height = 300,
   width = 500,
+  data: propData, // ✅ Rename để tránh conflict
 }) => {
-  const [data, setData] = useState<AgeGroupData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<AgeGroupData[]>([]);
 
+  // ✅ Process data từ props
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchDemographicData();
-        console.log("Age group response:", response); // Debug log
+    if (propData && Object.keys(propData).length > 0) {
+      const formattedData = Object.entries(propData).map(([name, value]) => ({
+        name,
+        value: Number(value),
+      }));
+      setChartData(formattedData);
+    }
+  }, [propData]);
 
-        // Check if we have the expected data structure
-        if (response && response.ageGroupData) {
-          const formattedData = Object.entries(response.ageGroupData).map(
-            ([name, value]) => ({
-              name,
-              value: Number(value),
-            })
-          );
-          setData(formattedData);
-        } else {
-          console.error("Unexpected data structure:", response); // Debug log
-          setError("No age group data available");
-        }
-      } catch (err) {
-        console.error("Error fetching age group data:", err);
-        setError("Failed to load age group data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading)
+  // ✅ Loading state nếu chưa có data
+  if (!propData || Object.keys(propData).length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         Đang tải dữ liệu...
       </div>
     );
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (data.length === 0) return <div>Không có dữ liệu</div>;
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-full text-gray-500">
+        Không có dữ liệu nhóm tuổi
+      </div>
+    );
+  }
 
   // Calculate total for percentage
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   // Create a formatter function for percentages
   const formatPercent = (value: number) => {
@@ -77,7 +69,7 @@ const AgeGroupChart: React.FC<{ height?: number; width?: number }> = ({
     <div>
       <ResponsiveContainer width="100%" height={height}>
         <BarChart
-          data={data}
+          data={chartData}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
@@ -113,7 +105,7 @@ const AgeGroupChart: React.FC<{ height?: number; width?: number }> = ({
       <div className="mt-4 bg-gray-50 p-3 rounded-lg text-sm">
         <div className="font-medium mb-2">Chi tiết theo nhóm tuổi:</div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {data.map((item) => (
+          {chartData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
               <div className="flex justify-between w-full">
