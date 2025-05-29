@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Machine Learning files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.model
+*.bin
+model*/
+models/
+data/raw/
+data/processed/
+
+# FastAPI specific
+FastApi/.venv
+FastApi/api.log
+FastApi/model2/
+FastApi/model3/
+
+# Node modules (if any)
+node_modules/
+
+# Build files
+dist/
+build/

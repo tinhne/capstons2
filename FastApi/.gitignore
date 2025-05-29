@@ -1,3 +1,15 @@
 .venv
 api.log
 model2/xgboost_model_1.json
+# Ignore all pickle files
+*.pkl
+# Ignore model directories that might contain large files
+model3/
+model2/
+models/
+# Ignore other common large ML files
+*.joblib
+*.h5
+*.hdf5
+*.model
+*.bin
