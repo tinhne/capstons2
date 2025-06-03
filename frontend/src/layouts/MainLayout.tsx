@@ -8,7 +8,10 @@ import { useNotificationSocket } from "../features/notifications";
 import Toast from "../components/ui/Toast";
 import { Notification as AppNotification } from "../features/notifications/types";
 import { NotificationDropdown } from "../features/notifications";
-import { fetchNotifications } from "../features/notifications/services/notificationsServices"; // Thêm import này
+import {
+  fetchNotifications,
+  markNotificationAsRead, // ✅ Thêm import này
+} from "../features/notifications/services/notificationsServices";
 
 interface MainLayoutProps {
   children?: React.ReactNode;
@@ -80,6 +83,32 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return location.pathname.startsWith(path)
       ? "text-blue-500 border-b-2 border-blue-500"
       : "text-gray-600 hover:text-blue-500";
+  };
+
+  // ✅ Thêm hàm xử lý khi click notification
+  const handleNotificationSelect = async (notification: AppNotification) => {
+    try {
+      // Đánh dấu đã đọc nếu chưa đọc
+      if (!notification.isRead) {
+        await markNotificationAsRead(notification.id);
+
+        // Cập nhật state notifications
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.id === notification.id ? { ...n, isRead: true } : n
+          )
+        );
+      }
+
+      // Điều hướng
+      navigate(`/doctor/diagnose-diseases/${notification.id}`);
+      setNotificationDropdownOpen(false);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      // Vẫn điều hướng dù có lỗi
+      navigate(`/doctor/diagnose-diseases/${notification.id}`);
+      setNotificationDropdownOpen(false);
+    }
   };
 
   return (
@@ -167,6 +196,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       setUserDropdownOpen(false);
                     }}
                   />
+                  {/* Notification Dropdown */}
                   {notificationDropdownOpen && (
                     <div
                       style={{
@@ -179,12 +209,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       <NotificationDropdown
                         userId={user.id}
                         notifications={notifications}
-                        onSelect={(notification) => {
-                          navigate(
-                            `/doctor/diagnose-diseases/${notification.id}`
-                          );
-                          setNotificationDropdownOpen(false);
-                        }}
+                        onSelect={handleNotificationSelect} // ✅ Sử dụng handler mới
                       />
                     </div>
                   )}

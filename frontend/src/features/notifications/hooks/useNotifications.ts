@@ -39,13 +39,17 @@ export function useNotificationSocket(
       webSocketFactory: () => new SockJS("/ws"),
       onConnect: () => {
         // Đăng ký cả hai topic nếu muốn nhận cả hai loại thông báo
-        client.subscribe(`/user/queue/notifications`, (message) => {
+        client.subscribe(`/${userId}/queue/notifications`, (message) => {
           const notification: Notification = JSON.parse(message.body);
+          console.log("Received notification user:", notification); // ✅ Debug log
+
           onNotification(notification);
         });
         // Nếu vẫn muốn nhận thông báo từ topic cũ cho bác sĩ
         client.subscribe(`/topic/doctor-notifications/${userId}`, (message) => {
           const notification: Notification = JSON.parse(message.body);
+          console.log("Received notification doctor:", notification); // ✅ Debug log
+
           onNotification(notification);
         });
       },
@@ -53,7 +57,7 @@ export function useNotificationSocket(
     client.activate();
 
     return () => {
-      client.deactivate();
+      // client.deactivate();
     };
   }, [userId, onNotification]);
 }

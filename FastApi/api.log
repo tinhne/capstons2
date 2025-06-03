@@ -1945,3 +1945,27 @@ Stack trace:
 2025-05-30 02:28:35,767 - model3.main - INFO - Received prediction request: top_k=5 for patient Age=18, Gender=Nam, Location=Đà Nẵng, Time=2025-05-25
 2025-05-30 02:28:35,851 - model3.main - INFO - Successfully preprocessed input data. Shape: (1, 541)
 2025-05-30 02:28:35,907 - model3.main - INFO - Prediction successful. Top 5 diseases identified.
+2025-05-30 02:33:20,300 - model3.main - INFO - Loading model from: model3/xgboost_disease_model.pkl
+2025-05-30 02:33:20,303 - model3.main - INFO - Model and preprocessing objects loaded successfully.
+2025-05-30 02:33:20,303 - model3.main - INFO - Number of features expected by model: 541
+2025-05-30 02:33:20,303 - model3.main - INFO - Number of classes expected by model: 43
+2025-05-30 06:32:42,988 - model3.main - INFO - Loading model from: model3/xgboost_disease_model.pkl
+2025-05-30 06:32:42,991 - model3.main - INFO - Model and preprocessing objects loaded successfully.
+2025-05-30 06:32:42,991 - model3.main - INFO - Number of features expected by model: 541
+2025-05-30 06:32:42,991 - model3.main - INFO - Number of classes expected by model: 43
+2025-05-30 07:35:49,139 - model3.main - INFO - Loading model from: model3/xgboost_disease_model.pkl
+2025-05-30 07:35:49,143 - model3.main - INFO - Model and preprocessing objects loaded successfully.
+2025-05-30 07:35:49,143 - model3.main - INFO - Number of features expected by model: 541
+2025-05-30 07:35:49,143 - model3.main - INFO - Number of classes expected by model: 43
+2025-05-30 07:41:57,880 - model3.main - INFO - Received prediction request: top_k=5 for patient Age=22, Gender=Nam, Location=Hà Nội, Time=2024-10-26
+2025-05-30 07:41:57,973 - model3.main - INFO - Successfully preprocessed input data. Shape: (1, 541)
+2025-05-30 07:41:58,026 - model3.main - INFO - Prediction successful. Top 5 diseases identified.
+2025-05-30 07:42:15,583 - model3.main - INFO - Received prediction request: top_k=5 for patient Age=22, Gender=Nam, Location=Hà Nội, Time=2024-10-26
+2025-05-30 07:42:15,660 - model3.main - INFO - Successfully preprocessed input data. Shape: (1, 541)
+2025-05-30 07:42:15,703 - model3.main - INFO - Prediction successful. Top 5 diseases identified.
+2025-05-30 08:36:03,659 - model3.main - INFO - Received prediction request: top_k=5 for patient Age=60, Gender=Nam, Location=Đà Nẵng, Time=2024-10-27
+2025-05-30 08:36:03,735 - model3.main - INFO - Successfully preprocessed input data. Shape: (1, 541)
+2025-05-30 08:36:03,789 - model3.main - INFO - Prediction successful. Top 5 diseases identified.
+2025-05-30 08:36:59,783 - model3.main - INFO - Received prediction request: top_k=5 for patient Age=60, Gender=Nam, Location=Đà Nẵng, Time=2024-10-27
+2025-05-30 08:36:59,899 - model3.main - INFO - Successfully preprocessed input data. Shape: (1, 541)
+2025-05-30 08:36:59,942 - model3.main - INFO - Prediction successful. Top 5 diseases identified.
