@@ -437,10 +437,10 @@ Project developed for educational purposes - Capstone Project.
 
 ## 👥 Team
 
-Developed by Capstone 2 Team - 2024.
+Developed by Capstone 2 Team (C2SE50) - 2025.
 
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: 2024-12-27  
+**Last Updated**: 2025-1-05  
 **Documentation**: See API docs at `/swagger-ui.html`
